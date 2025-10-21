@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Inventory.Application.Dtos.LocationDtos;
 using Inventory.Application.Features.LocationFeatures.Commands.CreateLocation;

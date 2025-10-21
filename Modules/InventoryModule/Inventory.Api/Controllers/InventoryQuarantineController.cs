@@ -1,11 +1,9 @@
-
-using Inventory.Application.Features.InventoryQuarantineFeatures.Queries.GetAllInventoryQuarantines;
+﻿using Inventory.Application.Features.InventoryQuarantineFeatures.Queries.GetAllInventoryQuarantines;
 using Inventory.Application.Features.InventoryQuarantineFeatures.Queries.GetInventoryQuarantineById;
 using Inventory.Application.Features.InventoryQuarantineFeatures.Queries.GetPagedInventoryQuarantines;
 using Inventory.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-
 namespace Inventory.Api.Controllers
 {
     [ApiController]
@@ -50,7 +48,7 @@ namespace Inventory.Api.Controllers
             });
             return Ok(response.Result);
         }
-            
+
     }
 
 }

@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Inventory.Application.Dtos.ProductAttributeDtos;
 using Inventory.Application.Features.ProductAttributeFeatures.Commands.CreateProductAttribute;

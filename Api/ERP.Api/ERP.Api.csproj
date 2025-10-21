@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -25,10 +25,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Modules\InventoryModule\Inventory.Application\Inventory.Application.csproj" />
-    <ProjectReference Include="..\..\Modules\InventoryModule\Inventory.Domain\Inventory.Domain.csproj" />
-    <ProjectReference Include="..\..\Modules\InventoryModule\Inventory.Infrastructure\Inventory.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Modules\InventoryModule\Inventory.Persistence\Inventory.Persistence.csproj" />
+    <ProjectReference Include="..\..\Modules\InventoryModule\Inventory.Api\Inventory.Api.csproj" />
   </ItemGroup>
 
 </Project>

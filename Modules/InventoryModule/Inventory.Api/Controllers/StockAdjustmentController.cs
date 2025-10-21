@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Inventory.Application.Dtos.StockAdjustmentDtos;
 using Inventory.Application.Features.StockAdjustmentFeatures.Queries.GetPagedStockAdjustments;

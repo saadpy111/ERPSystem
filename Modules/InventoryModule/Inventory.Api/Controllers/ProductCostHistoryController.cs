@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Inventory.Application.Features.ProductCostHistoryFeatures.Queries.GetProductCostHistories;
 using Inventory.Application.Features.ProductCostHistoryFeatures.Queries.GetProductCostHistoryById;
@@ -23,8 +23,8 @@ namespace Inventory.Api.Controllers
             [FromQuery] DateTime? fromDate,
             [FromQuery] DateTime? toDate)
         {
-            var response = await _mediator.Send(new GetProductCostHistoriesQueryRequest 
-            { 
+            var response = await _mediator.Send(new GetProductCostHistoriesQueryRequest
+            {
                 ProductId = productId,
                 FromDate = fromDate,
                 ToDate = toDate

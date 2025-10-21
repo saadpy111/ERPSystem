@@ -1,4 +1,4 @@
-using Inventory.Application.Dtos.ProductDtos;
+﻿using Inventory.Application.Dtos.ProductDtos;
 using Inventory.Application.Features.ProductFeatures.Commands.AddProductAttributeValues;
 using Inventory.Application.Features.ProductFeatures.Commands.CreateProduct;
 using Inventory.Application.Features.ProductFeatures.Commands.DeleteProduct;
@@ -57,7 +57,7 @@ namespace Inventory.Api.Controllers
         {
             var response = await _mediator.Send(new DeleteProductCommandRequest { Id = id });
             if (!response.Success) return NotFound();
-            return NoContent(); 
+            return NoContent();
         }
 
         [HttpPut("{id}/inactive")]
@@ -65,7 +65,7 @@ namespace Inventory.Api.Controllers
         {
             var response = await _mediator.Send(new MakeProductInactiveCommandRequest { Id = id });
             if (!response.Success) return NotFound();
-            return NoContent(); 
+            return NoContent();
         }
 
 

@@ -1,4 +1,5 @@
-﻿using Inventory.Application.Contracts.Infrastruture.FileService;
+﻿using Inventory.Api.Controllers;
+using Inventory.Application.Contracts.Infrastruture.FileService;
 using Inventory.Application.DependencyInjection;
 using Inventory.Infrastructure.DependencyInjection;
 using Inventory.Infrastructure.FileService;
@@ -8,17 +9,14 @@ namespace Inventory.Api.DependencyInjection
 {
     public static class ApiDependencyInjection
     {
-        public static IServiceCollection AddPreLayersDependencyInjection(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddPersistenceDependencyInjection(configuration);
-            services.AddInfrastrucureDependencyInjection( configuration);
-            services.AddApplicationDependencyInjection(configuration);
-            return services;
-        }
+        
         public static IServiceCollection AddApiDependencyInjection(this IServiceCollection services , IConfiguration configuration)
         {
 
-            services.AddPreLayersDependencyInjection(configuration);
+            services.AddInventoryApiDependencyInjection(configuration);
+
+
+
 
             #region Cors
             services.AddCors(options =>
@@ -46,7 +44,7 @@ namespace Inventory.Api.DependencyInjection
                 return new LocalFileService(env.WebRootPath);
             });
             #endregion
-            //services.AddControllers().AddApplicationPart(typeof(OrdersController).Assembly);
+            //services.AddControllers().AddApplicationPart(typeof(LocationController).Assembly);
 
             return services;
         }

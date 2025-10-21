@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Inventory.Application.Dtos.ProductBarcodeDtos;
 using Inventory.Application.Features.ProductBarcodeFeatures.Commands.CreateProductBarcode;

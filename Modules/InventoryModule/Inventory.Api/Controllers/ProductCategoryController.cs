@@ -37,7 +37,7 @@ namespace Inventory.Api.Controllers
         [HttpGet("GetCategory")]
         public async Task<IActionResult> GetCategoryById(Guid CatId)
         {
-            if(CatId == null)
+            if (CatId == null)
                 return BadRequest("Invalid request data.");
 
             GetCategoryByIdQueryRequest request = new GetCategoryByIdQueryRequest() { CategoryId = CatId };
@@ -50,7 +50,7 @@ namespace Inventory.Api.Controllers
         [HttpGet("GetAll")]
         public async Task<IActionResult> GetAllCategories()
         {
-            GetAllCategoriesQueryRequest request = new  GetAllCategoriesQueryRequest();
+            GetAllCategoriesQueryRequest request = new GetAllCategoriesQueryRequest();
             var response = await _mediator.Send(request);
 
             return Ok(response);
