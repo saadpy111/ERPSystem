@@ -1,0 +1,12 @@
+.vs/
+.vscode/
+bin/
+obj/
+Debug/
+Release/
+*.user
+*.suo
+*.log
+publish/
+appsettings.Development.json
+appsettings.Local.json
