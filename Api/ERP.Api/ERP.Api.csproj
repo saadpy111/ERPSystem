@@ -25,6 +25,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Modules\IdentityModule\Identity.Api\Identity.Api.csproj" />
     <ProjectReference Include="..\..\Modules\InventoryModule\Inventory.Api\Inventory.Api.csproj" />
   </ItemGroup>
 
