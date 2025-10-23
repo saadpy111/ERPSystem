@@ -8,6 +8,8 @@ namespace Inventory.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiExplorerSettings(GroupName = "inventories")]
+
     public class ProductCostHistoryController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -12,6 +12,9 @@ namespace Inventory.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiExplorerSettings(GroupName = "inventories")]
+
+
     public class LocationController : ControllerBase
     {
         private readonly IMediator _mediator;

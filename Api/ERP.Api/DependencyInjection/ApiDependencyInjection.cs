@@ -4,6 +4,8 @@ using Inventory.Application.DependencyInjection;
 using Inventory.Infrastructure.DependencyInjection;
 using Inventory.Infrastructure.FileService;
 using Inventory.Persistence.DependencyInjection;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Inventory.Api.DependencyInjection
 {
@@ -29,14 +31,32 @@ namespace Inventory.Api.DependencyInjection
                 });
             });
             #endregion
+
             #region Swagger
-            services.AddSwaggerGen(options =>
+       
+             services.AddSwaggerGen(options =>
              {
-                options.UseInlineDefinitionsForEnums();
-                options.SchemaGeneratorOptions.SchemaIdSelector = type => type.FullName;
+
+                 options.SwaggerDoc("inventories", new() { Title = "Inventories API", Version = "v1" });
+                 options.DocInclusionPredicate((docName, apiDesc) =>
+                 {
+                     if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
+
+                     var groupName = methodInfo.DeclaringType?
+                         .GetCustomAttributes(true)
+                         .OfType<ApiExplorerSettingsAttribute>()
+                         .FirstOrDefault()?.GroupName;
+
+                     return groupName == docName;
+                 });
+                 options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+
+                 //options.UseInlineDefinitionsForEnums();
+                 //options.SchemaGeneratorOptions.SchemaIdSelector = type => type.FullName;
              });
 
             #endregion
+
             #region File
             services.AddScoped<IFileService>(sp =>
             {
@@ -44,8 +64,10 @@ namespace Inventory.Api.DependencyInjection
                 return new LocalFileService(env.WebRootPath);
             });
             #endregion
-            //services.AddControllers().AddApplicationPart(typeof(LocationController).Assembly);
 
+
+
+            services.AddControllers().AddApplicationPart(typeof(LocationController).Assembly);
             return services;
         }
     }

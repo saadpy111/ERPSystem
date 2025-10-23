@@ -11,6 +11,8 @@ namespace Inventory.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ApiExplorerSettings(GroupName = "inventories")]
+
     public class WarehouseController : ControllerBase
     {
         private readonly IMediator _mediator;
