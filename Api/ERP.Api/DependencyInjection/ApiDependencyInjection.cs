@@ -1,24 +1,25 @@
-﻿using Inventory.Api.Controllers;
+﻿using Identity.Api.Controllers;
+using Identity.Api.DependencyInjection;
+using Inventory.Api.Controllers;
+using Inventory.Api.DependencyInjection;
 using Inventory.Application.Contracts.Infrastruture.FileService;
-using Inventory.Application.DependencyInjection;
-using Inventory.Infrastructure.DependencyInjection;
 using Inventory.Infrastructure.FileService;
-using Inventory.Persistence.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Inventory.Api.DependencyInjection
+namespace ERP.Api.DependencyInjection
 {
     public static class ApiDependencyInjection
     {
         
         public static IServiceCollection AddApiDependencyInjection(this IServiceCollection services , IConfiguration configuration)
         {
-
+            #region ModulesDI
             services.AddInventoryApiDependencyInjection(configuration);
 
+            services.AddIdentityApiDependencyInjection(configuration);
 
-
+            #endregion
 
             #region Cors
             services.AddCors(options =>
@@ -38,6 +39,7 @@ namespace Inventory.Api.DependencyInjection
              {
 
                  options.SwaggerDoc("inventories", new() { Title = "Inventories API", Version = "v1" });
+                 options.SwaggerDoc("Identity", new() { Title = "Identity API", Version = "v1" });
                  options.DocInclusionPredicate((docName, apiDesc) =>
                  {
                      if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
@@ -68,6 +70,7 @@ namespace Inventory.Api.DependencyInjection
 
 
             services.AddControllers().AddApplicationPart(typeof(LocationController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(AuthController).Assembly);
             return services;
         }
     }

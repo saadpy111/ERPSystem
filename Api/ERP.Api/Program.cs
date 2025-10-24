@@ -1,5 +1,6 @@
 
-using Inventory.Api.DependencyInjection;
+using ERP.Api.DependencyInjection;
+using Identity.Application.Settings;
 
 namespace Inventory.Api
 {
@@ -11,16 +12,20 @@ namespace Inventory.Api
 
             // Add services to the container.
 
+
+            #region appsetting
+            //builder.Configuration
+            //.SetBasePath(Directory.GetCurrentDirectory())
+            //.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+            //.AddJsonFile("appsettingsIdentity.json", optional: true, reloadOnChange: true)
+         
+
+
+            //.AddEnvironmentVariables();
+            #endregion
+
             builder.Services.AddApiDependencyInjection(builder.Configuration);
 
-       
-           //.AddJsonOptions(options =>
-           //{
-           //    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
-           //});
-
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            //builder.Services.AddOpenApi();
 
             var app = builder.Build();
             app.UseCors("mypolicy");
@@ -32,12 +37,13 @@ namespace Inventory.Api
                 {
                     c.RoutePrefix = "";
                     c.SwaggerEndpoint("/swagger/inventories/swagger.json", "Inventories API");
+                    c.SwaggerEndpoint("/swagger/Identity/swagger.json", "Identity API");
                     c.DefaultModelExpandDepth(2);
                 });
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

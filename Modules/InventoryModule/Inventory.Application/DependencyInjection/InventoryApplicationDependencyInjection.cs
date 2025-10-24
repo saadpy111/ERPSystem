@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 
 namespace Inventory.Application.DependencyInjection
 {
-    public static class ApplicationDependencyInjection
+    public static class InventoryApplicationDependencyInjection
     {
-        public static IServiceCollection AddApplicationDependencyInjection(this IServiceCollection services , IConfiguration configuration)
+        public static IServiceCollection AddInventoryApplicationDependencyInjection(this IServiceCollection services , IConfiguration configuration)
         {
 
             services.AddMediatR(options =>

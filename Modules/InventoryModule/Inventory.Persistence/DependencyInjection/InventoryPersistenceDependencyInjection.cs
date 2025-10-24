@@ -9,9 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Inventory.Persistence.DependencyInjection
 {
-    public static  class PersistenceDependencyInjection
+    public static  class InventoryPersistenceDependencyInjection
     {
-        public static IServiceCollection AddPersistenceDependencyInjection(this IServiceCollection services ,IConfiguration configuration)
+        public static IServiceCollection AddInventoryPersistenceDependencyInjection(this IServiceCollection services ,IConfiguration configuration)
         {
 
 

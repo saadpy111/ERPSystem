@@ -15,9 +15,9 @@ namespace Inventory.Api.DependencyInjection
     {
         public static IServiceCollection AddPreLayersInventoryDependencyInjection(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddPersistenceDependencyInjection(configuration);
-            services.AddInfrastrucureDependencyInjection(configuration);
-            services.AddApplicationDependencyInjection(configuration);
+            services.AddInventoryPersistenceDependencyInjection(configuration);
+            services.AddInventoryInfrastrucureDependencyInjection(configuration);
+            services.AddInventoryApplicationDependencyInjection(configuration);
             return services;
         }
         public static IServiceCollection AddInventoryApiDependencyInjection(this IServiceCollection services , IConfiguration configuration)
