@@ -31,7 +31,7 @@ namespace Inventory.Persistence.Context
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
+            modelBuilder.HasDefaultSchema("Inventory");
             base.OnModelCreating(modelBuilder);
         }
 
