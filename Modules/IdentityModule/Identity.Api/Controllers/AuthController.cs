@@ -1,6 +1,9 @@
 ﻿using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.AccountDtos;
+using Identity.Application.Features.AuthFeature.Commands.Register;
+using Identity.Application.Features.AuthFeature.Queries.Login;
 using Identity.Domain.Entities;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -17,73 +20,51 @@ namespace Identity.Api.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "Identity")]
-
     public class AuthController : ControllerBase
     {
+        private readonly IMediator _mediator;
 
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly RoleManager<ApplicationRole> _roleManager;
-        private readonly IJwtTokenService _jwt;
-
-        public AuthController(UserManager<ApplicationUser> userManager,
-                              SignInManager<ApplicationUser> signInManager,
-                              RoleManager<ApplicationRole> roleManager,
-                              IJwtTokenService jwt)
+        public AuthController(IMediator mediator)
         {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _roleManager = roleManager;
-            _jwt = jwt;
+            _mediator = mediator;
         }
 
+        /// <summary>
+        /// Register a new user with optional role
+        /// </summary>
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            var user = new ApplicationUser
-                       { UserName = dto.Email, Email = dto.Email, FullName = dto.FullName };
-            var result = await _userManager.CreateAsync(user, dto.Password);
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            // assign role if provided
-            if (!string.IsNullOrEmpty(dto.Role))
-            {
-                if (!await _roleManager.RoleExistsAsync(dto.Role))
-                    await _roleManager.CreateAsync(new ApplicationRole() { Name = dto.Role});
+            var request = new RegisterCommandRequest() { RegisterDto = dto };
+            var response = await _mediator.Send(request);
 
-                    await _userManager.AddToRoleAsync(user, dto.Role);
-            }
+            if (!response.Success)
+                return BadRequest(new { Errors = response.Errors });
 
-            return Ok();
+            return Ok(new { Message = "Registration successful" });
         }
 
+        /// <summary>
+        /// Login user and get JWT token
+        /// </summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null) return Unauthorized("Invalid credentials");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var request = new LoginQueryRequest() { LoginDto = dto };
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, false);
-            if (!result.Succeeded) return Unauthorized("Invalid credentials");
+            var response = await _mediator.Send(request);
 
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = _jwt.GenerateToken(user, roles);
+            if (!response.Success)
+                return Unauthorized(new { Error = response.Error });
 
-            return Ok(new { token });
-        }
-
-        // endpoint to seed roles (admin use)
-        [HttpPost("seed-roles")]
-        public async Task<IActionResult> SeedRoles([FromBody] string[] roles)
-        {
-            foreach (var r in roles)
-            {
-                if (!await _roleManager.RoleExistsAsync(r))
-                    await _roleManager.CreateAsync(new ApplicationRole() { Name = r});
-            }
-            return Ok();
+            return Ok(new { Token = response.Token });
         }
     }
+
 
 }

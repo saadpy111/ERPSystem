@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Identity.Application.Dtos.AccountDtos
 {
-    public record RegisterDto(string Email, string Password, string FullName, string? Role);
+    public record RegisterDto(string Email, string Password, string FullName);
 }

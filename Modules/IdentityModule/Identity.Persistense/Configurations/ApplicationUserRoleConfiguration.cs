@@ -33,7 +33,8 @@ namespace Identity.Persistense.Configurations
                    .HasColumnType("datetime2");
 
             builder.Property(ur => ur.AssignedBy)
-                   .HasMaxLength(200);
+                   .HasMaxLength(200)
+                   .IsRequired(false);
         }
     }
 }
