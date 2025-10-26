@@ -19,8 +19,6 @@
 	
 	<ItemGroup>
 	  <Folder Include="Contracts\Infrastructure\" />
-	  <Folder Include="Contracts\Persistence\" />
-	  <Folder Include="Dtos\" />
 	</ItemGroup>
 
 

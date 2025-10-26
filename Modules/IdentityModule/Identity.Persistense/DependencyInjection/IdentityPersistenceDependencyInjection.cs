@@ -1,6 +1,8 @@
-﻿using Identity.Application.Settings;
+﻿using Identity.Application.Contracts.Persistence;
+using Identity.Application.Settings;
 using Identity.Domain.Entities;
 using Identity.Persistense.Context;
+using Identity.Persistense.Repositories.GenericRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +26,8 @@ namespace Identity.Persistense.DependencyInjection
                 options.UseSqlServer(con);
             });
             #endregion
+
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
             return services;
         }
