@@ -1,4 +1,5 @@
 ﻿using Identity.Application.Contracts.Services;
+using Identity.Application.Dtos.AccountDtos;
 using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -10,8 +11,8 @@ using System.Threading.Tasks;
 
 namespace Identity.Api.Controllers
 {
-    public record RegisterDto(string Email, string Password, string FullName, string? Role);
-    public record LoginDto(string Email, string Password);
+   
+
 
     [ApiController]
     [Route("api/[controller]")]
@@ -39,7 +40,8 @@ namespace Identity.Api.Controllers
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {
-            var user = new ApplicationUser { UserName = dto.Email, Email = dto.Email, FullName = dto.FullName };
+            var user = new ApplicationUser
+                       { UserName = dto.Email, Email = dto.Email, FullName = dto.FullName };
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
@@ -50,7 +52,7 @@ namespace Identity.Api.Controllers
                 if (!await _roleManager.RoleExistsAsync(dto.Role))
                     await _roleManager.CreateAsync(new ApplicationRole() { Name = dto.Role});
 
-                await _userManager.AddToRoleAsync(user, dto.Role);
+                    await _userManager.AddToRoleAsync(user, dto.Role);
             }
 
             return Ok();
