@@ -12,7 +12,7 @@ namespace Identity.Domain.Entities
     {
      
         public DateTime AssignedAt { get; set; }
-        public string AssignedBy { get; set; }
+        public string? AssignedBy { get; set; }
         public virtual ApplicationUser User { get; set; }
         public virtual ApplicationRole Role { get; set; }
 

@@ -2,6 +2,7 @@
 using Identity.Application.Settings;
 using Identity.Domain.Entities;
 using Identity.Persistense.Context;
+using Identity.Persistense.Repositories;
 using Identity.Persistense.Repositories.GenericRepository;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ namespace Identity.Persistense.DependencyInjection
             #endregion
 
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IAuthRepository, AuthRepository>();
 
             return services;
         }

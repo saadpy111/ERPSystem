@@ -1,3 +1,4 @@
+using Identity.Application.Contracts.Persistence;
 using Identity.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -8,11 +9,15 @@ namespace Identity.Application.Features.AccountFeature.Commands.AssignRoles
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IGenericRepository<ApplicationUserRole> _repository;
 
-        public AssignRolesCommandHandler(UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager)
+        public AssignRolesCommandHandler(UserManager<ApplicationUser> userManager,
+                                  RoleManager<ApplicationRole> roleManager , 
+                                   IGenericRepository<ApplicationUserRole> repository)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _repository = repository;
         }
 
         public async Task<AssignRolesCommandResponse> Handle(AssignRolesCommandRequest request, CancellationToken cancellationToken)
@@ -35,7 +40,8 @@ namespace Identity.Application.Features.AccountFeature.Commands.AssignRoles
                 };
             }
 
-            var result = await _userManager.AddToRolesAsync(user, request.Roles.Distinct());
+            var result = await _userManager.AddToRolesAsync(user,request.Roles.Distinct());
+     
             if (!result.Succeeded)
             {
                 return new AssignRolesCommandResponse
