@@ -30,15 +30,15 @@ namespace Inventory.Application.Features.WarehouseFeatures.Commands.CreateWareho
                 return new CreateWarehouseCommandResponse
                 {
                     Success = true,
-                    Message = "?? ?????"
+                    Message = "Created"
                 };
             }
             catch
             {
                 return new CreateWarehouseCommandResponse
                 {
-                    Success = true,
-                    Message = " ??? ??? ??"
+                    Success = false,
+                    Message = "Failed"
 
                 };
 

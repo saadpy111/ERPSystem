@@ -330,11 +330,6 @@ namespace Inventory.Persistence.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<string>("ImageType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasMaxLength(512)
@@ -347,10 +342,6 @@ namespace Inventory.Persistence.Migrations
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("ThumbnailUrl")
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

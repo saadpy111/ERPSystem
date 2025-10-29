@@ -110,7 +110,6 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                                 existingImage.Description = imageDto.Description;
                                 existingImage.DisplayOrder = imageDto.DisplayOrder;
                                 existingImage.IsPrimary = imageDto.IsPrimary;
-                                existingImage.ImageType = imageDto.ImageType;
                                 existingImage.UpdatedAt = DateTime.UtcNow;
                             }
                         }
@@ -125,7 +124,6 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                                     ImageUrl = path,
                                     Description = imageDto.Description,
                                     IsPrimary = imageDto.IsPrimary,
-                                    ImageType = imageDto.ImageType,
                                     DisplayOrder = imageDto.DisplayOrder,
                                     CreatedAt = DateTime.UtcNow
                                 });

@@ -16,9 +16,6 @@ namespace Inventory.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(512);
 
-            builder.Property(pi => pi.ThumbnailUrl)
-                .HasMaxLength(512);
-
             builder.Property(pi => pi.Description)
                 .HasMaxLength(1024);
 
@@ -28,11 +25,7 @@ namespace Inventory.Persistence.Configurations
             builder.Property(pi => pi.DisplayOrder)
                 .HasDefaultValue(0);
 
-            // store enum as string for readability
-            builder.Property(pi => pi.ImageType)
-                .HasConversion<string>()
-                .HasMaxLength(50)
-                .IsRequired();
+
 
 
             // use WithMany() to avoid requiring a navigation collection on Product

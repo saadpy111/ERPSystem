@@ -5,6 +5,8 @@ using Inventory.Api.DependencyInjection;
 using Inventory.Application.Contracts.Infrastruture.FileService;
 using Inventory.Infrastructure.FileService;
 using Microsoft.AspNetCore.Mvc;
+using Procurement.Api.Controllers;
+using Procurement.Api.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ERP.Api.DependencyInjection
@@ -18,6 +20,8 @@ namespace ERP.Api.DependencyInjection
             services.AddInventoryApiDependencyInjection(configuration);
 
             services.AddIdentityApiDependencyInjection(configuration);
+            
+            services.AddProcurementApiDependencyInjection(configuration);
 
             #endregion
 
@@ -40,6 +44,7 @@ namespace ERP.Api.DependencyInjection
 
                  options.SwaggerDoc("inventories", new() { Title = "Inventories API", Version = "v1" });
                  options.SwaggerDoc("Identity", new() { Title = "Identity API", Version = "v1" });
+                 options.SwaggerDoc("procurement", new() { Title = "Procurement API", Version = "v1" });
                  options.DocInclusionPredicate((docName, apiDesc) =>
                  {
                      if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
@@ -71,6 +76,7 @@ namespace ERP.Api.DependencyInjection
 
             services.AddControllers().AddApplicationPart(typeof(LocationController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(AuthController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(VendorsController).Assembly);
             return services;
         }
     }

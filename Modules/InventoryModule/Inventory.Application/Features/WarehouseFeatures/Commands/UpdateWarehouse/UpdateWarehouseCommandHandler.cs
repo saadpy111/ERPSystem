@@ -30,15 +30,15 @@ namespace Inventory.Application.Features.WarehouseFeatures.Commands.UpdateWareho
                 return new UpdateWarehouseCommandResponse()
                 {
                     Success = true,
-                    Message = "?? ?????"
+                    Message = "Updated"
                 };
             }
             catch
             {
                 return new UpdateWarehouseCommandResponse()
                 {
-                    Success = true,
-                    Message = " ??? ??? ??"
+                    Success = false,
+                    Message = "Failed"
                 };
             }
 

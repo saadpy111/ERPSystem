@@ -32,8 +32,7 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.DeleteProduct
                     {
                         if (!string.IsNullOrEmpty(img.ImageUrl))
                             await _fileService.DeleteFileAsync(img.ImageUrl);
-                        if (!string.IsNullOrEmpty(img.ThumbnailUrl))
-                            await _fileService.DeleteFileAsync(img.ThumbnailUrl);
+
                     }
                 }
 

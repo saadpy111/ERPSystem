@@ -28,7 +28,8 @@ namespace Inventory.Application.Features.ProductFeatures.Queries.GetPagedProduct
                     request.Page,
                     request.PageSize,
                     null,
-                    p => p.AttributeValues
+                    p => p.AttributeValues , 
+                    p=> p.Images
                 );
 
             var dtoResult = new PagedResult<GetProductDto>

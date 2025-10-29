@@ -38,7 +38,7 @@ namespace Inventory.Application.Helpers.Strategies.StockMoveFactoryHandler.Handl
 
 
 
-            var locationExist = await locationRepo.Any(l => l.Id == stockMove.DestinationLocationId.Value);
+            var locationExist = await locationRepo.Any(l => l.Id == stockMove.DestinationLocationId);
 
             if (!locationExist)
                 return false;

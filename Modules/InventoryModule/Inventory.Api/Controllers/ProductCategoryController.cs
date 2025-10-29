@@ -44,6 +44,8 @@ namespace Inventory.Api.Controllers
 
             GetCategoryByIdQueryRequest request = new GetCategoryByIdQueryRequest() { CategoryId = CatId };
             var response = await _mediator.Send(request);
+            if(response.CategoryDto == null)
+                return BadRequest("Invalid request data.");
 
             return Ok(response);
 

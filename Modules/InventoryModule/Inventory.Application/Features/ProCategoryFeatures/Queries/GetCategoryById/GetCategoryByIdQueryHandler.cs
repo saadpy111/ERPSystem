@@ -20,6 +20,11 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Queries.GetCategory
             var category = await _unitOfWork.Repositories<ProductCategory>()
                                          .GetById(request.CategoryId 
                                            , pc =>pc.ChildCategories);
+               if (category == null)
+                return new GetCategoryByIdQueryResponse()
+                {
+                    CategoryDto = null
+                };
 
             var dto = category.ToDto();
             return new GetCategoryByIdQueryResponse()

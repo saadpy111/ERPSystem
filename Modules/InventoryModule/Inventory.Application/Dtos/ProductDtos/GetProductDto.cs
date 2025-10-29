@@ -49,10 +49,8 @@ namespace Inventory.Application.Dtos.ProductDtos
                 Images = entity.Images?.Select(i => new GetProductImageDto()
                 {
                     Id = i.Id,
-                    ImageType = i.ImageType,
                     ImageUrl = i.ImageUrl,
                     IsPrimary = i.IsPrimary,
-                    ThumbnailUrl = i.ThumbnailUrl,
                     Description = i.Description,
                     DisplayOrder = i.DisplayOrder,
 

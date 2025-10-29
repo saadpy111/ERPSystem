@@ -10,7 +10,7 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Queries.GetCategory
 {
     public class GetCategoryByIdQueryResponse
     {
-        public  GetCategoryDto    CategoryDto { get; set; }
+        public  GetCategoryDto?    CategoryDto { get; set; }
     }
 
 
