@@ -60,7 +60,6 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
                             ImageUrl = imagePath,
                             Description = imageDto.Description,
                             IsPrimary = imageDto.IsPrimary,
-                            ImageType = imageDto.ImageType,
                             DisplayOrder = imageDto.DisplayOrder,
                             CreatedAt = DateTime.UtcNow
                         };

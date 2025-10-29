@@ -8,7 +8,7 @@ namespace Inventory.Application.Dtos.StockMoveDtos
         public string Reference { get; set; }
         public StockMoveType MoveType { get; set; }
         public Guid ProductId { get; set; }
-        public Guid SourceLocationId { get; set; }
-        public Guid DestinationLocationId { get; set; }
+        public Guid? SourceLocationId { get; set; } = null;
+        public Guid? DestinationLocationId { get; set; } = null;
     }
 }

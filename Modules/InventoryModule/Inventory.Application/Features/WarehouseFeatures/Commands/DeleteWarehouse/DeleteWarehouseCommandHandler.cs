@@ -25,7 +25,7 @@ namespace Inventory.Application.Features.WarehouseFeatures.Commands.DeleteWareho
                     return new DeleteWarehouseCommandResponse
                     {
                         Success = true,
-                        Message = "?? ?????"
+                        Message = "Deleted"
                     };
                 }
 
@@ -34,7 +34,7 @@ namespace Inventory.Application.Features.WarehouseFeatures.Commands.DeleteWareho
                 return new DeleteWarehouseCommandResponse
                 {
                     Success = false,
-                    Message = " ??? ??? ??"
+                    Message = "Failed"
 
                 };
             }
@@ -42,8 +42,8 @@ namespace Inventory.Application.Features.WarehouseFeatures.Commands.DeleteWareho
             {
                 return new DeleteWarehouseCommandResponse
                 {
-                    Success = true,
-                    Message = " ??? ??? ??"
+                    Success = false,
+                    Message = "Failed"
 
                 };
             }

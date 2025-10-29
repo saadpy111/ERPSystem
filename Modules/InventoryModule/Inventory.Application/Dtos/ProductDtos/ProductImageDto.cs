@@ -10,10 +10,9 @@ namespace Inventory.Application.Dtos.ProductDtos
     {
         public Guid? Id { get; set; }
         public IFormFile Image { get; set; }
-        public string? ThumbnailUrl { get; set; }
+   
         public string? Description { get; set; }
         public bool IsPrimary { get; set; }
-        public ProductImageType ImageType { get; set; }
         public int DisplayOrder { get; set; }
     }
     public static class ProductImageDtoExtentions
@@ -24,12 +23,9 @@ namespace Inventory.Application.Dtos.ProductDtos
             {
                 Id = Guid.NewGuid(),
                 CreatedAt = DateTime.UtcNow,
-                ImageType = dto.ImageType,
                 Description = dto.Description,
                 DisplayOrder = dto.DisplayOrder,
-                ImageUrl = dto.ThumbnailUrl,
                 IsPrimary = dto.IsPrimary,
-                ThumbnailUrl = dto.ThumbnailUrl
             };
         }
     }

@@ -1,4 +1,3 @@
-
 using ERP.Api.DependencyInjection;
 using Identity.Application.Settings;
 
@@ -29,8 +28,7 @@ namespace Inventory.Api
 
             var app = builder.Build();
             app.UseCors("mypolicy");
-            if (app.Environment.IsDevelopment())
-            {
+       
                 app.UseSwagger();
 
                 app.UseSwaggerUI(c=>
@@ -38,9 +36,10 @@ namespace Inventory.Api
                     c.RoutePrefix = "";
                     c.SwaggerEndpoint("/swagger/inventories/swagger.json", "Inventories API");
                     c.SwaggerEndpoint("/swagger/Identity/swagger.json", "Identity API");
+                    c.SwaggerEndpoint("/swagger/procurement/swagger.json", "Procurement API");
                     c.DefaultModelExpandDepth(2);
                 });
-            }
+            
 
             app.UseHttpsRedirection();
             app.UseAuthentication();

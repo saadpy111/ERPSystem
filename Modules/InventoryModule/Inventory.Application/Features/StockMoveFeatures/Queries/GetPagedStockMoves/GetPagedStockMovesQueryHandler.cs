@@ -39,8 +39,8 @@ namespace Inventory.Application.Features.StockMoveFeatures.Queries.GetPagedStock
                     Reference = m.Reference,
                     MoveType = m.MoveType,
                     ProductId = m.ProductId,
-                    SourceLocationId = m.SourceLocationId.Value,
-                    DestinationLocationId = m.DestinationLocationId.Value,
+                    SourceLocationId = m.SourceLocationId,
+                    DestinationLocationId = m.DestinationLocationId,
                     CreatedAt = m.CreatedAt,
                     UpdatedAt = m.UpdatedAt
                 }),
