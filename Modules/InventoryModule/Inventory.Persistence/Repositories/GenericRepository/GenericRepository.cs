@@ -44,6 +44,10 @@ namespace Inventory.Persistence.Repositories.GenericRepository
             _dbSet.Remove(entity);
         }
 
+
+
+
+
         public async Task<PagedResult<T>?> Search(
             Expression<Func<T, bool>>? filter,
             int pagenom,
@@ -51,7 +55,7 @@ namespace Inventory.Persistence.Repositories.GenericRepository
             Func<IQueryable<T>, IOrderedQueryable<T>>? orderby = null,
             params Expression<Func<T, object>>[] includes)
         {
-            IQueryable<T> query = _dbSet;
+            IQueryable<T> query = _dbSet.AsNoTracking();
 
             if (filter != null)
                 query = query.Where(filter);
@@ -78,6 +82,7 @@ namespace Inventory.Persistence.Repositories.GenericRepository
                 TotalCount = count
             };
         }
+
 
         public void Update(T entity)
         {
@@ -119,6 +124,7 @@ namespace Inventory.Persistence.Repositories.GenericRepository
 
             return await query.FirstOrDefaultAsync(filter);
         }
+
 
     }
 

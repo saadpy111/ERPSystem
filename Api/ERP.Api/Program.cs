@@ -37,6 +37,7 @@ namespace Inventory.Api
                     c.SwaggerEndpoint("/swagger/inventories/swagger.json", "Inventories API");
                     c.SwaggerEndpoint("/swagger/Identity/swagger.json", "Identity API");
                     c.SwaggerEndpoint("/swagger/procurement/swagger.json", "Procurement API");
+                    c.SwaggerEndpoint("/swagger/Hr/swagger.json", "Hr API");
                     c.DefaultModelExpandDepth(2);
                 });
             

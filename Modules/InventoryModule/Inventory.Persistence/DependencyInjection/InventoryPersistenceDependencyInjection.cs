@@ -2,6 +2,7 @@
 
 using Inventory.Application.Contracts.Persistence.Repositories;
 using Inventory.Persistence.Context;
+using Inventory.Persistence.Repositories.GenericRepository;
 using Inventory.Persistence.Repositories.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +23,9 @@ namespace Inventory.Persistence.DependencyInjection
                 options.UseSqlServer(con);
             });
             #endregion
-
+            #region Repos
+            services.AddScoped<IproductRepo, ProductRepo>();
+            #endregion
             #region UOW
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             #endregion
