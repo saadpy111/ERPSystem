@@ -31,6 +31,8 @@ namespace Inventory.Application.Contracts.Persistence.Repositories
                       params Expression<Func<T, object>>[] includes
                    );
 
+
+
         public Task<List<T>> GetAll(Expression<Func<T, bool>>? filter = null, params Expression<Func<T, object>>[] includes);
         #endregion
 
