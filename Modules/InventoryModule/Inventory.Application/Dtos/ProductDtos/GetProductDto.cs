@@ -2,6 +2,7 @@ using Inventory.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Inventory.Application.Dtos.AttachmentDtos;
 
 namespace Inventory.Application.Dtos.ProductDtos
 {
@@ -15,6 +16,12 @@ namespace Inventory.Application.Dtos.ProductDtos
         public decimal SalePrice { get; set; }
         public decimal CostPrice { get; set; }
         public bool IsActive { get; set; }
+        
+        // New fields
+        public string? ProductBarcode { get; set; }
+        public string? MainSupplierName { get; set; }
+        public decimal? Tax { get; set; }
+        public int? OrderLimit { get; set; }
 
         // Category name instead of Id
         public string? CategoryName { get; set; }
@@ -26,6 +33,7 @@ namespace Inventory.Application.Dtos.ProductDtos
         public List<GetProductWarehouseDto>? Warehouses { get; set; }
 
         public List<GetProductImageDto>? Images { get; set; }
+        public List<AttachmentDto>? Attachments { get; set; }
 
         public DateTime? CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
@@ -65,6 +73,10 @@ namespace Inventory.Application.Dtos.ProductDtos
                 CostPrice = entity.CostPrice,
                 IsActive = entity.IsActive,
                 CategoryName = entity.Category?.Name ?? string.Empty,
+                ProductBarcode = entity.ProductBarcode,
+                MainSupplierName = entity.MainSupplierName,
+                Tax = entity.Tax,
+                OrderLimit = entity.OrderLimit,
 
                 // Map Attribute values to include attribute name instead of id
                 AttributeValues = entity.AttributeValues?.Select(av => new GetProductAttributeValueDto
@@ -96,6 +108,7 @@ namespace Inventory.Application.Dtos.ProductDtos
                     DisplayOrder = i.DisplayOrder,
 
                 }).ToList(),
+
                 CreatedAt = entity.CreatedAt,
                 UpdatedAt = entity.UpdatedAt
 

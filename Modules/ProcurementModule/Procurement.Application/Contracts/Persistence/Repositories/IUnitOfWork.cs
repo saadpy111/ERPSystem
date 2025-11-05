@@ -11,6 +11,7 @@ namespace Procurement.Application.Contracts.Persistence.Repositories
         IGoodsReceiptRepository GoodsReceiptRepository { get; }
         IPurchaseInvoiceRepository PurchaseInvoiceRepository { get; }
         IPurchaseRequisitionRepository PurchaseRequisitionRepository { get; }
+        IProcurementAttachmentRepository ProcurementAttachmentRepository { get; }
         
         Task<int> SaveChangesAsync();
     }

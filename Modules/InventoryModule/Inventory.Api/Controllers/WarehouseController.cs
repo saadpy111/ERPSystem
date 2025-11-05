@@ -38,7 +38,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateWarehouseDto dto)
+        public async Task<IActionResult> Create([FromForm] CreateWarehouseDto dto)
         {
             var result = await _mediator.Send(new CreateWarehouseCommandRequest { Warehouse = dto });
             if (!result.Success)
@@ -48,7 +48,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateWarehouseDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateWarehouseDto dto)
         {
             if (id != dto.Id) return BadRequest();
             var result = await _mediator.Send(new UpdateWarehouseCommandRequest { Warehouse = dto });

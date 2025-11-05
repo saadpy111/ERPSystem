@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using Procurement.Infrastructure.Services;
+using Procurement.Application.Contracts.Infrastructure.FileService;
+using Procurement.Infrastructure.FileService;
 
 namespace Procurement.Infrastructure.DependencyInjection
 {
@@ -7,10 +8,7 @@ namespace Procurement.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
         {
-            // Register infrastructure services
-            services.AddScoped<IEmailService, EmailService>();
-            services.AddScoped<IStockUpdateService, StockUpdateService>();
-            
+            // Register infrastructure services            
             return services;
         }
     }

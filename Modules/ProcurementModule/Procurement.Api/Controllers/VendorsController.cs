@@ -18,7 +18,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPost]
-        public async Task<IActionResult> CreateVendor([FromBody] CreateVendorCommandRequest request)
+        public async Task<IActionResult> CreateVendor([FromForm] CreateVendorCommandRequest request)
         {
             var response = await _mediator.Send(request);
             if (!response.Success)
@@ -28,7 +28,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateVendor(Guid id, [FromBody] UpdateVendorCommandRequest request)
+        public async Task<IActionResult> UpdateVendor(Guid id, [FromForm] UpdateVendorCommandRequest request)
         {
             request.Vendor.Id = id;
             var response = await _mediator.Send(request);

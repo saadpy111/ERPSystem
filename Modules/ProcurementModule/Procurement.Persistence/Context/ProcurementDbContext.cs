@@ -25,6 +25,7 @@ namespace Procurement.Persistence.Context
         public DbSet<GoodsReceiptItem> GoodsReceiptItems { get; set; }
         public DbSet<PurchaseInvoice> PurchaseInvoices { get; set; }
         public DbSet<PurchaseRequisition> PurchaseRequisitions { get; set; }
+        public DbSet<ProcurementAttachment>   ProcurementAttachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

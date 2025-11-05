@@ -4,6 +4,7 @@ using Inventory.Application.Dtos.ProductDtos;
 using Inventory.Domain.Entities;
 using Inventory.Domain.Enums;
 using MediatR;
+using System.Linq;
 
 namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
 {
@@ -32,6 +33,10 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
                     CostPrice = request.Product.CostPrice,
                     IsActive = true,
                     CategoryId = request.Product.CategoryId,
+                    ProductBarcode = request.Product.ProductBarcode,
+                    MainSupplierName = request.Product.MainSupplierName,
+                    Tax = request.Product.Tax,
+                    OrderLimit = request.Product.OrderLimit,
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -66,6 +71,44 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
                         images.Add(img);
                     }
                     entity.Images = images;
+                }
+                
+                // attachments: save files and store attachment IDs
+                if (request.Product.Attachments != null && request.Product.Attachments.Any())
+                {
+                    foreach (var attachmentDto in request.Product.Attachments)
+                    {
+                        var filePath = await _fileService.SaveFileAsync(attachmentDto.File, "productAttachments");
+                        var attachment = new Attachment
+                        {
+                            FileName = attachmentDto.File.FileName,
+                            FileUrl = filePath,
+                            ContentType = attachmentDto.File.ContentType,
+                            FileSize = attachmentDto.File.Length,
+                            EntityType = nameof(Product),
+                            EntityId = entity.Id,
+                            Description = attachmentDto.Description,
+                            UploadedAt = DateTime.UtcNow,
+                            CreatedAt = DateTime.UtcNow
+                        };
+                        await _unitOfWork.Repositories<Attachment>().Add(attachment);
+                        //attachmentIds.Add(attachment.Id);
+                    }
+                    //entity.AttachmentIds = string.Join(",", attachmentIds);
+                }
+                
+                // Create initial stock quant if provided
+                if (request.Product.InitialStockQuant != null)
+                {
+                    var stockQuant = new StockQuant
+                    {
+                        ProductId = entity.Id,
+                        LocationId = request.Product.InitialStockQuant.LocationId,
+                        Quantity = request.Product.InitialStockQuant.Quantity,
+                        ReservedQuantity = 0,
+                        CreatedAt = DateTime.UtcNow
+                    };
+                    await _unitOfWork.Repositories<StockQuant>().Add(stockQuant);
                 }
                 await _unitOfWork.Repositories<Product>().Add(entity);
 

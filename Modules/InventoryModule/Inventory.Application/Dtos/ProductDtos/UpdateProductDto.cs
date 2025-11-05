@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using Inventory.Application.Dtos.AttachmentDtos;
 
 namespace Inventory.Application.Dtos.ProductDtos
 {
@@ -19,10 +20,19 @@ namespace Inventory.Application.Dtos.ProductDtos
         // FK: ProductCategory
         public Guid CategoryId { get; set; }
 
+        // New fields
+        public string? ProductBarcode { get; set; }
+        public string? MainSupplierName { get; set; }
+        public decimal? Tax { get; set; }
+        public int? OrderLimit { get; set; }
+
         public List<UpdateProductAttributeValueDto>? AttributeValues { get; set; }
 
         // Images: new files to add and existing images to delete
         public List<ProductImageDto>? Images { get; set; }
+        public bool EditAttachments { get; set; }
 
+        // Attachments: new files to add and existing attachments to delete
+        public List<CreateAttachmentDto>? Attachments { get; set; }
     }
 }
