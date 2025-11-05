@@ -3,6 +3,7 @@ using Inventory.Application.Contracts.Persistence.Repositories;
 using Inventory.Application.Dtos.ProductDtos;
 using Inventory.Domain.Entities;
 using MediatR;
+using System.Linq;
 
 namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
 {
@@ -51,6 +52,10 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                 product.CostPrice = request.Product.CostPrice;
                 product.IsActive = request.Product.IsActive;
                 product.CategoryId = request.Product.CategoryId;
+                product.ProductBarcode = request.Product.ProductBarcode;
+                product.MainSupplierName = request.Product.MainSupplierName;
+                product.Tax = request.Product.Tax;
+                product.OrderLimit = request.Product.OrderLimit;
                 #endregion
 
 
@@ -134,7 +139,43 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                 }
                 #endregion
 
-                _unitOfWork.PrintEntityStates();
+                #region update attachments
+                if (request.Product.EditAttachments)
+                {
+                    var oldAttachments = await _unitOfWork.Repositories<Attachment>()
+                    .GetAll(a => a.EntityType == nameof(Product) && a.EntityId == product.Id);
+
+                    foreach (var att in oldAttachments)
+                    {
+                        await _fileService.DeleteFileAsync(att.FileUrl);
+                        _unitOfWork.Repositories<Attachment>().Remove(att);
+                    }
+
+                    if (request.Product.Attachments?.Any() == true)
+                    {
+                        foreach (var attdto in request.Product.Attachments)
+                        {
+                            var path = await _fileService.SaveFileAsync(attdto.File, "productAttachments");
+
+                            var newAttachment = new Attachment
+                            {
+                                FileName = attdto.File.FileName,
+                                FileUrl = path,
+                                ContentType = attdto.File.ContentType,
+                                FileSize = attdto.File.Length,
+                                EntityType = nameof(Product),
+                                EntityId = product.Id,
+                                Description = attdto.Description,
+                                UploadedAt = DateTime.UtcNow,
+                                CreatedAt = DateTime.UtcNow
+                            };
+
+                            await _unitOfWork.Repositories<Attachment>().Add(newAttachment);
+                        }
+                    }
+                }
+                #endregion
+
 
                 
                 repo.Update(product);

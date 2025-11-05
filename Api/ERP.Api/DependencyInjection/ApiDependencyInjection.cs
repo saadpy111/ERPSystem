@@ -7,8 +7,10 @@ using Inventory.Infrastructure.FileService;
 using Microsoft.AspNetCore.Mvc;
 using Procurement.Api.Controllers;
 using Procurement.Api.DependencyInjection;
-using Hr.Api.Controllers;
-using Hr.Api.DependencyInjection;
+using Procurement.Infrastructure.FileService;
+
+//using Hr.Api.Controllers;
+//using Hr.Api.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ERP.Api.DependencyInjection
@@ -26,7 +28,7 @@ namespace ERP.Api.DependencyInjection
             
             services.AddProcurementApiDependencyInjection(configuration);
             
-            services.AddHrApiDependencyInjection(configuration);
+            //services.AddHrApiDependencyInjection(configuration);
 
             #endregion
 
@@ -47,7 +49,7 @@ namespace ERP.Api.DependencyInjection
              services.AddSwaggerGen(options =>
              {
 
-                 options.SwaggerDoc("Hr", new() { Title = "HR API", Version = "v1" });
+                 //options.SwaggerDoc("Hr", new() { Title = "HR API", Version = "v1" });
                  options.SwaggerDoc("inventories", new() { Title = "Inventories API", Version = "v1" });
                  options.SwaggerDoc("Identity", new() { Title = "Identity API", Version = "v1" });
                  options.SwaggerDoc("procurement", new() { Title = "Procurement API", Version = "v1" });
@@ -76,12 +78,18 @@ namespace ERP.Api.DependencyInjection
                 var env = sp.GetRequiredService<IWebHostEnvironment>();
                 return new LocalFileService(env.WebRootPath);
             });
+
+            services.AddScoped<Procurement.Application.Contracts.Infrastructure.FileService.IProcurementFileService>(sp =>
+            {
+                var env = sp.GetRequiredService<IWebHostEnvironment>();
+                return new ProcurementLocalFileService(env.WebRootPath);
+            });
             #endregion
 
             services.AddControllers().AddApplicationPart(typeof(LocationController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(AuthController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(VendorsController).Assembly);
-            services.AddControllers().AddApplicationPart(typeof(EmployeesController).Assembly);
+            //services.AddControllers().AddApplicationPart(typeof(EmployeesController).Assembly);
             return services;
         }
     }

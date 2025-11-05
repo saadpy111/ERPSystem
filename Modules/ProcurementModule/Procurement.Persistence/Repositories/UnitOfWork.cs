@@ -15,6 +15,7 @@ namespace Procurement.Persistence.Repositories
         private IGoodsReceiptRepository? _goodsReceiptRepository;
         private IPurchaseInvoiceRepository? _purchaseInvoiceRepository;
         private IPurchaseRequisitionRepository? _purchaseRequisitionRepository;
+        private IProcurementAttachmentRepository? _procurementAttachmentRepository;
         
         public UnitOfWork(ProcurementDbContext context)
         {
@@ -38,6 +39,9 @@ namespace Procurement.Persistence.Repositories
             
         public IPurchaseRequisitionRepository PurchaseRequisitionRepository => 
             _purchaseRequisitionRepository ??= new PurchaseRequisitionRepository(_context);
+        
+        public IProcurementAttachmentRepository ProcurementAttachmentRepository => 
+            _procurementAttachmentRepository ??= new ProcurementAttachmentRepository(_context);
         
         public async Task<int> SaveChangesAsync()
         {

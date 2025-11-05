@@ -25,6 +25,27 @@ namespace Procurement.Domain.Entities
         [MaxLength(50)]
         public string TaxNumber { get; set; } = string.Empty;
 
+        public int? Rate { get; set; }
+        [MaxLength(100)]
+        public string? VendorCode { get; set; }
+        [MaxLength(200)]
+        public string? ProductVendorName { get; set; }
+        [MaxLength(500)]
+        public string? Webpage { get; set; }
+        [MaxLength(100)]
+        public string? Govrenment { get; set; }
+        [MaxLength(100)]
+        public string? City { get; set; }
+        [MaxLength(50)]
+        public string? Currency { get; set; }
+        [MaxLength(100)]
+        public string? PaymentMethod { get; set; }
+        [MaxLength(100)]
+        public string? CommercialRegistrationNumber { get; set; }
+        public decimal? SupplierCreditLimit { get; set; }
+        [MaxLength(1000)]
+        public string? Notes { get; set; }
+
         public bool IsActive { get; set; } = true;
 
         // Navigation properties

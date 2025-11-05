@@ -15,6 +15,12 @@ namespace Inventory.Domain.Entities
         public decimal SalePrice { get; set; }
         public decimal CostPrice { get; set; }
         public bool IsActive { get; set; }
+        
+        // New fields
+        public string? ProductBarcode { get; set; }
+        public string? MainSupplierName { get; set; }
+        public decimal? Tax { get; set; }
+        public int? OrderLimit { get; set; }
 
         // FK: ProductCategory
         public Guid CategoryId { get; set; }
@@ -28,5 +34,8 @@ namespace Inventory.Domain.Entities
         public ICollection<ProductBarcode> Barcodes { get; set; }
         public ICollection<ProductAttributeValue> AttributeValues { get; set; } 
         public ICollection<ProductImage> Images { get; set; }
+        
+        // Attachment IDs stored as comma-separated string (no FK relationship)
+        //public string AttachmentIds { get; set; } = string.Empty;
     }
 }

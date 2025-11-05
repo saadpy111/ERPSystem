@@ -1,3 +1,6 @@
+using Inventory.Application.Dtos.AttachmentDtos;
+using System.Collections.Generic;
+
 namespace Inventory.Application.Dtos.WarehouseDtos
 {
     public class GetWarehouseDto
@@ -5,5 +8,16 @@ namespace Inventory.Application.Dtos.WarehouseDtos
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string? Location { get; set; }
+        public string? WarehouseCode { get; set; }
+        public string? ResponsibleEmployee { get; set; }
+        public string? ContactNumber { get; set; }
+        public bool IsActive { get; set; }
+        public string? WarehouseType { get; set; }
+        public string? FinancialAccountCode { get; set; }
+        public decimal? PercentageUtilized { get; set; }
+        public int? TotalStorageCapacity { get; set; }
+        public string? InventoryPolicy { get; set; }
+        public string? Government { get; set; }
+        public List<AttachmentDto>? Attachments { get; set; }
     }
 }

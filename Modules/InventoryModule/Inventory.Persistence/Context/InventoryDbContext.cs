@@ -26,7 +26,7 @@ namespace Inventory.Persistence.Context
         public DbSet<ProductAttribute> ProductAttributes { get; set; }
         public DbSet<ProductImage> productImages { get; set; }
         public DbSet<ProductAttributeValue> ProductAttributeValues { get; set; }
-
+        public DbSet<Attachment> Attachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
