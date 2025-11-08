@@ -1,4 +1,6 @@
 using Hr.Application.Features.ApplicantFeatures.AcceptApplicant;
+using Hr.Application.Features.ApplicantFeatures.Commands.DeleteAttachmentApplicant;
+using Hr.Application.Features.ApplicantFeatures.Commands.UploadAttachmentApplicant;
 using Hr.Application.Features.ApplicantFeatures.CreateApplicant;
 using Hr.Application.Features.ApplicantFeatures.DeleteApplicant;
 using Hr.Application.Features.ApplicantFeatures.GetAllApplicants;
@@ -29,7 +31,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateApplicantRequest request)
+        public async Task<IActionResult> Create([FromForm] CreateApplicantRequest request)
         {
             var result = await _mediator.Send(request);
             
@@ -83,7 +85,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateApplicantRequest request)
+        public async Task<IActionResult> Update(int id, [FromForm] UpdateApplicantRequest request)
         {
             if (id != request.ApplicantId)
                 return BadRequest("ID mismatch");
@@ -173,6 +175,28 @@ namespace Hr.Api.Controllers
                 .Cast<ApplicantStatus>()
                 .Select(s => new { Value = (int)s, Name = s.ToString() });
             return Ok(statuses);
+        }
+
+        [HttpPost("{id}/attachments")]
+        public async Task<IActionResult> UploadAttachment(int id, [FromForm] UploadAttachmentApplicantRequest request)
+        {
+            request.ApplicantId = id;
+            var result = await _mediator.Send(request);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("attachments/{attachmentId}")]
+        public async Task<IActionResult> DeleteAttachment(int attachmentId)
+        {
+            var request = new DeleteAttachmentApplicantRequest { AttachmentId = attachmentId };
+            var result = await _mediator.Send(request);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
         }
     }
 }

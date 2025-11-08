@@ -6,6 +6,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.UpdateRecruitmentStag
     {
         public int StageId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public int SequenceOrder { get; set; }
     }
 }

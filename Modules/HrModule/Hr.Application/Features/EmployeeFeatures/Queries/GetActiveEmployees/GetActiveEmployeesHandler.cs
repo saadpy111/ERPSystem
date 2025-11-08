@@ -27,11 +27,6 @@ namespace Hr.Application.Features.EmployeeFeatures.GetActiveEmployees
                 FullName = e.FullName,
                 Email = e.Email,
                 PhoneNumber = e.PhoneNumber,
-                DepartmentId = e.DepartmentId,
-                DepartmentName = e.Department?.Name ?? string.Empty,
-                JobTitle = e.JobTitle,
-                HiringDate = e.HiringDate,
-                BaseSalary = e.BaseSalary,
                 Status = e.Status.ToString()
             });
 

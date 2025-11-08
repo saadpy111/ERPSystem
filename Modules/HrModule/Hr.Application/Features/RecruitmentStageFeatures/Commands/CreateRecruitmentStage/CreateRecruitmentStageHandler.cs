@@ -26,6 +26,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.CreateRecruitmentStag
                 var recruitmentStage = new RecruitmentStage
                 {
                     Name = request.Name,
+                    Description = request.Description,
                     SequenceOrder = request.SequenceOrder
                 };
 

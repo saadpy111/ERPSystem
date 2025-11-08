@@ -23,24 +23,27 @@ namespace Hr.Domain.Entities
 
         public DateTime DateOfBirth { get; set; }
 
-        [Required]
-        public int DepartmentId { get; set; }
-        public Department Department { get; set; } = null!;
-
-        [Required]
-        [StringLength(100)]
-        public string JobTitle { get; set; } = string.Empty;
-
-        public DateTime HiringDate { get; set; }
-
-        [Required]
-        public decimal BaseSalary { get; set; }
-
         public EmployeeStatus Status { get; set; } = EmployeeStatus.Active;
+
+        // New fields
+        public Gender Gender { get; set; }
+        
+        [StringLength(500)]
+        public string? Address { get; set; }
+        
+        [StringLength(500)]
+        public string? ImageUrl { get; set; }
+        
+        
+        // Self-referencing relationship for manager
+        public int? ManagerId { get; set; }
+        public Employee? Manager { get; set; }
+        public ICollection<Employee> Subordinates { get; set; } = new List<Employee>();
 
         public ICollection<Loan> Loans { get; set; } = new List<Loan>();
         public ICollection<PayrollRecord> PayrollRecords { get; set; } = new List<PayrollRecord>();
         public ICollection<AttendanceRecord> AttendanceRecords { get; set; } = new List<AttendanceRecord>();
         public ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
+        public ICollection<EmployeeContract> Contracts { get; set; } = new List<EmployeeContract>();
     }
 }

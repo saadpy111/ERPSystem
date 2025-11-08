@@ -18,19 +18,6 @@ namespace Hr.Application.Validators
 
             RuleFor(x => x.PhoneNumber)
                 .MaximumLength(50).WithMessage("Phone number cannot exceed 50 characters");
-
-            RuleFor(x => x.JobTitle)
-                .NotEmpty().WithMessage("Job title is required")
-                .MaximumLength(100).WithMessage("Job title cannot exceed 100 characters");
-
-            RuleFor(x => x.DepartmentId)
-                .GreaterThan(0).WithMessage("Valid department is required");
-
-            RuleFor(x => x.BaseSalary)
-                .GreaterThanOrEqualTo(0).WithMessage("Base salary must be a positive value");
-
-            RuleFor(x => x.HiringDate)
-                .NotEmpty().WithMessage("Hiring date is required");
         }
     }
 }

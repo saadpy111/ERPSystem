@@ -14,11 +14,6 @@ namespace Hr.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
 
-            builder.HasMany(d => d.Employees)
-                .WithOne(e => e.Department)
-                .HasForeignKey(e => e.DepartmentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasMany(d => d.Jobs)
                 .WithOne(j => j.Department)
                 .HasForeignKey(j => j.DepartmentId)

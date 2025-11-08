@@ -11,6 +11,10 @@ using Hr.Application.Features.EmployeeFeatures.GetEmployeesPaged;
 using Hr.Application.Features.EmployeeFeatures.PromoteEmployee;
 using Hr.Application.Features.EmployeeFeatures.TerminateEmployee;
 using Hr.Application.Features.EmployeeFeatures.UpdateEmployee;
+using Hr.Application.Features.EmployeeFeatures.Commands.DeleteAttachment;
+using Hr.Application.Features.EmployeeFeatures.Commands.UploadAttachment;
+using Hr.Application.Features.EmployeeFeatures.Queries.GetAttachmentsByEmployeeId;
+using Hr.Application.Features.EmployeeFeatures.Queries.GetAttachmentById;
 using Hr.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +35,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateEmployeeRequest request)
+        public async Task<IActionResult> Create([FromForm] CreateEmployeeRequest request)
         {
             var result = await _mediator.Send(request);
             
@@ -69,7 +73,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateEmployeeRequest request)
+        public async Task<IActionResult> Update(int id, [FromForm] UpdateEmployeeRequest request)
         {
             if (id != request.Id)
                 return BadRequest("ID mismatch");
@@ -163,6 +167,42 @@ namespace Hr.Api.Controllers
         {
             var query = new GetEmployeeLeaveRequestsRequest { EmployeeId = employeeId };
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        // Attachment Endpoints
+
+        [HttpPost("{employeeId}/attachments")]
+        public async Task<IActionResult> UploadAttachment(int employeeId, [FromForm] UploadAttachmentRequest request)
+        {
+            if (employeeId != request.EmployeeId)
+                return BadRequest("Employee ID mismatch");
+                
+            var result = await _mediator.Send(request);
+            return Ok(result);
+        }
+
+        [HttpGet("{employeeId}/attachments")]
+        public async Task<IActionResult> GetAttachmentsByEmployeeId(int employeeId)
+        {
+            var query = new GetAttachmentsByEmployeeIdRequest { EmployeeId = employeeId };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpGet("attachments/{attachmentId}")]
+        public async Task<IActionResult> GetAttachmentById(int attachmentId)
+        {
+            var query = new GetAttachmentByIdRequest { AttachmentId = attachmentId };
+            var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpDelete("attachments/{attachmentId}")]
+        public async Task<IActionResult> DeleteAttachment(int attachmentId)
+        {
+            var request = new DeleteAttachmentRequest { AttachmentId = attachmentId };
+            var result = await _mediator.Send(request);
             return Ok(result);
         }
 

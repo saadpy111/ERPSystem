@@ -40,8 +40,8 @@ namespace Inventory.Api
                     c.SwaggerEndpoint("/swagger/Hr/swagger.json", "Hr API");
                     c.DefaultModelExpandDepth(2);
                 });
-            
 
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();

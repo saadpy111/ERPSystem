@@ -26,7 +26,6 @@ namespace Hr.Application.Features.EmployeeFeatures.GetEmployeeSalaryDetails
                 {
                     EmployeeId = request.EmployeeId,
                     FullName = string.Empty,
-                    BaseSalary = 0,
                     PayrollRecords = new List<PayrollRecordDto>()
                 };
             }
@@ -53,7 +52,6 @@ namespace Hr.Application.Features.EmployeeFeatures.GetEmployeeSalaryDetails
             {
                 EmployeeId = employee.EmployeeId,
                 FullName = employee.FullName,
-                BaseSalary = employee.BaseSalary,
                 PayrollRecords = payrollDtos
             };
         }

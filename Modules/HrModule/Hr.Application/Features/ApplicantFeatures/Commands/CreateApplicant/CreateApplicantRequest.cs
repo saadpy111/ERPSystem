@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Hr.Application.Features.ApplicantFeatures.CreateApplicant
 {
@@ -11,5 +12,6 @@ namespace Hr.Application.Features.ApplicantFeatures.CreateApplicant
         public string? ResumeUrl { get; set; }
         public string? QualificationsDetails { get; set; }
         public string? ExperienceDetails { get; set; }
+        public ICollection<IFormFile>? AttachmentFiles { get; set; }
     }
 }
