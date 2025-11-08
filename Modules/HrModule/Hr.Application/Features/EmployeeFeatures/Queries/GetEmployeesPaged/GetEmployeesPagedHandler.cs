@@ -28,15 +28,11 @@ namespace Hr.Application.Features.EmployeeFeatures.GetEmployeesPaged
                 query = query.Where(e => 
                     e.FullName.ToLower().Contains(searchTerm) ||
                     e.Email.ToLower().Contains(searchTerm) ||
-                    e.JobTitle.ToLower().Contains(searchTerm) ||
                     (e.PhoneNumber != null && e.PhoneNumber.ToLower().Contains(searchTerm)));
             }
 
             // Apply department filter
-            if (request.DepartmentId.HasValue)
-            {
-                query = query.Where(e => e.DepartmentId == request.DepartmentId.Value);
-            }
+            // This is now handled through EmployeeContract
 
             // Apply status filter
             if (!string.IsNullOrWhiteSpace(request.Status))
@@ -85,9 +81,6 @@ namespace Hr.Application.Features.EmployeeFeatures.GetEmployeesPaged
             {
                 "fullname" => isDescending ? query.OrderByDescending(e => e.FullName) : query.OrderBy(e => e.FullName),
                 "email" => isDescending ? query.OrderByDescending(e => e.Email) : query.OrderBy(e => e.Email),
-                "jobtitle" => isDescending ? query.OrderByDescending(e => e.JobTitle) : query.OrderBy(e => e.JobTitle),
-                "hiringdate" => isDescending ? query.OrderByDescending(e => e.HiringDate) : query.OrderBy(e => e.HiringDate),
-                "basesalary" => isDescending ? query.OrderByDescending(e => e.BaseSalary) : query.OrderBy(e => e.BaseSalary),
                 "status" => isDescending ? query.OrderByDescending(e => e.Status) : query.OrderBy(e => e.Status),
                 _ => isDescending ? query.OrderByDescending(e => e.FullName) : query.OrderBy(e => e.FullName)
             };

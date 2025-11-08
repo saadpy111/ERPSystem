@@ -31,14 +31,7 @@ namespace Hr.Application.Features.EmployeeFeatures.PromoteEmployee
                 }
 
                 // Update employee details
-                employee.JobTitle = request.NewJobTitle;
-                employee.BaseSalary = request.NewBaseSalary;
                 
-                if (request.NewDepartmentId.HasValue)
-                {
-                    employee.DepartmentId = request.NewDepartmentId.Value;
-                }
-
                 _repository.Update(employee);
                 await _unitOfWork.SaveChangesAsync();
 
@@ -56,11 +49,6 @@ namespace Hr.Application.Features.EmployeeFeatures.PromoteEmployee
                         Email = employee.Email,
                         PhoneNumber = employee.PhoneNumber,
                         DateOfBirth = employee.DateOfBirth,
-                        DepartmentId = employee.DepartmentId,
-                        DepartmentName = employee.Department?.Name ?? string.Empty,
-                        JobTitle = employee.JobTitle,
-                        HiringDate = employee.HiringDate,
-                        BaseSalary = employee.BaseSalary,
                         Status = employee.Status.ToString(),
                         CreatedAt = employee.CreatedAt,
                         UpdatedAt = employee.UpdatedAt

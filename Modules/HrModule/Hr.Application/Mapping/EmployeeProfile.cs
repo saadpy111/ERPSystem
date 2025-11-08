@@ -8,8 +8,7 @@ namespace Hr.Application.Mapping
     {
         public EmployeeProfile()
         {
-            CreateMap<Employee, EmployeeDto>()
-                .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department.Name));
+            CreateMap<Employee, EmployeeDto>();
             
             CreateMap<EmployeeDto, Employee>();
         }

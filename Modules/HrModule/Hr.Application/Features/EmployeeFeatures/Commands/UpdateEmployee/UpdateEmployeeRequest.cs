@@ -1,5 +1,6 @@
 using MediatR;
 using Hr.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 
 namespace Hr.Application.Features.EmployeeFeatures.UpdateEmployee
 {
@@ -8,11 +9,14 @@ namespace Hr.Application.Features.EmployeeFeatures.UpdateEmployee
         public int Id { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public int DepartmentId { get; set; }
-        public string? Position { get; set; }
-        public DateTime HiringDate { get; set; }
-        public decimal? Salary { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
         public EmployeeStatus Status { get; set; }
+        
+
+        public string Gender { get; set; } = string.Empty;
+        public string? Address { get; set; }
+        public IFormFile? ImageFile { get; set; }
+        public int? ManagerId { get; set; }
+        public ICollection<IFormFile>? AttachmentFiles { get; set; }
     }
 }

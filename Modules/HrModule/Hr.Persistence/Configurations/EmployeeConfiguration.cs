@@ -21,20 +21,23 @@ namespace Hr.Persistence.Configurations
             builder.Property(e => e.PhoneNumber)
                 .HasMaxLength(50);
 
-            builder.Property(e => e.JobTitle)
-                .IsRequired()
-                .HasMaxLength(100);
-
-            builder.Property(e => e.BaseSalary)
-                .HasColumnType("decimal(18,2)");
-
             builder.Property(e => e.Status)
                 .IsRequired()
                 .HasConversion<string>();
 
-            builder.HasOne(e => e.Department)
-                .WithMany(d => d.Employees)
-                .HasForeignKey(e => e.DepartmentId)
+            builder.Property(e => e.Gender)
+                .HasConversion<string>();
+
+            builder.Property(e => e.Address)
+                .HasMaxLength(500);
+
+            builder.Property(e => e.ImageUrl)
+                .HasMaxLength(500);
+
+            // Self-referencing relationship for manager
+            builder.HasOne(e => e.Manager)
+                .WithMany(e => e.Subordinates)
+                .HasForeignKey(e => e.ManagerId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

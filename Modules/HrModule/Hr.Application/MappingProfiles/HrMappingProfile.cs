@@ -10,11 +10,20 @@ namespace Hr.Application.MappingProfiles
         {
             // Department mappings
             CreateMap<Department, DepartmentDto>()
+                .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager != null ? src.Manager.FullName : null))
+                .ReverseMap();
+
+            // Department Detail mappings
+            CreateMap<Department, DepartmentDetailDto>()
+                .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager != null ? src.Manager.FullName : null))
+                .ForMember(dest => dest.Jobs, opt => opt.MapFrom(src => src.Jobs))
                 .ReverseMap();
 
             // Employee mappings
             CreateMap<Employee, EmployeeDto>()
-                .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Department != null ? src.Department.Name : null))
+                .ForMember(dest => dest.Gender, opt => opt.MapFrom(src => src.Gender.ToString()))
+                .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager != null ? src.Manager.FullName : null))
+                .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.PhoneNumber))
                 .ReverseMap();
 
             // Job mappings
@@ -58,6 +67,17 @@ namespace Hr.Application.MappingProfiles
 
             // PayrollComponent mappings
             CreateMap<PayrollComponent, PayrollComponentDto>()
+                .ReverseMap();
+
+            // EmployeeContract mappings
+            CreateMap<EmployeeContract, EmployeeContractDto>()
+                .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.FullName : null))
+                .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Job != null ? src.Job.Title : null))
+                .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => src.ContractType.ToString()))
+                .ReverseMap();
+
+            // HrAttachment mappings
+            CreateMap<HrAttachment, HrAttachmentDto>()
                 .ReverseMap();
         }
     }

@@ -9,7 +9,6 @@ namespace Hr.Application.Features.EmployeeFeatures.GetEmployeesPaged
         public string? SearchTerm { get; set; }
         public string? OrderBy { get; set; } = "FullName";
         public bool IsDescending { get; set; } = false;
-        public int? DepartmentId { get; set; }
         public string? Status { get; set; }
     }
 }

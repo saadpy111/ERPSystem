@@ -15,8 +15,8 @@ namespace Hr.Domain.Entities
 
         [StringLength(500)]
         public string? Description { get; set; }
-
-        public ICollection<Employee> Employees { get; set; } = new List<Employee>();
+        public int? ManagerId { get; set; }
+        public Employee? Manager { get; set; }
         public ICollection<Job> Jobs { get; set; } = new List<Job>();
     }
 }

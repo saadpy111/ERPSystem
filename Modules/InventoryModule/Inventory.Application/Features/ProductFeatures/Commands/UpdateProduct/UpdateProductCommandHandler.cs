@@ -73,71 +73,72 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                 #endregion
 
                 #region updateimages
-
-                var oldImageIds = product.Images.Select(i => i.Id).ToList();
-
-                var incomingIds = request.Product.Images
-                    .Where(i => i.Id.HasValue)
-                    .Select(i => i.Id.Value)
-                    .ToList();
-
-                var deletedImages = product.Images
-                    .Where(i => !incomingIds.Contains(i.Id))
-                    .ToList();
-
-                foreach (var img in deletedImages)
+                if (request.Product.Images != null)
                 {
-                    await _fileService.DeleteFileAsync(img.ImageUrl);
-                    product.Images.Remove(img);
-                }
+                    var oldImageIds = product.Images.Select(i => i.Id).ToList();
 
+                    var incomingIds = request.Product.Images
+                        .Where(i => i.Id.HasValue)
+                        .Select(i => i.Id.Value)
+                        .ToList();
 
-                if (request.Product.Images != null && request.Product.Images.Any())
-                {
-                    product.Images ??= new List<ProductImage>();
+                    var deletedImages = product.Images
+                        .Where(i => !incomingIds.Contains(i.Id))
+                        .ToList();
 
-                    foreach (var imageDto in request.Product.Images)
+                    foreach (var img in deletedImages)
                     {
-                        if (imageDto.Id.HasValue)
+                        await _fileService.DeleteFileAsync(img.ImageUrl);
+                        product.Images.Remove(img);
+                    }
+
+                    if (request.Product.Images.Any())
+                    {
+                        product.Images ??= new List<ProductImage>();
+
+                        foreach (var imageDto in request.Product.Images)
                         {
-                            var existingImage = product.Images.FirstOrDefault(i => i.Id == imageDto.Id.Value);
-                            if (existingImage != null)
+                            if (imageDto.Id.HasValue)
+                            {
+                                var existingImage = product.Images.FirstOrDefault(i => i.Id == imageDto.Id.Value);
+                                if (existingImage != null)
+                                {
+                                    if (imageDto.Image != null)
+                                    {
+                                        if (!string.IsNullOrEmpty(existingImage.ImageUrl))
+                                            await _fileService.DeleteFileAsync(existingImage.ImageUrl);
+
+                                        var newPath = await _fileService.SaveFileAsync(imageDto.Image, "productImages");
+                                        existingImage.ImageUrl = newPath;
+                                    }
+
+                                    existingImage.Description = imageDto.Description;
+                                    existingImage.DisplayOrder = imageDto.DisplayOrder;
+                                    existingImage.IsPrimary = imageDto.IsPrimary;
+                                    existingImage.UpdatedAt = DateTime.UtcNow;
+                                }
+                            }
+                            else
                             {
                                 if (imageDto.Image != null)
                                 {
-                                    if (!string.IsNullOrEmpty(existingImage.ImageUrl))
-                                        await _fileService.DeleteFileAsync(existingImage.ImageUrl);
-
-                                    var newPath = await _fileService.SaveFileAsync(imageDto.Image, "productImages");
-                                    existingImage.ImageUrl = newPath;
+                                    var path = await _fileService.SaveFileAsync(imageDto.Image, "productImages");
+                                    await _unitOfWork.Repositories<ProductImage>().Add(new ProductImage
+                                    {
+                                        ProductId = product.Id,
+                                        ImageUrl = path,
+                                        Description = imageDto.Description,
+                                        IsPrimary = imageDto.IsPrimary,
+                                        DisplayOrder = imageDto.DisplayOrder,
+                                        CreatedAt = DateTime.UtcNow
+                                    });
                                 }
-
-                                existingImage.Description = imageDto.Description;
-                                existingImage.DisplayOrder = imageDto.DisplayOrder;
-                                existingImage.IsPrimary = imageDto.IsPrimary;
-                                existingImage.UpdatedAt = DateTime.UtcNow;
-                            }
-                        }
-                        else
-                        {
-                            if (imageDto.Image != null)
-                            {
-                                var path = await _fileService.SaveFileAsync(imageDto.Image, "productImages");
-                                await _unitOfWork.Repositories<ProductImage>().Add(new ProductImage
-                                {
-                                    ProductId = product.Id,
-                                    ImageUrl = path,
-                                    Description = imageDto.Description,
-                                    IsPrimary = imageDto.IsPrimary,
-                                    DisplayOrder = imageDto.DisplayOrder,
-                                    CreatedAt = DateTime.UtcNow
-                                });
-                           
                             }
                         }
                     }
                 }
                 #endregion
+
 
                 #region update attachments
                 if (request.Product.EditAttachments)

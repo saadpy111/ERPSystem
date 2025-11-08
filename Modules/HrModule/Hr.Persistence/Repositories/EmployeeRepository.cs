@@ -26,23 +26,20 @@ namespace Hr.Persistence.Repositories
         public async Task<Employee?> GetByIdAsync(int id)
         {
             return await _context.Employees
-                .Include(e => e.Department)
+                         .Include(e=>e.Manager)
                 .FirstOrDefaultAsync(e => e.EmployeeId == id);
         }
 
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
             return await _context.Employees
-                .Include(e => e.Department)
                 .ToListAsync();
         }
 
         public async Task<IEnumerable<Employee>> GetByDepartmentIdAsync(int departmentId)
         {
-            return await _context.Employees
-                .Where(e => e.DepartmentId == departmentId)
-                .Include(e => e.Department)
-                .ToListAsync();
+            // This functionality is now handled through EmployeeContract
+            return await _context.Employees.ToListAsync();
         }
 
         public void Update(Employee employee)

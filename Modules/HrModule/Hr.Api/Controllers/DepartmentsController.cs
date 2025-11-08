@@ -1,3 +1,5 @@
+using Hr.Application.Features.DepartmentFeatures.Commands.DeleteAttachment;
+using Hr.Application.Features.DepartmentFeatures.Commands.UploadAttachment;
 using Hr.Application.Features.DepartmentFeatures.CreateDepartment;
 using Hr.Application.Features.DepartmentFeatures.DeleteDepartment;
 using Hr.Application.Features.DepartmentFeatures.GetAllDepartments;
@@ -22,7 +24,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateDepartmentRequest request)
+        public async Task<IActionResult> Create([FromForm] CreateDepartmentRequest request)
         {
             var result = await _mediator.Send(request);
             if (!result.Success)
@@ -56,7 +58,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateDepartmentRequest request)
+        public async Task<IActionResult> Update(int id, [FromForm] UpdateDepartmentRequest request)
         {
             if (id != request.Id)
                 return BadRequest("ID mismatch");
@@ -75,6 +77,28 @@ namespace Hr.Api.Controllers
             var request = new DeleteDepartmentRequest { Id = id };
             var result = await _mediator.Send(request);
 
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/attachments")]
+        public async Task<IActionResult> UploadAttachment(int id, [FromForm] UploadDepartmentAttachmentRequest request)
+        {
+            request.DepartmentId = id;
+            var result = await _mediator.Send(request);
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpDelete("attachments/{attachmentId}")]
+        public async Task<IActionResult> DeleteAttachment(int attachmentId)
+        {
+            var request = new DeleteDepartmentAttachmentRequest { AttachmentId = attachmentId };
+            var result = await _mediator.Send(request);
             if (!result.Success)
                 return BadRequest(result);
 

@@ -32,6 +32,8 @@ namespace Hr.Persistence.DependencyInjection
             services.AddScoped<IRecruitmentStageRepository, RecruitmentStageRepository>();
             services.AddScoped<ILoanInstallmentRepository, LoanInstallmentRepository>();
             services.AddScoped<IPayrollComponentRepository, PayrollComponentRepository>();
+            services.AddScoped<IEmployeeContractRepository, EmployeeContractRepository>();
+            services.AddScoped<IHrAttachmentRepository, HrAttachmentRepository>();
             
             // Register Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

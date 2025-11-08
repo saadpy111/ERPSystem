@@ -131,6 +131,9 @@ namespace Hr.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -140,6 +143,8 @@ namespace Hr.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("DepartmentId");
+
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("Departments", "Hr");
                 });
@@ -152,17 +157,15 @@ namespace Hr.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeId"));
 
-                    b.Property<decimal>("BaseSalary")
-                        .HasColumnType("decimal(18,2)");
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
-
-                    b.Property<int>("DepartmentId")
-                        .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -174,13 +177,16 @@ namespace Hr.Persistence.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
 
-                    b.Property<DateTime>("HiringDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("JobTitle")
+                    b.Property<string>("Gender")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int");
 
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(50)
@@ -195,9 +201,114 @@ namespace Hr.Persistence.Migrations
 
                     b.HasKey("EmployeeId");
 
-                    b.HasIndex("DepartmentId");
+                    b.HasIndex("ManagerId");
 
                     b.ToTable("Employees", "Hr");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.EmployeeContract", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContractType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("JobId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int?>("ProbationPeriod")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Salary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.HasIndex("JobId");
+
+                    b.ToTable("EmployeeContracts", "Hr");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.HrAttachment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.ToTable("Attachments", "Hr");
                 });
 
             modelBuilder.Entity("Hr.Domain.Entities.Job", b =>
@@ -463,6 +574,11 @@ namespace Hr.Persistence.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
@@ -514,15 +630,42 @@ namespace Hr.Persistence.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("Hr.Domain.Entities.Department", b =>
+                {
+                    b.HasOne("Hr.Domain.Entities.Employee", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId");
+
+                    b.Navigation("Manager");
+                });
+
             modelBuilder.Entity("Hr.Domain.Entities.Employee", b =>
                 {
-                    b.HasOne("Hr.Domain.Entities.Department", "Department")
-                        .WithMany("Employees")
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                    b.HasOne("Hr.Domain.Entities.Employee", "Manager")
+                        .WithMany("Subordinates")
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Manager");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.EmployeeContract", b =>
+                {
+                    b.HasOne("Hr.Domain.Entities.Employee", "Employee")
+                        .WithMany("Contracts")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Department");
+                    b.HasOne("Hr.Domain.Entities.Job", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Employee");
+
+                    b.Navigation("Job");
                 });
 
             modelBuilder.Entity("Hr.Domain.Entities.Job", b =>
@@ -593,8 +736,6 @@ namespace Hr.Persistence.Migrations
 
             modelBuilder.Entity("Hr.Domain.Entities.Department", b =>
                 {
-                    b.Navigation("Employees");
-
                     b.Navigation("Jobs");
                 });
 
@@ -602,11 +743,15 @@ namespace Hr.Persistence.Migrations
                 {
                     b.Navigation("AttendanceRecords");
 
+                    b.Navigation("Contracts");
+
                     b.Navigation("LeaveRequests");
 
                     b.Navigation("Loans");
 
                     b.Navigation("PayrollRecords");
+
+                    b.Navigation("Subordinates");
                 });
 
             modelBuilder.Entity("Hr.Domain.Entities.Job", b =>

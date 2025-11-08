@@ -14,5 +14,6 @@ namespace Hr.Application.DTOs
         public ApplicantStatus Status { get; set; }
         public string? ResumeUrl { get; set; }
         public DateTime? InterviewDate { get; set; }
+        public ICollection<HrAttachmentDto> Attachments { get; set; } = new List<HrAttachmentDto>();
     }
 }

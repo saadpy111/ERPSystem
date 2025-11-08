@@ -33,17 +33,13 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.UpdateRecruitmentStag
                 }
 
                 recruitmentStage.Name = request.Name;
+                recruitmentStage.Description = request.Description;
                 recruitmentStage.SequenceOrder = request.SequenceOrder;
 
                 _recruitmentStageRepository.Update(recruitmentStage);
                 await _unitOfWork.SaveChangesAsync();
 
-                var recruitmentStageDto = new
-                {
-                    recruitmentStage.StageId,
-                    recruitmentStage.Name,
-                    recruitmentStage.SequenceOrder
-                };
+                var recruitmentStageDto = _mapper.Map<DTOs.RecruitmentStageDto>(recruitmentStage);
 
                 return new UpdateRecruitmentStageResponse
                 {

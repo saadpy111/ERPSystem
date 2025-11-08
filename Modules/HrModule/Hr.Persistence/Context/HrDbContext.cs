@@ -21,13 +21,24 @@ namespace Hr.Persistence.Context
         public DbSet<PayrollComponent> PayrollComponents { get; set; }
         public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
+        public DbSet<EmployeeContract> EmployeeContracts { get; set; }
+        public DbSet<HrAttachment> Attachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             modelBuilder.HasDefaultSchema("Hr");
             
-            base.OnModelCreating(modelBuilder);
+        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            if (!optionsBuilder.IsConfigured)
+            {
+                string con = "Server=DESKTOP-VGEBCK1\\SQLEXPRESS;Database=InventoryMicro;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False;TrustServerCertificate=True;";
+                optionsBuilder.UseSqlServer(con);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Hr.Application.Features.DepartmentFeatures.CreateDepartment
 {
@@ -6,5 +7,7 @@ namespace Hr.Application.Features.DepartmentFeatures.CreateDepartment
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public int? ManagerId { get; set; }
+        public ICollection<IFormFile>? AttachmentFiles { get; set; }
     }
 }

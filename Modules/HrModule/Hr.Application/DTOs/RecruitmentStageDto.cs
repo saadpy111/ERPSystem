@@ -4,6 +4,7 @@ namespace Hr.Application.DTOs
     {
         public int StageId { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public int SequenceOrder { get; set; }
         public bool IsActive { get; set; }
     }
