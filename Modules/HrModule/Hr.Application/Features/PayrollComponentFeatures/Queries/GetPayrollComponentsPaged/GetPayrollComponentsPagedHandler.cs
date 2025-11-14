@@ -79,7 +79,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.GetPayrollComponentsP
             query = orderBy.ToLower() switch
             {
                 "name" => isDescending ? query.OrderByDescending(pc => pc.Name) : query.OrderBy(pc => pc.Name),
-                "amount" => isDescending ? query.OrderByDescending(pc => pc.Amount) : query.OrderBy(pc => pc.Amount),
+                //"amount" => isDescending ? query.OrderByDescending(pc => pc.Amount) : query.OrderBy(pc => pc.Amount),
                 "componenttype" => isDescending ? query.OrderByDescending(pc => pc.ComponentType) : query.OrderBy(pc => pc.ComponentType),
                 _ => isDescending ? query.OrderByDescending(pc => pc.Name) : query.OrderBy(pc => pc.Name)
             };

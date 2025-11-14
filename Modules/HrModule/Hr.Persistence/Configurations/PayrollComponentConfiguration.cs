@@ -18,7 +18,7 @@ namespace Hr.Persistence.Configurations
                 .IsRequired()
                 .HasConversion<string>();
 
-            builder.Property(pc => pc.Amount)
+            builder.Property(pc => pc.FixedAmount)
                 .IsRequired()
                 .HasColumnType("decimal(18,2)");
 

@@ -16,14 +16,6 @@ namespace Hr.Application.Validators
             RuleFor(x => x.PeriodMonth)
                 .InclusiveBetween(1, 12).WithMessage("Period month must be between 1 and 12");
 
-            RuleFor(x => x.BaseSalary)
-                .GreaterThanOrEqualTo(0).WithMessage("Base salary cannot be negative");
-
-            RuleFor(x => x.TotalAllowances)
-                .GreaterThanOrEqualTo(0).WithMessage("Total allowances cannot be negative");
-
-            RuleFor(x => x.TotalDeductions)
-                .GreaterThanOrEqualTo(0).WithMessage("Total deductions cannot be negative");
         }
     }
 }

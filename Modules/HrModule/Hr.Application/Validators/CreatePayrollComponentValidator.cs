@@ -17,8 +17,7 @@ namespace Hr.Application.Validators
                 .NotEmpty().WithMessage("Component name is required")
                 .MaximumLength(100).WithMessage("Component name cannot exceed 100 characters");
 
-            RuleFor(x => x.Amount)
-                .NotEmpty().WithMessage("Amount is required");
+
         }
     }
 }

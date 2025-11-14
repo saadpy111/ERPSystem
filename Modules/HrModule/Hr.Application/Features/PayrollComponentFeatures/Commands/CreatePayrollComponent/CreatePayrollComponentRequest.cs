@@ -8,6 +8,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.CreatePayrollComponen
         public int PayrollRecordId { get; set; }
         public string Name { get; set; } = string.Empty;
         public PayrollComponentType ComponentType { get; set; }
-        public decimal Amount { get; set; }
+        public decimal? FixedAmount { get; set; }
+        public decimal? Percentage { get; set; }
     }
 }

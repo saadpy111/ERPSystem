@@ -30,6 +30,11 @@ namespace Hr.Persistence.Configurations
                 .WithMany()
                 .HasForeignKey(ec => ec.JobId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(ec => ec.SalaryStructure)
+                .WithMany()
+                .HasForeignKey(ec => ec.SalaryStructureId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

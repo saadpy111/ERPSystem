@@ -19,7 +19,7 @@ namespace Hr.Domain.Entities
         [Required]
         public PayrollComponentType ComponentType { get; set; }
 
-        [Required]
-        public decimal Amount { get; set; }
+        public decimal? FixedAmount { get; set; }
+        public decimal? Percentage { get; set; }
     }
 }
