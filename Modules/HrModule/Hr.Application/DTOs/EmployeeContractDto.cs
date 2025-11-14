@@ -7,6 +7,8 @@ namespace Hr.Application.DTOs
         public string EmployeeName { get; set; } = string.Empty;
         public int JobId { get; set; }
         public string JobTitle { get; set; } = string.Empty;
+        public int? SalaryStructureId { get; set; }
+        public string? SalaryStructureName { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public decimal Salary { get; set; }

@@ -9,6 +9,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UpdateEmploy
         public int Id { get; set; }
         public int EmployeeId { get; set; }
         public int JobId { get; set; }
+        public int? SalaryStructureId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public decimal Salary { get; set; }

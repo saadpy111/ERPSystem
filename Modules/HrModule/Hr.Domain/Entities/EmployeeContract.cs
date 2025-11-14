@@ -24,6 +24,8 @@ namespace Hr.Domain.Entities
 
         public ContractType ContractType { get; set; }
 
+        public int? SalaryStructureId { get; set; }
+        public SalaryStructure? SalaryStructure { get; set; }
 
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }

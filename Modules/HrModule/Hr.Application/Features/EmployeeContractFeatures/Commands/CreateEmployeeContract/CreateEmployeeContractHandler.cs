@@ -39,12 +39,13 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmploy
                 {
                     EmployeeId = request.EmployeeId,
                     JobId = request.JobId,
+                    SalaryStructureId = request.SalaryStructureId,
                     StartDate = request.StartDate,
                     EndDate = request.EndDate,
                     Salary = request.Salary,
                     ContractType = request.ContractType,
                     Notes = request.Notes,
-                      ProbationPeriod = request.ProbationPeriod
+                    ProbationPeriod = request.ProbationPeriod
                 };
 
                 await _employeeContractRepository.AddAsync(employeeContract);

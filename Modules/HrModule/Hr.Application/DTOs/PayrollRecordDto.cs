@@ -1,4 +1,5 @@
 using Hr.Domain.Enums;
+using System.Collections.Generic;
 
 namespace Hr.Application.DTOs
 {
@@ -15,5 +16,6 @@ namespace Hr.Application.DTOs
         public decimal TotalGrossSalary { get; set; }
         public decimal NetSalary { get; set; }
         public PayrollStatus Status { get; set; }
+        public ICollection<PayrollComponentDto> Components { get; set; } = new List<PayrollComponentDto>();
     }
 }

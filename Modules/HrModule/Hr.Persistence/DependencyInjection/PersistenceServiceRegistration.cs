@@ -34,6 +34,8 @@ namespace Hr.Persistence.DependencyInjection
             services.AddScoped<IPayrollComponentRepository, PayrollComponentRepository>();
             services.AddScoped<IEmployeeContractRepository, EmployeeContractRepository>();
             services.AddScoped<IHrAttachmentRepository, HrAttachmentRepository>();
+            services.AddScoped<ISalaryStructureRepository, SalaryStructureRepository>();
+            services.AddScoped<ISalaryStructureComponentRepository, SalaryStructureComponentRepository>();
             
             // Register Unit of Work
             services.AddScoped<IUnitOfWork, UnitOfWork>();

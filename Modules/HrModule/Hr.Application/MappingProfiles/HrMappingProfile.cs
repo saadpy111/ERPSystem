@@ -49,6 +49,7 @@ namespace Hr.Application.MappingProfiles
             // PayrollRecord mappings
             CreateMap<PayrollRecord, PayrollRecordDto>()
                 .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.FullName : null))
+                .ForMember(dest => dest.Components, opt => opt.MapFrom(src => src.Components))
                 .ReverseMap();
 
             // Applicant mappings
@@ -74,10 +75,27 @@ namespace Hr.Application.MappingProfiles
                 .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.FullName : null))
                 .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Job != null ? src.Job.Title : null))
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => src.ContractType.ToString()))
+                .ForMember(dest => dest.SalaryStructureName, opt => opt.MapFrom(src => src.SalaryStructure != null ? src.SalaryStructure.Name : null))
                 .ReverseMap();
 
             // HrAttachment mappings
             CreateMap<HrAttachment, HrAttachmentDto>()
+                .ReverseMap();
+
+            // SalaryStructure mappings
+            CreateMap<SalaryStructure, SalaryStructureDto>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
+                .ReverseMap();
+
+            // SalaryStructureComponent mappings
+            CreateMap<SalaryStructureComponent, SalaryStructureComponentDto>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
+                .ReverseMap();
+
+            // SalaryStructurePaged mappings
+            CreateMap<SalaryStructure, SalaryStructurePagedDto>()
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
+                .ForMember(dest => dest.ComponentCount, opt => opt.MapFrom(src => src.Components.Count))
                 .ReverseMap();
         }
     }

@@ -47,6 +47,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UpdateEmploy
 
                 employeeContract.EmployeeId = request.EmployeeId;
                 employeeContract.JobId = request.JobId;
+                employeeContract.SalaryStructureId = request.SalaryStructureId;
                 employeeContract.StartDate = request.StartDate;
                 employeeContract.EndDate = request.EndDate;
                 employeeContract.Salary = request.Salary;

@@ -243,6 +243,9 @@ namespace Hr.Persistence.Migrations
                     b.Property<decimal>("Salary")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int?>("SalaryStructureId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -254,6 +257,8 @@ namespace Hr.Persistence.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("JobId");
+
+                    b.HasIndex("SalaryStructureId");
 
                     b.ToTable("EmployeeContracts", "Hr");
                 });
@@ -486,15 +491,15 @@ namespace Hr.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ComponentId"));
 
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<string>("ComponentType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("FixedAmount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -503,6 +508,9 @@ namespace Hr.Persistence.Migrations
 
                     b.Property<int>("PayrollRecordId")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("Percentage")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -600,6 +608,88 @@ namespace Hr.Persistence.Migrations
                     b.ToTable("RecruitmentStages", "Hr");
                 });
 
+            modelBuilder.Entity("Hr.Domain.Entities.SalaryStructure", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("EffectiveDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SalaryStructures", "Hr");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.SalaryStructureComponent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal?>("FixedAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("Percentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SalaryStructureId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SalaryStructureId");
+
+                    b.ToTable("SalaryStructureComponents", "Hr");
+                });
+
             modelBuilder.Entity("Hr.Domain.Entities.Applicant", b =>
                 {
                     b.HasOne("Hr.Domain.Entities.RecruitmentStage", "CurrentStage")
@@ -663,9 +753,16 @@ namespace Hr.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Hr.Domain.Entities.SalaryStructure", "SalaryStructure")
+                        .WithMany()
+                        .HasForeignKey("SalaryStructureId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.Navigation("Employee");
 
                     b.Navigation("Job");
+
+                    b.Navigation("SalaryStructure");
                 });
 
             modelBuilder.Entity("Hr.Domain.Entities.Job", b =>
@@ -734,6 +831,17 @@ namespace Hr.Persistence.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("Hr.Domain.Entities.SalaryStructureComponent", b =>
+                {
+                    b.HasOne("Hr.Domain.Entities.SalaryStructure", "SalaryStructure")
+                        .WithMany("Components")
+                        .HasForeignKey("SalaryStructureId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("SalaryStructure");
+                });
+
             modelBuilder.Entity("Hr.Domain.Entities.Department", b =>
                 {
                     b.Navigation("Jobs");
@@ -765,6 +873,11 @@ namespace Hr.Persistence.Migrations
                 });
 
             modelBuilder.Entity("Hr.Domain.Entities.PayrollRecord", b =>
+                {
+                    b.Navigation("Components");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.SalaryStructure", b =>
                 {
                     b.Navigation("Components");
                 });

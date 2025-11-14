@@ -28,14 +28,27 @@ namespace Hr.Persistence.Repositories
             return await _context.EmployeeContracts
                 .Include(ec => ec.Employee)
                 .Include(ec => ec.Job)
+                .Include(ec => ec.SalaryStructure)
                 .FirstOrDefaultAsync(ec => ec.Id == id);
         }
+
+        public async Task<EmployeeContract?> GetContractByEmployeeIdAsync(int id)
+        {
+            return await _context.EmployeeContracts
+                .Include(ec => ec.Employee)
+                .Include(ec => ec.Job)
+                .Include(ec => ec.SalaryStructure)
+                .ThenInclude(s =>s.Components)
+                .FirstOrDefaultAsync(ec => ec.EmployeeId == id);
+        }
+
 
         public async Task<IEnumerable<EmployeeContract>> GetAllAsync()
         {
             return await _context.EmployeeContracts
                 .Include(ec => ec.Employee)
                 .Include(ec => ec.Job)
+                .Include(ec => ec.SalaryStructure)
                 .ToListAsync();
         }
 

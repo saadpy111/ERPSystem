@@ -8,6 +8,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmploy
     {
         public int EmployeeId { get; set; }
         public int JobId { get; set; }
+        public int? SalaryStructureId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public decimal Salary { get; set; }

@@ -23,6 +23,8 @@ namespace Hr.Persistence.Context
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<HrAttachment> Attachments { get; set; }
+        public DbSet<SalaryStructure> SalaryStructures { get; set; }
+        public DbSet<SalaryStructureComponent> SalaryStructureComponents { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

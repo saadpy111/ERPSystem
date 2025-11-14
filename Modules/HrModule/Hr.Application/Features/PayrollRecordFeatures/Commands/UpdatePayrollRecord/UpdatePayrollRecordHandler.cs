@@ -32,14 +32,8 @@ namespace Hr.Application.Features.PayrollRecordFeatures.UpdatePayrollRecord
                     };
                 }
 
-                payrollRecord.EmployeeId = request.EmployeeId;
                 payrollRecord.PeriodYear = request.PeriodYear;
                 payrollRecord.PeriodMonth = request.PeriodMonth;
-                payrollRecord.BaseSalary = request.BaseSalary;
-                payrollRecord.TotalAllowances = request.TotalAllowances;
-                payrollRecord.TotalDeductions = request.TotalDeductions;
-                payrollRecord.TotalGrossSalary = request.TotalGrossSalary;
-                payrollRecord.NetSalary = request.NetSalary;
                 payrollRecord.Status = request.Status;
 
                 _payrollRecordRepository.Update(payrollRecord);
