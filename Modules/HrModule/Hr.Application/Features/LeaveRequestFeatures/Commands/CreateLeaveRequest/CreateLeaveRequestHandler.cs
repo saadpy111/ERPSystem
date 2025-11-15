@@ -31,7 +31,8 @@ namespace Hr.Application.Features.LeaveRequestFeatures.CreateLeaveRequest
                     StartDate = request.StartDate,
                     EndDate = request.EndDate,
                     DurationDays = request.DurationDays,
-                    Status = LeaveRequestStatus.Pending
+                    Status = LeaveRequestStatus.Pending,
+                    Notes = request.Notes
                 };
 
                 await _leaveRequestRepository.AddAsync(leaveRequest);

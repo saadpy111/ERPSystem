@@ -1,3 +1,4 @@
+using Hr.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
@@ -10,7 +11,7 @@ namespace Hr.Application.Features.EmployeeFeatures.CreateEmployee
         public string? PhoneNumber { get; set; }
         public DateTime DateOfBirth { get; set; }
 
-        public string Gender { get; set; } = string.Empty;
+        public Gender Gender { get; set; } 
         public string? Address { get; set; }
         public IFormFile? ImageFile { get; set; }
         public int? ManagerId { get; set; }

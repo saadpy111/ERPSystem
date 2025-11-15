@@ -6,6 +6,7 @@ using Hr.Application.Features.EmployeeContractFeatures.Commands.UploadAttachment
 using Hr.Application.Features.EmployeeContractFeatures.Queries.GetAllEmployeeContracts;
 using Hr.Application.Features.EmployeeContractFeatures.Queries.GetEmployeeContractById;
 using Hr.Application.Features.EmployeeContractFeatures.Queries.GetEmployeeContractsByEmployeeId;
+using Hr.Application.Features.EmployeeContractFeatures.Queries.GetEmployeeContractsPaged;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +40,13 @@ namespace Hr.Api.Controllers
         {
             var query = new GetAllEmployeeContractsRequest();
             var result = await _mediator.Send(query);
+            return Ok(result);
+        }
+
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged([FromQuery] GetEmployeeContractsPagedRequest request)
+        {
+            var result = await _mediator.Send(request);
             return Ok(result);
         }
 

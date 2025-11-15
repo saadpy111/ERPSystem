@@ -13,6 +13,8 @@ namespace Hr.Application.DTOs
         public string CurrentStageName { get; set; } = string.Empty;
         public ApplicantStatus Status { get; set; }
         public string? ResumeUrl { get; set; }
+        public string? Skills { get; set; }
+        public string? EducationalQualifications { get; set; }
         public DateTime? InterviewDate { get; set; }
         public ICollection<HrAttachmentDto> Attachments { get; set; } = new List<HrAttachmentDto>();
     }

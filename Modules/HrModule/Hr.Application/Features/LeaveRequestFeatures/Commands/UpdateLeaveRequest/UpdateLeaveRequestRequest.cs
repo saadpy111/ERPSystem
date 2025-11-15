@@ -12,5 +12,6 @@ namespace Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest
         public DateTime EndDate { get; set; }
         public int DurationDays { get; set; }
         public LeaveRequestStatus Status { get; set; }
+        public string? Notes { get; set; }
     }
 }

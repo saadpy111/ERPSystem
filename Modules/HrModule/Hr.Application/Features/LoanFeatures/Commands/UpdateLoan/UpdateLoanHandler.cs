@@ -38,6 +38,7 @@ namespace Hr.Application.Features.LoanFeatures.UpdateLoan
                 loan.TermMonths = request.TermMonths;
                 loan.StartDate = request.StartDate;
                 loan.Status = request.Status;
+                loan.Notes = request.Notes;
 
                 _loanRepository.Update(loan);
                 await _unitOfWork.SaveChangesAsync();

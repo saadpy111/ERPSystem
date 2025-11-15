@@ -3,6 +3,9 @@ using Hr.Application.Contracts.Persistence.Repositories;
 using Hr.Application.DTOs;
 using Hr.Application.Pagination;
 using MediatR;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hr.Application.Features.PayrollComponentFeatures.GetPayrollComponentsPaged
 {
@@ -19,72 +22,28 @@ namespace Hr.Application.Features.PayrollComponentFeatures.GetPayrollComponentsP
 
         public async Task<GetPayrollComponentsPagedResponse> Handle(GetPayrollComponentsPagedRequest request, CancellationToken cancellationToken)
         {
-            var query = (await _repository.GetAllAsync()).AsQueryable();
+            // Use repository-level pagination instead of handler-level pagination
+            var pagedResult = await _repository.GetPagedAsync(
+                request.PageNumber,
+                request.PageSize,
+                request.SearchTerm,
+                request.PayrollRecordId,
+                request.ComponentType,
+                request.OrderBy,
+                request.IsDescending);
 
-            // Apply search filter
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-            {
-                var searchTerm = request.SearchTerm.ToLower();
-                query = query.Where(pc => pc.Name.ToLower().Contains(searchTerm));
-            }
-
-            // Apply payroll record filter
-            if (request.PayrollRecordId.HasValue)
-            {
-                query = query.Where(pc => pc.PayrollRecordId == request.PayrollRecordId.Value);
-            }
-
-            // Apply component type filter
-            if (!string.IsNullOrWhiteSpace(request.ComponentType))
-            {
-                if (Enum.TryParse<Hr.Domain.Enums.PayrollComponentType>(request.ComponentType, true, out var componentType))
-                {
-                    query = query.Where(pc => pc.ComponentType == componentType);
-                }
-            }
-
-            var totalCount = query.Count();
-
-            // Apply ordering
-            query = ApplyOrdering(query, request.OrderBy, request.IsDescending);
-
-            // Apply pagination
-            var items = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToList();
-
-            var dtos = _mapper.Map<IEnumerable<PayrollComponentDto>>(items);
+            var dtos = _mapper.Map<IEnumerable<PayrollComponentDto>>(pagedResult.Items);
 
             return new GetPayrollComponentsPagedResponse
             {
                 PagedResult = new PagedResult<PayrollComponentDto>
                 {
                     Items = dtos,
-                    TotalCount = totalCount,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
+                    TotalCount = pagedResult.TotalCount,
+                    PageNumber = pagedResult.PageNumber,
+                    PageSize = pagedResult.PageSize
                 }
             };
-        }
-
-        private IQueryable<Hr.Domain.Entities.PayrollComponent> ApplyOrdering(
-            IQueryable<Hr.Domain.Entities.PayrollComponent> query,
-            string? orderBy,
-            bool isDescending)
-        {
-            if (string.IsNullOrWhiteSpace(orderBy))
-                orderBy = "Name";
-
-            query = orderBy.ToLower() switch
-            {
-                "name" => isDescending ? query.OrderByDescending(pc => pc.Name) : query.OrderBy(pc => pc.Name),
-                //"amount" => isDescending ? query.OrderByDescending(pc => pc.Amount) : query.OrderBy(pc => pc.Amount),
-                "componenttype" => isDescending ? query.OrderByDescending(pc => pc.ComponentType) : query.OrderBy(pc => pc.ComponentType),
-                _ => isDescending ? query.OrderByDescending(pc => pc.Name) : query.OrderBy(pc => pc.Name)
-            };
-
-            return query;
         }
     }
 }

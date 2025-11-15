@@ -22,5 +22,8 @@ namespace Hr.Domain.Entities
         public int DurationDays { get; set; }
 
         public LeaveRequestStatus Status { get; set; } = LeaveRequestStatus.Pending;
+        
+        [StringLength(1000)]
+        public string? Notes { get; set; }
     }
 }

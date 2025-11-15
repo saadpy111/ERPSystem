@@ -46,12 +46,8 @@ namespace Hr.Application.Features.ApplicantFeatures.MoveApplicantToStage
                 }
 
                 applicant.CurrentStageId = request.NewStageId;
-                
-                // Update status based on stage progression
-                if (applicant.Status == Domain.Enums.ApplicantStatus.Applied)
-                {
-                    applicant.Status = Domain.Enums.ApplicantStatus.UnderReview;
-                }
+
+                applicant.Status = request.ApplicantStatus;
 
                 if (!string.IsNullOrEmpty(request.Notes))
                 {

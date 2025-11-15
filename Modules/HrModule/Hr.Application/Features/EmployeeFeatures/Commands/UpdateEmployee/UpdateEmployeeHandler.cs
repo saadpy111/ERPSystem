@@ -46,10 +46,9 @@ namespace Hr.Application.Features.EmployeeFeatures.UpdateEmployee
                 employee.Status = request.Status;
                 
               
-                if (Enum.TryParse<Hr.Domain.Enums.Gender>(request.Gender, out var gender))
-                {
-                    employee.Gender = gender;
-                }
+                
+                    employee.Gender = request.Gender;
+               
                 employee.Address = request.Address;
                 employee.ManagerId = request.ManagerId;
                 #endregion

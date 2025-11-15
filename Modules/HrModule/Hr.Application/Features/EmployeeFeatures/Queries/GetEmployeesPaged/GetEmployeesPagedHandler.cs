@@ -3,6 +3,11 @@ using Hr.Application.Contracts.Persistence.Repositories;
 using Hr.Application.DTOs;
 using Hr.Application.Pagination;
 using MediatR;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hr.Application.Features.EmployeeFeatures.GetEmployeesPaged
 {
@@ -19,73 +24,27 @@ namespace Hr.Application.Features.EmployeeFeatures.GetEmployeesPaged
 
         public async Task<GetEmployeesPagedResponse> Handle(GetEmployeesPagedRequest request, CancellationToken cancellationToken)
         {
-            var query = (await _employeeRepository.GetAllAsync()).AsQueryable();
+            // Use repository-level pagination instead of handler-level pagination
+            var pagedResult = await _employeeRepository.GetPagedAsync(
+                request.PageNumber,
+                request.PageSize,
+                request.SearchTerm,
+                request.OrderBy,
+                request.IsDescending,
+                request.Status);
 
-            // Apply search filter
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-            {
-                var searchTerm = request.SearchTerm.ToLower();
-                query = query.Where(e => 
-                    e.FullName.ToLower().Contains(searchTerm) ||
-                    e.Email.ToLower().Contains(searchTerm) ||
-                    (e.PhoneNumber != null && e.PhoneNumber.ToLower().Contains(searchTerm)));
-            }
-
-            // Apply department filter
-            // This is now handled through EmployeeContract
-
-            // Apply status filter
-            if (!string.IsNullOrWhiteSpace(request.Status))
-            {
-                if (Enum.TryParse<Hr.Domain.Enums.EmployeeStatus>(request.Status, true, out var status))
-                {
-                    query = query.Where(e => e.Status == status);
-                }
-            }
-
-            // Get total count before pagination
-            var totalCount = query.Count();
-
-            // Apply ordering
-            query = ApplyOrdering(query, request.OrderBy, request.IsDescending);
-
-            // Apply pagination
-            var employees = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToList();
-
-            var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(employees);
+            var employeeDtos = _mapper.Map<IEnumerable<EmployeeDto>>(pagedResult.Items);
 
             return new GetEmployeesPagedResponse
             {
                 PagedResult = new PagedResult<EmployeeDto>
                 {
                     Items = employeeDtos,
-                    TotalCount = totalCount,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
+                    TotalCount = pagedResult.TotalCount,
+                    PageNumber = pagedResult.PageNumber,
+                    PageSize = pagedResult.PageSize
                 }
             };
-        }
-
-        private IQueryable<Hr.Domain.Entities.Employee> ApplyOrdering(
-            IQueryable<Hr.Domain.Entities.Employee> query, 
-            string? orderBy, 
-            bool isDescending)
-        {
-            if (string.IsNullOrWhiteSpace(orderBy))
-                orderBy = "FullName";
-
-            query = orderBy.ToLower() switch
-            {
-                "fullname" => isDescending ? query.OrderByDescending(e => e.FullName) : query.OrderBy(e => e.FullName),
-                "email" => isDescending ? query.OrderByDescending(e => e.Email) : query.OrderBy(e => e.Email),
-                "status" => isDescending ? query.OrderByDescending(e => e.Status) : query.OrderBy(e => e.Status),
-                _ => isDescending ? query.OrderByDescending(e => e.FullName) : query.OrderBy(e => e.FullName)
-            };
-
-            return query;
         }
     }
 }

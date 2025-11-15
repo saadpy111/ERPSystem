@@ -21,6 +21,8 @@ namespace Hr.Persistence.Configurations
             builder.Property(l => l.RemainingBalance)
                 .HasColumnType("decimal(18,2)");
 
+            builder.Property(l => l.Notes).HasMaxLength(1000);
+
             builder.Property(l => l.Status)
                 .IsRequired()
                 .HasConversion<string>();

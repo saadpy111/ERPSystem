@@ -15,6 +15,8 @@ namespace Hr.Application.Features.ApplicantFeatures.UpdateApplicant
         public string? ResumeUrl { get; set; }
         public string? QualificationsDetails { get; set; }
         public string? ExperienceDetails { get; set; }
+        public string? Skills { get; set; }
+        public string? EducationalQualifications { get; set; }
         public ICollection<IFormFile>? AttachmentFiles { get; set; }
     }
 }
