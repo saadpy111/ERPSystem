@@ -38,6 +38,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest
                 leaveRequest.EndDate = request.EndDate;
                 leaveRequest.DurationDays = request.DurationDays;
                 leaveRequest.Status = request.Status;
+                leaveRequest.Notes = request.Notes;
 
                 _leaveRequestRepository.Update(leaveRequest);
                 await _unitOfWork.SaveChangesAsync();

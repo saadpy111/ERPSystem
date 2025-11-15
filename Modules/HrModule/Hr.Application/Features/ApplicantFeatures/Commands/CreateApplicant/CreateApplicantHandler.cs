@@ -39,7 +39,9 @@ namespace Hr.Application.Features.ApplicantFeatures.CreateApplicant
                     Status = ApplicantStatus.Applied,
                     ResumeUrl = request.ResumeUrl,
                     QualificationsDetails = request.QualificationsDetails,
-                    ExperienceDetails = request.ExperienceDetails
+                    ExperienceDetails = request.ExperienceDetails,
+                    Skills = request.Skills,
+                    EducationalQualifications = request.EducationalQualifications
                 };
 
                 await _applicantRepository.AddAsync(applicant);

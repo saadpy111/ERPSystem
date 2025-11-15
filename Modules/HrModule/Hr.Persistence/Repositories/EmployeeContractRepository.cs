@@ -1,5 +1,7 @@
 using Hr.Application.Contracts.Persistence.Repositories;
+using Hr.Application.Pagination;
 using Hr.Domain.Entities;
+using Hr.Domain.Enums;
 using Hr.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -50,6 +52,72 @@ namespace Hr.Persistence.Repositories
                 .Include(ec => ec.Job)
                 .Include(ec => ec.SalaryStructure)
                 .ToListAsync();
+        }
+
+        public async Task<PagedResult<EmployeeContract>> GetPagedAsync(int pageNumber, int pageSize, int? employeeId = null, int? jobId = null, string? contractType = null, string? orderBy = null, bool isDescending = false)
+        {
+            var query = _context.EmployeeContracts
+                .Include(ec => ec.Employee)
+                .Include(ec => ec.Job)
+                .Include(ec => ec.SalaryStructure)
+                .AsQueryable();
+
+            // Apply employee filter
+            if (employeeId.HasValue)
+            {
+                query = query.Where(ec => ec.EmployeeId == employeeId.Value);
+            }
+
+            // Apply job filter
+            if (jobId.HasValue)
+            {
+                query = query.Where(ec => ec.JobId == jobId.Value);
+            }
+
+            // Apply contract type filter
+            if (!string.IsNullOrWhiteSpace(contractType))
+            {
+                if (Enum.TryParse<ContractType>(contractType, true, out var contractTypeEnum))
+                {
+                    query = query.Where(ec => ec.ContractType == contractTypeEnum);
+                }
+            }
+
+            var totalCount = await query.CountAsync();
+
+            // Apply ordering
+            query = ApplyOrdering(query, orderBy, isDescending);
+
+            // Apply pagination
+            var items = await query
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PagedResult<EmployeeContract>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        private IQueryable<EmployeeContract> ApplyOrdering(IQueryable<EmployeeContract> query, string? orderBy, bool isDescending)
+        {
+            if (string.IsNullOrWhiteSpace(orderBy))
+                orderBy = "StartDate";
+
+            query = orderBy.ToLower() switch
+            {
+                "startdate" => isDescending ? query.OrderByDescending(ec => ec.StartDate) : query.OrderBy(ec => ec.StartDate),
+                "enddate" => isDescending ? query.OrderByDescending(ec => ec.EndDate) : query.OrderBy(ec => ec.EndDate),
+                "salary" => isDescending ? query.OrderByDescending(ec => ec.Salary) : query.OrderBy(ec => ec.Salary),
+                "contracttype" => isDescending ? query.OrderByDescending(ec => ec.ContractType) : query.OrderBy(ec => ec.ContractType),
+                _ => isDescending ? query.OrderByDescending(ec => ec.StartDate) : query.OrderBy(ec => ec.StartDate)
+            };
+
+            return query;
         }
 
         public void Update(EmployeeContract employeeContract)

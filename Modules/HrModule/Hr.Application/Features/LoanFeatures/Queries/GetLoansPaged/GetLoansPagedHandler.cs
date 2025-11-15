@@ -3,6 +3,9 @@ using Hr.Application.Contracts.Persistence.Repositories;
 using Hr.Application.DTOs;
 using Hr.Application.Pagination;
 using MediatR;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hr.Application.Features.LoanFeatures.GetLoansPaged
 {
@@ -19,66 +22,27 @@ namespace Hr.Application.Features.LoanFeatures.GetLoansPaged
 
         public async Task<GetLoansPagedResponse> Handle(GetLoansPagedRequest request, CancellationToken cancellationToken)
         {
-            var query = (await _repository.GetAllAsync()).AsQueryable();
+            // Use repository-level pagination instead of handler-level pagination
+            var pagedResult = await _repository.GetPagedAsync(
+                request.PageNumber,
+                request.PageSize,
+                request.EmployeeId,
+                request.Status,
+                request.OrderBy,
+                request.IsDescending);
 
-            // Apply employee filter
-            if (request.EmployeeId.HasValue)
-            {
-                query = query.Where(l => l.EmployeeId == request.EmployeeId.Value);
-            }
-
-            // Apply status filter
-            if (!string.IsNullOrWhiteSpace(request.Status))
-            {
-                if (Enum.TryParse<Hr.Domain.Enums.LoanStatus>(request.Status, true, out var status))
-                {
-                    query = query.Where(l => l.Status == status);
-                }
-            }
-
-            var totalCount = query.Count();
-
-            // Apply ordering
-            query = ApplyOrdering(query, request.OrderBy, request.IsDescending);
-
-            // Apply pagination
-            var items = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToList();
-
-            var dtos = _mapper.Map<IEnumerable<LoanDto>>(items);
+            var dtos = _mapper.Map<IEnumerable<LoanDto>>(pagedResult.Items);
 
             return new GetLoansPagedResponse
             {
                 PagedResult = new PagedResult<LoanDto>
                 {
                     Items = dtos,
-                    TotalCount = totalCount,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
+                    TotalCount = pagedResult.TotalCount,
+                    PageNumber = pagedResult.PageNumber,
+                    PageSize = pagedResult.PageSize
                 }
             };
-        }
-
-        private IQueryable<Hr.Domain.Entities.Loan> ApplyOrdering(
-            IQueryable<Hr.Domain.Entities.Loan> query,
-            string? orderBy,
-            bool isDescending)
-        {
-            if (string.IsNullOrWhiteSpace(orderBy))
-                orderBy = "StartDate";
-
-            query = orderBy.ToLower() switch
-            {
-                "principalamount" => isDescending ? query.OrderByDescending(l => l.PrincipalAmount) : query.OrderBy(l => l.PrincipalAmount),
-                "startdate" => isDescending ? query.OrderByDescending(l => l.StartDate) : query.OrderBy(l => l.StartDate),
-                "remainingbalance" => isDescending ? query.OrderByDescending(l => l.RemainingBalance) : query.OrderBy(l => l.RemainingBalance),
-                "status" => isDescending ? query.OrderByDescending(l => l.Status) : query.OrderBy(l => l.Status),
-                _ => isDescending ? query.OrderByDescending(l => l.StartDate) : query.OrderBy(l => l.StartDate)
-            };
-
-            return query;
         }
     }
 }

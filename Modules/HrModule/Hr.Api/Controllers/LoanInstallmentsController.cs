@@ -1,9 +1,9 @@
-using Hr.Application.Features.LoanInstallmentFeatures.CreateLoanInstallment;
 using Hr.Application.Features.LoanInstallmentFeatures.DeleteLoanInstallment;
 using Hr.Application.Features.LoanInstallmentFeatures.GetAllLoanInstallments;
 using Hr.Application.Features.LoanInstallmentFeatures.GetLoanInstallmentById;
 using Hr.Application.Features.LoanInstallmentFeatures.GetLoanInstallmentsPaged;
 using Hr.Application.Features.LoanInstallmentFeatures.UpdateLoanInstallment;
+using Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment;
 using Hr.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -20,17 +20,6 @@ namespace Hr.Api.Controllers
         public LoanInstallmentsController(IMediator mediator)
         {
             _mediator = mediator;
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateLoanInstallmentRequest request)
-        {
-            var result = await _mediator.Send(request);
-            
-            if (!result.Success)
-                return BadRequest(result);
-
-            return Ok(result);
         }
 
         [HttpGet]
@@ -80,6 +69,20 @@ namespace Hr.Api.Controllers
             var request = new DeleteLoanInstallmentRequest { InstallmentId = id };
             var result = await _mediator.Send(request);
 
+            if (!result.Success)
+                return BadRequest(result);
+
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/pay")]
+        public async Task<IActionResult> PayInstallment(int id, [FromBody] PayLoanInstallmentRequest request)
+        {
+            if (id != request.InstallmentId)
+                return BadRequest("ID mismatch");
+
+            var result = await _mediator.Send(request);
+            
             if (!result.Success)
                 return BadRequest(result);
 

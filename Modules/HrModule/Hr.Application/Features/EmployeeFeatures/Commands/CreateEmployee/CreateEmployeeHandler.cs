@@ -43,7 +43,7 @@ namespace Hr.Application.Features.EmployeeFeatures.CreateEmployee
                     PhoneNumber = request.PhoneNumber,
                     DateOfBirth = request.DateOfBirth,
                     Status = EmployeeStatus.Active,
-                    Gender = Enum.TryParse<Gender>(request.Gender, out var gender) ? gender : Gender.Other,
+                    Gender = request.Gender,
                     Address = request.Address,
                     ManagerId = request.ManagerId
                 };

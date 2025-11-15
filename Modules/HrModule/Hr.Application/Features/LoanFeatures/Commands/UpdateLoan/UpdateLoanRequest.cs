@@ -12,5 +12,6 @@ namespace Hr.Application.Features.LoanFeatures.UpdateLoan
         public int TermMonths { get; set; }
         public DateTime StartDate { get; set; }
         public LoanStatus Status { get; set; }
+        public string? Notes { get; set; }
     }
 }

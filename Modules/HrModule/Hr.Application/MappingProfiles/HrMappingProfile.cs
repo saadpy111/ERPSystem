@@ -39,6 +39,11 @@ namespace Hr.Application.MappingProfiles
             // Loan mappings
             CreateMap<Loan, LoanDto>()
                 .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.FullName : null))
+                .ForMember(dest => dest.JobName, opt => opt.MapFrom(src => src.Employee != null && src.Employee.Contracts != null && src.Employee.Contracts.Any(c => c.IsActive) ? 
+                    src.Employee.Contracts.First(c => c.IsActive).Job.Title : null))
+                .ForMember(dest => dest.DepartmentName, opt => opt.MapFrom(src => src.Employee != null && src.Employee.Contracts != null && src.Employee.Contracts.Any(c => c.IsActive) && 
+                    src.Employee.Contracts.First(c => c.IsActive).Job.Department != null ? 
+                    src.Employee.Contracts.First(c => c.IsActive).Job.Department.Name : null))
                 .ReverseMap();
 
             // AttendanceRecord mappings

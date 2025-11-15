@@ -30,6 +30,12 @@ namespace Hr.Domain.Entities
 
         public string? QualificationsDetails { get; set; }
         public string? ExperienceDetails { get; set; }
+        
+        [StringLength(1000)]
+        public string? Skills { get; set; }
+        
+        [StringLength(1000)]
+        public string? EducationalQualifications { get; set; }
 
         public DateTime? InterviewDate { get; set; }
         public string? InterviewNotes { get; set; }

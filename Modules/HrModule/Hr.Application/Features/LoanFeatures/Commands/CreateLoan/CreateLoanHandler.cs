@@ -10,12 +10,18 @@ namespace Hr.Application.Features.LoanFeatures.CreateLoan
     public class CreateLoanHandler : IRequestHandler<CreateLoanRequest, CreateLoanResponse>
     {
         private readonly ILoanRepository _loanRepository;
+        private readonly ILoanInstallmentRepository _loanInstallmentRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public CreateLoanHandler(ILoanRepository loanRepository, IUnitOfWork unitOfWork, IMapper mapper)
+        public CreateLoanHandler(
+            ILoanRepository loanRepository,
+            ILoanInstallmentRepository loanInstallmentRepository,
+            IUnitOfWork unitOfWork,
+            IMapper mapper)
         {
             _loanRepository = loanRepository;
+            _loanInstallmentRepository = loanInstallmentRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
@@ -32,18 +38,34 @@ namespace Hr.Application.Features.LoanFeatures.CreateLoan
                     TermMonths = request.TermMonths,
                     StartDate = request.StartDate,
                     RemainingBalance = request.PrincipalAmount,
-                    Status = LoanStatus.Active
+                    Status = LoanStatus.Active,
+                    Notes = request.Notes
                 };
 
                 await _loanRepository.AddAsync(loan);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync(); 
+
+                for (int i = 0; i < loan.TermMonths; i++)
+                {
+                    var installment = new LoanInstallment
+                    {
+                        LoanId = loan.LoanId,
+                        DueDate = loan.StartDate.AddMonths(i), 
+                        AmountDue = loan.MonthlyInstallment,
+                        Status = InstallmentStatus.Pending
+                    };
+
+                    await _loanInstallmentRepository.AddAsync(installment);
+                }
+
+                await _unitOfWork.SaveChangesAsync(); 
 
                 var loanDto = _mapper.Map<DTOs.LoanDto>(loan);
 
                 return new CreateLoanResponse
                 {
                     Success = true,
-                    Message = "Loan created successfully",
+                    Message = "Loan and installments created successfully",
                     Loan = loanDto
                 };
             }

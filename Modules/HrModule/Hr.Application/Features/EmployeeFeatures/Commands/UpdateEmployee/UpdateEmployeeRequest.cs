@@ -13,7 +13,7 @@ namespace Hr.Application.Features.EmployeeFeatures.UpdateEmployee
         public EmployeeStatus Status { get; set; }
         
 
-        public string Gender { get; set; } = string.Empty;
+        public Gender Gender { get; set; } 
         public string? Address { get; set; }
         public IFormFile? ImageFile { get; set; }
         public int? ManagerId { get; set; }

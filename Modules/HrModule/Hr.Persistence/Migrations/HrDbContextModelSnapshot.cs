@@ -40,6 +40,10 @@ namespace Hr.Persistence.Migrations
                     b.Property<int>("CurrentStageId")
                         .HasColumnType("int");
 
+                    b.Property<string>("EducationalQualifications")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<string>("ExperienceDetails")
                         .HasColumnType("nvarchar(max)");
 
@@ -63,6 +67,10 @@ namespace Hr.Persistence.Migrations
                     b.Property<string>("ResumeUrl")
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Skills")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -382,6 +390,10 @@ namespace Hr.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
@@ -415,6 +427,10 @@ namespace Hr.Persistence.Migrations
 
                     b.Property<decimal>("MonthlyInstallment")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
 
                     b.Property<decimal>("PrincipalAmount")
                         .HasColumnType("decimal(18,2)");

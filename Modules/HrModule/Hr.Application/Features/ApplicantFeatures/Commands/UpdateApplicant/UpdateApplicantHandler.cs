@@ -47,6 +47,8 @@ namespace Hr.Application.Features.ApplicantFeatures.UpdateApplicant
                 applicant.ResumeUrl = request.ResumeUrl;
                 applicant.QualificationsDetails = request.QualificationsDetails;
                 applicant.ExperienceDetails = request.ExperienceDetails;
+                applicant.Skills = request.Skills;
+                applicant.EducationalQualifications = request.EducationalQualifications;
 
                 _applicantRepository.Update(applicant);
                 await _unitOfWork.SaveChangesAsync();

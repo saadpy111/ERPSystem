@@ -3,6 +3,9 @@ using Hr.Application.Contracts.Persistence.Repositories;
 using Hr.Application.DTOs;
 using Hr.Application.Pagination;
 using MediatR;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hr.Application.Features.ApplicantFeatures.GetApplicantsPaged
 {
@@ -19,78 +22,29 @@ namespace Hr.Application.Features.ApplicantFeatures.GetApplicantsPaged
 
         public async Task<GetApplicantsPagedResponse> Handle(GetApplicantsPagedRequest request, CancellationToken cancellationToken)
         {
-            var query = (await _applicantRepository.GetAllAsync()).AsQueryable();
+            // Use repository-level pagination instead of handler-level pagination
+            var pagedResult = await _applicantRepository.GetPagedAsync(
+                request.PageNumber,
+                request.PageSize,
+                request.SearchTerm,
+                request.JobId,
+                request.CurrentStageId,
+                request.Status,
+                request.OrderBy,
+                request.IsDescending);
 
-            // Apply search filter
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-            {
-                var searchTerm = request.SearchTerm.ToLower();
-                query = query.Where(a => a.FullName.ToLower().Contains(searchTerm));
-            }
-
-            // Apply job filter
-            if (request.JobId.HasValue)
-            {
-                query = query.Where(a => a.JobId == request.JobId.Value);
-            }
-
-            // Apply stage filter
-            if (request.CurrentStageId.HasValue)
-            {
-                query = query.Where(a => a.CurrentStageId == request.CurrentStageId.Value);
-            }
-
-            // Apply status filter
-            if (!string.IsNullOrWhiteSpace(request.Status))
-            {
-                if (Enum.TryParse<Hr.Domain.Enums.ApplicantStatus>(request.Status, true, out var status))
-                {
-                    query = query.Where(a => a.Status == status);
-                }
-            }
-
-            var totalCount = query.Count();
-
-            // Apply ordering
-            query = ApplyOrdering(query, request.OrderBy, request.IsDescending);
-
-            // Apply pagination
-            var applicants = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToList();
-
-            var applicantDtos = _mapper.Map<IEnumerable<ApplicantDto>>(applicants);
+            var applicantDtos = _mapper.Map<IEnumerable<ApplicantDto>>(pagedResult.Items);
 
             return new GetApplicantsPagedResponse
             {
                 PagedResult = new PagedResult<ApplicantDto>
                 {
                     Items = applicantDtos,
-                    TotalCount = totalCount,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
+                    TotalCount = pagedResult.TotalCount,
+                    PageNumber = pagedResult.PageNumber,
+                    PageSize = pagedResult.PageSize
                 }
             };
-        }
-
-        private IQueryable<Hr.Domain.Entities.Applicant> ApplyOrdering(
-            IQueryable<Hr.Domain.Entities.Applicant> query,
-            string? orderBy,
-            bool isDescending)
-        {
-            if (string.IsNullOrWhiteSpace(orderBy))
-                orderBy = "FullName";
-
-            query = orderBy.ToLower() switch
-            {
-                "fullname" => isDescending ? query.OrderByDescending(a => a.FullName) : query.OrderBy(a => a.FullName),
-                "applicationdate" => isDescending ? query.OrderByDescending(a => a.ApplicationDate) : query.OrderBy(a => a.ApplicationDate),
-                "status" => isDescending ? query.OrderByDescending(a => a.Status) : query.OrderBy(a => a.Status),
-                _ => isDescending ? query.OrderByDescending(a => a.FullName) : query.OrderBy(a => a.FullName)
-            };
-
-            return query;
         }
     }
 }

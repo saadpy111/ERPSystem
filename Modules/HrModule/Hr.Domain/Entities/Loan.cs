@@ -28,6 +28,9 @@ namespace Hr.Domain.Entities
         public decimal RemainingBalance { get; set; }
 
         public LoanStatus Status { get; set; } = LoanStatus.Active;
+        
+        
+        public string? Notes { get; set; }
 
         public ICollection<LoanInstallment> Installments { get; set; } = new List<LoanInstallment>();
     }

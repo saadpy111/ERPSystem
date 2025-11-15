@@ -2,6 +2,10 @@ using AutoMapper;
 using Hr.Application.Contracts.Persistence.Repositories;
 using Hr.Application.Pagination;
 using MediatR;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hr.Application.Features.RecruitmentStageFeatures.GetRecruitmentStagesPaged
 {
@@ -18,27 +22,15 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.GetRecruitmentStagesP
 
         public async Task<GetRecruitmentStagesPagedResponse> Handle(GetRecruitmentStagesPagedRequest request, CancellationToken cancellationToken)
         {
-            var query = (await _repository.GetAllAsync()).AsQueryable();
+            // Use repository-level pagination instead of handler-level pagination
+            var pagedResult = await _repository.GetPagedAsync(
+                request.PageNumber,
+                request.PageSize,
+                request.SearchTerm,
+                request.OrderBy,
+                request.IsDescending);
 
-            // Apply search filter
-            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
-            {
-                var searchTerm = request.SearchTerm.ToLower();
-                query = query.Where(rs => rs.Name.ToLower().Contains(searchTerm));
-            }
-
-            var totalCount = query.Count();
-
-            // Apply ordering
-            query = ApplyOrdering(query, request.OrderBy, request.IsDescending);
-
-            // Apply pagination
-            var items = query
-                .Skip((request.PageNumber - 1) * request.PageSize)
-                .Take(request.PageSize)
-                .ToList();
-
-            var dtos = items.Select(rs => new
+            var dtos = pagedResult.Items.Select(rs => new
             {
                 rs.StageId,
                 rs.Name,
@@ -50,29 +42,11 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.GetRecruitmentStagesP
                 PagedResult = new PagedResult<object>
                 {
                     Items = dtos,
-                    TotalCount = totalCount,
-                    PageNumber = request.PageNumber,
-                    PageSize = request.PageSize
+                    TotalCount = pagedResult.TotalCount,
+                    PageNumber = pagedResult.PageNumber,
+                    PageSize = pagedResult.PageSize
                 }
             };
-        }
-
-        private IQueryable<Hr.Domain.Entities.RecruitmentStage> ApplyOrdering(
-            IQueryable<Hr.Domain.Entities.RecruitmentStage> query,
-            string? orderBy,
-            bool isDescending)
-        {
-            if (string.IsNullOrWhiteSpace(orderBy))
-                orderBy = "SequenceOrder";
-
-            query = orderBy.ToLower() switch
-            {
-                "name" => isDescending ? query.OrderByDescending(rs => rs.Name) : query.OrderBy(rs => rs.Name),
-                "sequenceorder" => isDescending ? query.OrderByDescending(rs => rs.SequenceOrder) : query.OrderBy(rs => rs.SequenceOrder),
-                _ => isDescending ? query.OrderByDescending(rs => rs.SequenceOrder) : query.OrderBy(rs => rs.SequenceOrder)
-            };
-
-            return query;
         }
     }
 }

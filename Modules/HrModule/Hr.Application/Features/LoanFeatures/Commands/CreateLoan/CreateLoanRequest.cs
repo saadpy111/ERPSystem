@@ -9,5 +9,6 @@ namespace Hr.Application.Features.LoanFeatures.CreateLoan
         public decimal MonthlyInstallment { get; set; }
         public int TermMonths { get; set; }
         public DateTime StartDate { get; set; }
+        public string? Notes { get; set; }
     }
 }
