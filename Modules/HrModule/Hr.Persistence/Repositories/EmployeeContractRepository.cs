@@ -31,6 +31,7 @@ namespace Hr.Persistence.Repositories
                 .Include(ec => ec.Employee)
                 .Include(ec => ec.Job)
                 .Include(ec => ec.SalaryStructure)
+                .ThenInclude(s => s.Components)
                 .FirstOrDefaultAsync(ec => ec.Id == id);
         }
 
@@ -44,6 +45,16 @@ namespace Hr.Persistence.Repositories
                 .FirstOrDefaultAsync(ec => ec.EmployeeId == id);
         }
 
+        public async Task<IEnumerable<EmployeeContract>> GetContractsByEmployeeIdAsync(int employeeId)
+        {
+            return await _context.EmployeeContracts
+                .Include(ec => ec.Employee)
+                .Include(ec => ec.Job)
+                .Include(ec => ec.SalaryStructure)
+                .ThenInclude(s => s.Components)
+                .Where(ec => ec.EmployeeId == employeeId)
+                .ToListAsync();
+        }
 
         public async Task<IEnumerable<EmployeeContract>> GetAllAsync()
         {
@@ -51,6 +62,7 @@ namespace Hr.Persistence.Repositories
                 .Include(ec => ec.Employee)
                 .Include(ec => ec.Job)
                 .Include(ec => ec.SalaryStructure)
+                .ThenInclude(s => s.Components)
                 .ToListAsync();
         }
 
@@ -60,6 +72,7 @@ namespace Hr.Persistence.Repositories
                 .Include(ec => ec.Employee)
                 .Include(ec => ec.Job)
                 .Include(ec => ec.SalaryStructure)
+                .ThenInclude(s => s.Components)
                 .AsQueryable();
 
             // Apply employee filter

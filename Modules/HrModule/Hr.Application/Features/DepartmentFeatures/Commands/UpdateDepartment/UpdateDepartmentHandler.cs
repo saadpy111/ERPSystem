@@ -41,6 +41,7 @@ namespace Hr.Application.Features.DepartmentFeatures.UpdateDepartment
 
                 department.Name = request.Name;
                 department.Description = request.Description;
+                department.ParentDepartmentId = request.ParentDepartmentId;
                 department.ManagerId = request.ManagerId;
 
                 _departmentRepository.Update(department);

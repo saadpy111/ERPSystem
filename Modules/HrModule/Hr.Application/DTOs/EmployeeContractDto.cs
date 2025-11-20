@@ -17,6 +17,7 @@ namespace Hr.Application.DTOs
         public string? Notes { get; set; }
         public bool IsActive { get; set; }
         public ICollection<HrAttachmentDto> Attachments { get; set; } = new List<HrAttachmentDto>();
+        public ICollection<SalaryStructureComponentDto>  salaryStructureComponentDtos { get; set; } = new List<SalaryStructureComponentDto>();
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

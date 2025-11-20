@@ -31,7 +31,7 @@ namespace Hr.Persistence.Repositories
                          .Include(e=>e.Manager)
                 .FirstOrDefaultAsync(e => e.EmployeeId == id);
         }
-
+   
         public async Task<IEnumerable<Employee>> GetAllAsync()
         {
             return await _context.Employees

@@ -7,6 +7,7 @@ namespace Hr.Application.Features.DepartmentFeatures.CreateDepartment
     {
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public int? ParentDepartmentId { get; set; }
         public int? ManagerId { get; set; }
         public ICollection<IFormFile>? AttachmentFiles { get; set; }
     }

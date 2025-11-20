@@ -14,5 +14,6 @@ namespace Hr.Application.Contracts.Persistence.Repositories
         void Update(EmployeeContract employeeContract);
         void Delete(EmployeeContract employeeContract);
         Task<EmployeeContract?> GetContractByEmployeeIdAsync(int id);
+        Task<IEnumerable<EmployeeContract>> GetContractsByEmployeeIdAsync(int employeeId);
     }
 }
