@@ -21,6 +21,7 @@ namespace Hr.Persistence.Context
         public DbSet<PayrollComponent> PayrollComponents { get; set; }
         public DbSet<AttendanceRecord> AttendanceRecords { get; set; }
         public DbSet<LeaveRequest> LeaveRequests { get; set; }
+        public DbSet<LeaveType> LeaveTypes { get; set; }
         public DbSet<EmployeeContract> EmployeeContracts { get; set; }
         public DbSet<HrAttachment> Attachments { get; set; }
         public DbSet<SalaryStructure> SalaryStructures { get; set; }

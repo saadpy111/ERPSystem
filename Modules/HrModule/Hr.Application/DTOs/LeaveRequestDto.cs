@@ -7,7 +7,7 @@ namespace Hr.Application.DTOs
         public int RequestId { get; set; }
         public int EmployeeId { get; set; }
         public string? EmployeeName { get; set; }
-        public LeaveType LeaveType { get; set; }
+        public LeaveTypeDto LeaveType { get; set; } = null!;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int DurationDays { get; set; }

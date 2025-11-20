@@ -7,7 +7,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest
     {
         public int Id { get; set; }
         public int EmployeeId { get; set; }
-        public LeaveType LeaveType { get; set; }
+        public int LeaveTypeId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public int DurationDays { get; set; }
