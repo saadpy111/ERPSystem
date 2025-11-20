@@ -5,6 +5,7 @@ using Hr.Application.Features.DepartmentFeatures.DeleteDepartment;
 using Hr.Application.Features.DepartmentFeatures.GetAllDepartments;
 using Hr.Application.Features.DepartmentFeatures.GetDepartmentById;
 using Hr.Application.Features.DepartmentFeatures.GetDepartmentsPaged;
+using Hr.Application.Features.DepartmentFeatures.Queries.GetDepartmentTree;
 using Hr.Application.Features.DepartmentFeatures.UpdateDepartment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -44,6 +45,13 @@ namespace Hr.Api.Controllers
         public async Task<IActionResult> GetPaged([FromQuery] GetDepartmentsPagedRequest request)
         {
             var result = await _mediator.Send(request);
+            return Ok(result);
+        }
+
+        [HttpGet("tree")]
+        public async Task<IActionResult> GetTree()
+        {
+            var result = await _mediator.Send(new GetDepartmentTreeRequest());
             return Ok(result);
         }
 

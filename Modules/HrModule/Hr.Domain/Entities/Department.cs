@@ -15,6 +15,11 @@ namespace Hr.Domain.Entities
 
         [StringLength(500)]
         public string? Description { get; set; }
+        
+        public int? ParentDepartmentId { get; set; }
+        public Department? ParentDepartment { get; set; }
+        public ICollection<Department> SubDepartments { get; set; } = new List<Department>();
+
         public int? ManagerId { get; set; }
         public Employee? Manager { get; set; }
         public ICollection<Job> Jobs { get; set; } = new List<Job>();

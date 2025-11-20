@@ -11,11 +11,15 @@ namespace Hr.Application.MappingProfiles
             // Department mappings
             CreateMap<Department, DepartmentDto>()
                 .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager != null ? src.Manager.FullName : null))
+                .ForMember(dest => dest.ParentDepartmentName, opt => opt.MapFrom(src => src.ParentDepartment != null ? src.ParentDepartment.Name : null))
+                .ForMember(dest => dest.SubDepartments, opt => opt.MapFrom(src => src.SubDepartments))
                 .ReverseMap();
 
             // Department Detail mappings
             CreateMap<Department, DepartmentDetailDto>()
                 .ForMember(dest => dest.ManagerName, opt => opt.MapFrom(src => src.Manager != null ? src.Manager.FullName : null))
+                .ForMember(dest => dest.ParentDepartmentName, opt => opt.MapFrom(src => src.ParentDepartment != null ? src.ParentDepartment.Name : null))
+                .ForMember(dest => dest.SubDepartments, opt => opt.MapFrom(src => src.SubDepartments))
                 .ForMember(dest => dest.Jobs, opt => opt.MapFrom(src => src.Jobs))
                 .ReverseMap();
 
@@ -86,6 +90,7 @@ namespace Hr.Application.MappingProfiles
                 .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.Job != null ? src.Job.Title : null))
                 .ForMember(dest => dest.ContractType, opt => opt.MapFrom(src => src.ContractType.ToString()))
                 .ForMember(dest => dest.SalaryStructureName, opt => opt.MapFrom(src => src.SalaryStructure != null ? src.SalaryStructure.Name : null))
+                .ForMember(dest => dest.salaryStructureComponentDtos, opt => opt.MapFrom(src => src.SalaryStructure != null ? src.SalaryStructure.Components : new List<SalaryStructureComponent>()))
                 .ReverseMap();
 
             // HrAttachment mappings

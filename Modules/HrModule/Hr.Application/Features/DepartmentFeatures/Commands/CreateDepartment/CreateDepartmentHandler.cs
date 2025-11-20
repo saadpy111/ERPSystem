@@ -36,8 +36,9 @@ namespace Hr.Application.Features.DepartmentFeatures.CreateDepartment
             {
                 Name = request.Name,
                 Description = request.Description,
-                 ManagerId = request.ManagerId,
-                  CreatedAt = DateTime.UtcNow
+                ParentDepartmentId = request.ParentDepartmentId,
+                ManagerId = request.ManagerId,
+                CreatedAt = DateTime.UtcNow
             };
 
             await _departmentRepository.AddAsync(department);

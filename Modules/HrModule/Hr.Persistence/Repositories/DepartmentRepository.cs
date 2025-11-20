@@ -28,6 +28,8 @@ namespace Hr.Persistence.Repositories
         {
             return await _context.Departments
                 .Include(d => d.Manager)
+                .Include(d => d.ParentDepartment)
+                .Include(d => d.SubDepartments)
                 .Include(d => d.Jobs)
                 .FirstOrDefaultAsync(d => d.DepartmentId == id);
         }
@@ -36,14 +38,53 @@ namespace Hr.Persistence.Repositories
         {
             return await _context.Departments
                 .Include(d => d.Manager)
+                .Include(d => d.ParentDepartment)
+                .Include(d => d.SubDepartments)
                 .Include(d => d.Jobs)
                 .ToListAsync();
         }
+
+        public async Task<IEnumerable<Department>> GetDepartmentTreeAsync()
+        {
+            // Load all departments
+            var departments = await _context.Departments
+                .Include(d => d.Manager)
+                .Include(d => d.Jobs)
+                .ToListAsync();
+
+            var lookup = departments.ToDictionary(d => d.DepartmentId);
+
+            foreach (var d in departments)
+                d.SubDepartments = new List<Department>();
+
+            foreach (var dept in departments)
+            {
+                if (dept.ParentDepartmentId.HasValue)
+                {
+                    var parentId = dept.ParentDepartmentId.Value;
+
+                    if (lookup.TryGetValue(parentId, out var parent))
+                    {
+                        // Add this department as child of its parent
+                        parent.SubDepartments.Add(dept);
+
+                        // Set parent reference
+                        dept.ParentDepartment = parent;
+                    }
+                }
+            }
+
+            // Return only the root nodes
+            return departments.Where(d => d.ParentDepartmentId == null);
+        }
+
 
         public async Task<PagedResult<Department>> GetPagedAsync(int pageNumber, int pageSize, string? searchTerm = null, string? orderBy = null, bool isDescending = false)
         {
             var query = _context.Departments
                 .Include(d => d.Manager)
+                .Include(d => d.ParentDepartment)
+                .Include(d => d.SubDepartments)
                 .Include(d => d.Jobs)
                 .AsQueryable();
 

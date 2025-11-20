@@ -17,9 +17,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Queries.GetEmployeeCo
 
         public async Task<GetEmployeeContractsByEmployeeIdResponse> Handle(GetEmployeeContractsByEmployeeIdRequest request, CancellationToken cancellationToken)
         {
-            var employeeContracts = (await _employeeContractRepository.GetAllAsync())
-                .Where(ec => ec.EmployeeId == request.EmployeeId)
-                .ToList();
+            var employeeContracts = await _employeeContractRepository.GetContractsByEmployeeIdAsync(request.EmployeeId);
 
             var employeeContractDtos = _mapper.Map<IEnumerable<DTOs.EmployeeContractDto>>(employeeContracts);
 
