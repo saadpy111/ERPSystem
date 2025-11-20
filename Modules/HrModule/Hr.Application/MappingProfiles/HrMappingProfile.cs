@@ -34,6 +34,11 @@ namespace Hr.Application.MappingProfiles
             // LeaveRequest mappings
             CreateMap<LeaveRequest, LeaveRequestDto>()
                 .ForMember(dest => dest.EmployeeName, opt => opt.MapFrom(src => src.Employee != null ? src.Employee.FullName : null))
+                .ForMember(dest => dest.LeaveType, opt => opt.MapFrom(src => src.LeaveType))
+                .ReverseMap();
+
+            // LeaveType mappings
+            CreateMap<LeaveType, LeaveTypeDto>()
                 .ReverseMap();
 
             // Loan mappings

@@ -27,7 +27,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.CreateLeaveRequest
                 var leaveRequest = new LeaveRequest
                 {
                     EmployeeId = request.EmployeeId,
-                    LeaveType = request.LeaveType,
+                    LeaveTypeId = request.LeaveTypeId,
                     StartDate = request.StartDate,
                     EndDate = request.EndDate,
                     DurationDays = request.DurationDays,

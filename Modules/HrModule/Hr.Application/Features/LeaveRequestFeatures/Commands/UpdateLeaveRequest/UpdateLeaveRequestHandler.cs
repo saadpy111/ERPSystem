@@ -33,7 +33,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest
                 }
 
                 leaveRequest.EmployeeId = request.EmployeeId;
-                leaveRequest.LeaveType = request.LeaveType;
+                leaveRequest.LeaveTypeId = request.LeaveTypeId;
                 leaveRequest.StartDate = request.StartDate;
                 leaveRequest.EndDate = request.EndDate;
                 leaveRequest.DurationDays = request.DurationDays;

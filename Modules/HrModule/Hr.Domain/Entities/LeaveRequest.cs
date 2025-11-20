@@ -14,7 +14,8 @@ namespace Hr.Domain.Entities
         public Employee Employee { get; set; } = null!;
 
         [Required]
-        public LeaveType LeaveType { get; set; }
+        public int LeaveTypeId { get; set; }
+        public LeaveType LeaveType { get; set; } = null!;
 
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }

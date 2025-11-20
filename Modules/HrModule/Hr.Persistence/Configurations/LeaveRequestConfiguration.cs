@@ -10,9 +10,10 @@ namespace Hr.Persistence.Configurations
         {
             builder.HasKey(lr => lr.RequestId);
 
-            builder.Property(lr => lr.LeaveType)
-                .IsRequired()
-                .HasConversion<string>();
+            builder.HasOne(lr => lr.LeaveType)
+                .WithMany()
+                .HasForeignKey(lr => lr.LeaveTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(lr => lr.Status)
                 .IsRequired()

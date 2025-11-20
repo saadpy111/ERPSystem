@@ -25,6 +25,7 @@ namespace Hr.Persistence.DependencyInjection
             services.AddScoped<IEmployeeRepository, EmployeeRepository>();
             services.AddScoped<IJobRepository, JobRepository>();
             services.AddScoped<ILeaveRequestRepository, LeaveRequestRepository>();
+            services.AddScoped<ILeaveTypeRepository, LeaveTypeRepository>();
             services.AddScoped<ILoanRepository, LoanRepository>();
             services.AddScoped<IAttendanceRecordRepository, AttendanceRecordRepository>();
             services.AddScoped<IPayrollRecordRepository, PayrollRecordRepository>();

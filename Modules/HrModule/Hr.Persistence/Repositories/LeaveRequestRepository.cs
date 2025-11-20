@@ -29,6 +29,7 @@ namespace Hr.Persistence.Repositories
         {
             return await _context.LeaveRequests
                 .Include(lr => lr.Employee)
+                .Include(lr => lr.LeaveType)
                 .FirstOrDefaultAsync(lr => lr.RequestId == id);
         }
 
@@ -36,6 +37,7 @@ namespace Hr.Persistence.Repositories
         {
             return await _context.LeaveRequests
                 .Include(lr => lr.Employee)
+                .Include(lr => lr.LeaveType)
                 .ToListAsync();
         }
 
@@ -44,6 +46,7 @@ namespace Hr.Persistence.Repositories
             return await _context.LeaveRequests
                 .Where(lr => lr.EmployeeId == employeeId)
                 .Include(lr => lr.Employee)
+                .Include(lr => lr.LeaveType)
                 .ToListAsync();
         }
 
@@ -51,6 +54,7 @@ namespace Hr.Persistence.Repositories
         {
             var query = _context.LeaveRequests
                 .Include(lr => lr.Employee)
+                .Include(lr => lr.LeaveType)
                 .AsQueryable();
 
             // Apply employee filter
@@ -62,9 +66,10 @@ namespace Hr.Persistence.Repositories
             // Apply leave type filter
             if (!string.IsNullOrWhiteSpace(leaveType))
             {
-                if (Enum.TryParse<LeaveType>(leaveType, true, out var leaveTypeEnum))
+                // Try to parse as int for LeaveTypeId
+                if (int.TryParse(leaveType, out var leaveTypeId))
                 {
-                    query = query.Where(lr => lr.LeaveType == leaveTypeEnum);
+                    query = query.Where(lr => lr.LeaveTypeId == leaveTypeId);
                 }
             }
 
@@ -83,6 +88,7 @@ namespace Hr.Persistence.Repositories
                 var searchTermLower = searchTerm.ToLower();
                 query = query.Where(lr => 
                     lr.Employee.FullName.ToLower().Contains(searchTermLower) ||
+                    lr.LeaveType.LeaveTypeName.ToLower().Contains(searchTermLower) ||
                     lr.Notes.ToLower().Contains(searchTermLower));
             }
 
@@ -117,6 +123,7 @@ namespace Hr.Persistence.Repositories
                 "enddate" => isDescending ? query.OrderByDescending(lr => lr.EndDate) : query.OrderBy(lr => lr.EndDate),
                 "durationdays" => isDescending ? query.OrderByDescending(lr => lr.DurationDays) : query.OrderBy(lr => lr.DurationDays),
                 "status" => isDescending ? query.OrderByDescending(lr => lr.Status) : query.OrderBy(lr => lr.Status),
+                "leavetypename" => isDescending ? query.OrderByDescending(lr => lr.LeaveType.LeaveTypeName) : query.OrderBy(lr => lr.LeaveType.LeaveTypeName),
                 _ => isDescending ? query.OrderByDescending(lr => lr.StartDate) : query.OrderBy(lr => lr.StartDate)
             };
 

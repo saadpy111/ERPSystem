@@ -38,7 +38,6 @@ namespace Hr.Application.Features.EmployeeFeatures.GetEmployeeLeaveRequests
                 {
                     RequestId = l.RequestId,
                     EmployeeId = l.EmployeeId,
-                    LeaveType = l.LeaveType,
                     StartDate = l.StartDate,
                     EndDate = l.EndDate,
                     DurationDays = l.DurationDays,

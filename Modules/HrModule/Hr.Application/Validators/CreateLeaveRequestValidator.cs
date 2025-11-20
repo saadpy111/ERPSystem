@@ -10,8 +10,6 @@ namespace Hr.Application.Validators
             RuleFor(x => x.EmployeeId)
                 .GreaterThan(0).WithMessage("Employee is required");
 
-            RuleFor(x => x.LeaveType)
-                .IsInEnum().WithMessage("Valid leave type is required");
 
             RuleFor(x => x.StartDate)
                 .NotEmpty().WithMessage("Start date is required");
