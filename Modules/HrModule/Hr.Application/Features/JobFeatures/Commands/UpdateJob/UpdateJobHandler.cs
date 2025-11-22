@@ -37,6 +37,10 @@ namespace Hr.Application.Features.JobFeatures.UpdateJob
                 job.WorkType = request.WorkType;
                 job.PublishedDate = request.PublishedDate;
                 job.Status = request.Status;
+                job.Responsibilities = request.Responsibilities;
+                job.RequiredSkills = request.RequiredSkills;
+                job.RequiredExperience = request.RequiredExperience;
+                job.RequiredQualification = request.RequiredQualification;
 
                 _jobRepository.Update(job);
                 await _unitOfWork.SaveChangesAsync();

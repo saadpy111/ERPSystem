@@ -9,18 +9,40 @@ namespace Hr.Application.Features.ApplicantFeatures.GetApplicantById
     {
         private readonly IApplicantRepository _applicantRepository;
         private readonly IHrAttachmentRepository _attachmentRepository;
+        private readonly IApplicantEducationRepository _applicantEducationRepository;
+        private readonly IApplicantExperienceRepository _applicantExperienceRepository;
         private readonly IMapper _mapper;
 
-        public GetApplicantByIdHandler(IApplicantRepository applicantRepository, IHrAttachmentRepository attachmentRepository, IMapper mapper)
+        public GetApplicantByIdHandler(
+            IApplicantRepository applicantRepository, 
+            IHrAttachmentRepository attachmentRepository,
+            IApplicantEducationRepository applicantEducationRepository,
+            IApplicantExperienceRepository applicantExperienceRepository,
+            IMapper mapper)
         {
             _applicantRepository = applicantRepository;
             _attachmentRepository = attachmentRepository;
+            _applicantEducationRepository = applicantEducationRepository;
+            _applicantExperienceRepository = applicantExperienceRepository;
             _mapper = mapper;
         }
 
         public async Task<GetApplicantByIdResponse> Handle(GetApplicantByIdRequest request, CancellationToken cancellationToken)
         {
             var applicant = await _applicantRepository.GetByIdAsync(request.Id);
+            
+            // Load related data
+            if (applicant != null)
+            {
+                // Load educations
+                var educations = await _applicantEducationRepository.GetByApplicantIdAsync(applicant.ApplicantId);
+                applicant.Educations = educations.ToList();
+                
+                // Load experiences
+                var experiences = await _applicantExperienceRepository.GetByApplicantIdAsync(applicant.ApplicantId);
+                applicant.Experiences = experiences.ToList();
+            }
+            
             var applicantDto = _mapper.Map<DTOs.ApplicantDto>(applicant);
 
             // Fetch attachments for this applicant

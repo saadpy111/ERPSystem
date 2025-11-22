@@ -1,6 +1,7 @@
 using AutoMapper;
 using Hr.Application.DTOs;
 using Hr.Domain.Entities;
+using Hr.Domain.Enums;
 
 namespace Hr.Application.MappingProfiles
 {
@@ -70,6 +71,8 @@ namespace Hr.Application.MappingProfiles
             CreateMap<Applicant, ApplicantDto>()
                 .ForMember(dest => dest.JobTitle, opt => opt.MapFrom(src => src.AppliedJob != null ? src.AppliedJob.Title : null))
                 .ForMember(dest => dest.CurrentStageName, opt => opt.MapFrom(src => src.CurrentStage != null ? src.CurrentStage.Name : null))
+                .ForMember(dest => dest.Educations, opt => opt.MapFrom(src => src.Educations))
+                .ForMember(dest => dest.Experiences, opt => opt.MapFrom(src => src.Experiences))
                 .ReverseMap();
 
             // RecruitmentStage mappings
@@ -97,6 +100,14 @@ namespace Hr.Application.MappingProfiles
             CreateMap<HrAttachment, HrAttachmentDto>()
                 .ReverseMap();
 
+            // ApplicantEducation mappings
+            CreateMap<ApplicantEducation, ApplicantEducationDto>()
+                .ReverseMap();
+
+            // ApplicantExperience mappings
+            CreateMap<ApplicantExperience, ApplicantExperienceDto>()
+                .ReverseMap();
+
             // SalaryStructure mappings
             CreateMap<SalaryStructure, SalaryStructureDto>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
@@ -105,6 +116,19 @@ namespace Hr.Application.MappingProfiles
             // SalaryStructureComponent mappings
             CreateMap<SalaryStructureComponent, SalaryStructureComponentDto>()
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => src.Type.ToString()))
+                .ReverseMap();
+
+            // SalaryStructureComponentForCreationDto mappings
+            CreateMap<SalaryStructureComponentForCreationDto, SalaryStructureComponent>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.SalaryStructureId, opt => opt.Ignore())
+                .ForMember(dest => dest.SalaryStructure, opt => opt.Ignore())
+                .ReverseMap();
+
+            // SalaryStructureComponentForUpdateDto mappings
+            CreateMap<SalaryStructureComponentForUpdateDto, SalaryStructureComponent>()
+                .ForMember(dest => dest.SalaryStructureId, opt => opt.Ignore())
+                .ForMember(dest => dest.SalaryStructure, opt => opt.Ignore())
                 .ReverseMap();
 
             // SalaryStructurePaged mappings

@@ -33,7 +33,11 @@ namespace Hr.Application.Features.JobFeatures.GetActiveJobs
                 Status = j.Status,
                 PublishedDate = j.PublishedDate,
                 IsActive = j.IsActive,
-                ApplicantsCount = j.Applicants?.Count ?? 0
+                ApplicantsCount = j.Applicants?.Count ?? 0,
+                Responsibilities = j.Responsibilities,
+                RequiredSkills = j.RequiredSkills,
+                RequiredExperience = j.RequiredExperience,
+                RequiredQualification = j.RequiredQualification
             });
 
             return new GetActiveJobsResponse

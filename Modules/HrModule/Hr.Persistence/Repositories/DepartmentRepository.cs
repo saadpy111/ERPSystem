@@ -46,38 +46,34 @@ namespace Hr.Persistence.Repositories
 
         public async Task<IEnumerable<Department>> GetDepartmentTreeAsync()
         {
-            // Load all departments
+            // Get all departments with their direct relationships
             var departments = await _context.Departments
                 .Include(d => d.Manager)
                 .Include(d => d.Jobs)
                 .ToListAsync();
 
-            var lookup = departments.ToDictionary(d => d.DepartmentId);
+            // Create a lookup dictionary for efficient access
+            var departmentLookup = departments.ToDictionary(d => d.DepartmentId);
 
-            foreach (var d in departments)
-                d.SubDepartments = new List<Department>();
-
-            foreach (var dept in departments)
+            // Build the hierarchy manually
+            foreach (var department in departments)
             {
-                if (dept.ParentDepartmentId.HasValue)
+                // Set parent department reference
+                if (department.ParentDepartmentId.HasValue && departmentLookup.ContainsKey(department.ParentDepartmentId.Value))
                 {
-                    var parentId = dept.ParentDepartmentId.Value;
-
-                    if (lookup.TryGetValue(parentId, out var parent))
-                    {
-                        // Add this department as child of its parent
-                        parent.SubDepartments.Add(dept);
-
-                        // Set parent reference
-                        dept.ParentDepartment = parent;
-                    }
+                    department.ParentDepartment = departmentLookup[department.ParentDepartmentId.Value];
                 }
+
+                // Set sub-departments references
+                var subDepartments = departments.Where(d => d.ParentDepartmentId == department.DepartmentId).ToList();
+                department.SubDepartments = subDepartments;
             }
 
-            // Return only the root nodes
-            return departments.Where(d => d.ParentDepartmentId == null);
-        }
+            // Return only root departments (those without a parent)
+            var rootDepartments = departments.Where(d => d.ParentDepartmentId == null).ToList();
 
+            return rootDepartments;
+        }
 
         public async Task<PagedResult<Department>> GetPagedAsync(int pageNumber, int pageSize, string? searchTerm = null, string? orderBy = null, bool isDescending = false)
         {

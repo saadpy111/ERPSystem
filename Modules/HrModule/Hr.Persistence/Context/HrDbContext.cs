@@ -15,6 +15,8 @@ namespace Hr.Persistence.Context
         public DbSet<Job> Jobs { get; set; }
         public DbSet<RecruitmentStage> RecruitmentStages { get; set; }
         public DbSet<Applicant> Applicants { get; set; }
+        public DbSet<ApplicantEducation> ApplicantEducations { get; set; }
+        public DbSet<ApplicantExperience> ApplicantExperiences { get; set; }
         public DbSet<Loan> Loans { get; set; }
         public DbSet<LoanInstallment> LoanInstallments { get; set; }
         public DbSet<PayrollRecord> PayrollRecords { get; set; }

@@ -30,6 +30,8 @@ namespace Hr.Persistence.Repositories
             return await _context.Applicants
                 .Include(a => a.AppliedJob)
                 .Include(a => a.CurrentStage)
+                .Include(a => a.Educations)
+                .Include(a => a.Experiences)
                 .FirstOrDefaultAsync(a => a.ApplicantId == id);
         }
 
@@ -38,6 +40,8 @@ namespace Hr.Persistence.Repositories
             return await _context.Applicants
                 .Include(a => a.AppliedJob)
                 .Include(a => a.CurrentStage)
+                .Include(a => a.Educations)
+                .Include(a => a.Experiences)
                 .ToListAsync();
         }
 
@@ -47,6 +51,8 @@ namespace Hr.Persistence.Repositories
                 .Where(a => a.JobId == jobId)
                 .Include(a => a.AppliedJob)
                 .Include(a => a.CurrentStage)
+                .Include(a => a.Educations)
+                .Include(a => a.Experiences)
                 .ToListAsync();
         }
 
@@ -55,6 +61,8 @@ namespace Hr.Persistence.Repositories
             var query = _context.Applicants
                 .Include(a => a.AppliedJob)
                 .Include(a => a.CurrentStage)
+                .Include(a => a.Educations)
+                .Include(a => a.Experiences)
                 .AsQueryable();
 
             // Apply search filter

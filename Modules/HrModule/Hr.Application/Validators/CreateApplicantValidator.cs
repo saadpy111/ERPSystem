@@ -23,8 +23,12 @@ namespace Hr.Application.Validators
             RuleFor(x => x.QualificationsDetails)
                 .MaximumLength(1000).WithMessage("Qualifications details cannot exceed 1000 characters");
 
-            RuleFor(x => x.ExperienceDetails)
-                .MaximumLength(1000).WithMessage("Experience details cannot exceed 1000 characters");
+            // Removed validation for ExperienceDetails
+            // Removed validation for EducationalQualifications
+
+            // Validate each experience in the collection
+            RuleForEach(x => x.Experiences)
+                .SetValidator(new ApplicantExperienceValidator());
         }
     }
 }

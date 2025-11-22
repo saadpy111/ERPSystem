@@ -13,5 +13,9 @@ namespace Hr.Application.DTOs
         public DateTime PublishedDate { get; set; }
         public bool IsActive { get; set; }
         public int ApplicantsCount { get; set; }
+        public string? Responsibilities { get; set; }
+        public string? RequiredSkills { get; set; }
+        public string? RequiredExperience { get; set; }
+        public string? RequiredQualification { get; set; }
     }
 }

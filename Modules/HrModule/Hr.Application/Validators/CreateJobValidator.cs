@@ -16,6 +16,18 @@ namespace Hr.Application.Validators
 
             RuleFor(x => x.PublishedDate)
                 .NotEmpty().WithMessage("Published date is required");
+
+            RuleFor(x => x.Responsibilities)
+                .MaximumLength(2000).WithMessage("Responsibilities cannot exceed 2000 characters");
+
+            RuleFor(x => x.RequiredSkills)
+                .MaximumLength(2000).WithMessage("Required skills cannot exceed 2000 characters");
+
+            RuleFor(x => x.RequiredExperience)
+                .MaximumLength(2000).WithMessage("Required experience cannot exceed 2000 characters");
+
+            RuleFor(x => x.RequiredQualification)
+                .MaximumLength(2000).WithMessage("Required qualification cannot exceed 2000 characters");
         }
     }
 }

@@ -2,6 +2,7 @@ using Hr.Domain.Enums;
 using MediatR;
 using System;
 using System.Collections.Generic;
+using Hr.Application.DTOs;
 
 namespace Hr.Application.Features.SalaryStructureFeatures.Commands.UpdateSalaryStructure
 {
@@ -13,5 +14,6 @@ namespace Hr.Application.Features.SalaryStructureFeatures.Commands.UpdateSalaryS
         public string? Description { get; set; }
         public SalaryStructureType Type { get; set; } 
         public bool IsActive { get; set; }
+        public ICollection<SalaryStructureComponentForUpdateDto> Components { get; set; } = new List<SalaryStructureComponentForUpdateDto>();
     }
 }
