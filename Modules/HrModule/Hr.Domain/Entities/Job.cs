@@ -26,6 +26,18 @@ namespace Hr.Domain.Entities
 
         public bool IsActive { get; set; } = true;
 
+        [StringLength(2000)]
+        public string? Responsibilities { get; set; }
+
+        [StringLength(2000)]
+        public string? RequiredSkills { get; set; }
+
+        [StringLength(2000)]
+        public string? RequiredExperience { get; set; }
+
+        [StringLength(2000)]
+        public string? RequiredQualification { get; set; }
+
         public ICollection<Applicant> Applicants { get; set; } = new List<Applicant>();
     }
 }

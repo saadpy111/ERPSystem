@@ -30,7 +30,11 @@ namespace Hr.Application.Features.JobFeatures.CreateJob
                     DepartmentId = request.DepartmentId,
                     WorkType = request.WorkType,
                     PublishedDate = request.PublishedDate,
-                    Status = JobStatus.Open
+                    Status = JobStatus.Open,
+                    Responsibilities = request.Responsibilities,
+                    RequiredSkills = request.RequiredSkills,
+                    RequiredExperience = request.RequiredExperience,
+                    RequiredQualification = request.RequiredQualification
                 };
 
                 await _jobRepository.AddAsync(job);

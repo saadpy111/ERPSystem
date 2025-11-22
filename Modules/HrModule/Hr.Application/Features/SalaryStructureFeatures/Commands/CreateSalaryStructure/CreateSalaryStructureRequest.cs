@@ -1,8 +1,8 @@
 using Hr.Domain.Enums;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
+using Hr.Application.DTOs;
 
 namespace Hr.Application.Features.SalaryStructureFeatures.Commands.CreateSalaryStructure
 {
@@ -13,5 +13,6 @@ namespace Hr.Application.Features.SalaryStructureFeatures.Commands.CreateSalaryS
         public string? Description { get; set; }
         public SalaryStructureType Type { get; set; } 
         public bool IsActive { get; set; } = true;
+        public ICollection<SalaryStructureComponentForCreationDto> Components { get; set; } = new List<SalaryStructureComponentForCreationDto>();
     }
 }

@@ -71,8 +71,7 @@ namespace Hr.Application.Features.ApplicantFeatures.MoveApplicantToStage
                         CurrentStageId = applicant.CurrentStageId,
                         CurrentStageName = stage.Name,
                         Status = applicant.Status,
-                        ResumeUrl = applicant.ResumeUrl,
-                        InterviewDate = applicant.InterviewDate
+                        ResumeUrl = applicant.ResumeUrl
                     }
                 };
             }

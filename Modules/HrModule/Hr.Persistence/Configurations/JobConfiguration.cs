@@ -14,6 +14,18 @@ namespace Hr.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(150);
 
+            builder.Property(j => j.Responsibilities)
+                .HasMaxLength(2000);
+
+            builder.Property(j => j.RequiredSkills)
+                .HasMaxLength(2000);
+
+            builder.Property(j => j.RequiredExperience)
+                .HasMaxLength(2000);
+
+            builder.Property(j => j.RequiredQualification)
+                .HasMaxLength(2000);
+
             builder.Property(j => j.WorkType)
                 .HasConversion<string>();
 

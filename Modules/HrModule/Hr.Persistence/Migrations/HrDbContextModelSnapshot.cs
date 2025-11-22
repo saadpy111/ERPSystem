@@ -31,6 +31,10 @@ namespace Hr.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApplicantId"));
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<DateTime>("ApplicationDate")
                         .HasColumnType("datetime2");
 
@@ -40,17 +44,20 @@ namespace Hr.Persistence.Migrations
                     b.Property<int>("CurrentStageId")
                         .HasColumnType("int");
 
-                    b.Property<string>("EducationalQualifications")
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                    b.Property<DateTime?>("DateOfBirth")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("ExperienceDetails")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("Email")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(150)
                         .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("InterviewDate")
                         .HasColumnType("datetime2");
@@ -60,6 +67,10 @@ namespace Hr.Persistence.Migrations
 
                     b.Property<int>("JobId")
                         .HasColumnType("int");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("QualificationsDetails")
                         .HasColumnType("nvarchar(max)");
@@ -86,6 +97,94 @@ namespace Hr.Persistence.Migrations
                     b.HasIndex("JobId");
 
                     b.ToTable("Applicants", "Hr");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.ApplicantEducation", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApplicantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DegreeName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Grade")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int?>("GraduationYear")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Institute")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("Specialization")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicantId");
+
+                    b.ToTable("ApplicantEducations", "Hr");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.ApplicantExperience", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ApplicantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicantId");
+
+                    b.ToTable("ApplicantExperiences", "Hr");
                 });
 
             modelBuilder.Entity("Hr.Domain.Entities.AttendanceRecord", b =>
@@ -348,6 +447,22 @@ namespace Hr.Persistence.Migrations
 
                     b.Property<DateTime>("PublishedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("RequiredExperience")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("RequiredQualification")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("RequiredSkills")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Responsibilities")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -769,6 +884,28 @@ namespace Hr.Persistence.Migrations
                     b.Navigation("CurrentStage");
                 });
 
+            modelBuilder.Entity("Hr.Domain.Entities.ApplicantEducation", b =>
+                {
+                    b.HasOne("Hr.Domain.Entities.Applicant", "Applicant")
+                        .WithMany("Educations")
+                        .HasForeignKey("ApplicantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Applicant");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.ApplicantExperience", b =>
+                {
+                    b.HasOne("Hr.Domain.Entities.Applicant", "Applicant")
+                        .WithMany("Experiences")
+                        .HasForeignKey("ApplicantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Applicant");
+                });
+
             modelBuilder.Entity("Hr.Domain.Entities.AttendanceRecord", b =>
                 {
                     b.HasOne("Hr.Domain.Entities.Employee", "Employee")
@@ -915,6 +1052,13 @@ namespace Hr.Persistence.Migrations
                         .IsRequired();
 
                     b.Navigation("SalaryStructure");
+                });
+
+            modelBuilder.Entity("Hr.Domain.Entities.Applicant", b =>
+                {
+                    b.Navigation("Educations");
+
+                    b.Navigation("Experiences");
                 });
 
             modelBuilder.Entity("Hr.Domain.Entities.Department", b =>

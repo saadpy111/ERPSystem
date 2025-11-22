@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Hr.Domain.Enums;
 
@@ -29,15 +30,34 @@ namespace Hr.Domain.Entities
         public string? ResumeUrl { get; set; }
 
         public string? QualificationsDetails { get; set; }
-        public string? ExperienceDetails { get; set; }
+        // Removed ExperienceDetails field
         
         [StringLength(1000)]
         public string? Skills { get; set; }
         
-        [StringLength(1000)]
-        public string? EducationalQualifications { get; set; }
+        // Removed EducationalQualifications field
 
         public DateTime? InterviewDate { get; set; }
         public string? InterviewNotes { get; set; }
+        
+        // New fields
+        [StringLength(500)]
+        public string? Address { get; set; }
+        
+        public Gender Gender { get; set; }
+        
+        [StringLength(20)]
+        public string? PhoneNumber { get; set; }
+        
+        public DateTime? DateOfBirth { get; set; }
+        
+        [StringLength(255)]
+        public string? Email { get; set; }
+        
+        // Navigation property for educations
+        public ICollection<ApplicantEducation> Educations { get; set; } = new List<ApplicantEducation>();
+        
+        // Navigation property for experiences
+        public ICollection<ApplicantExperience> Experiences { get; set; } = new List<ApplicantExperience>();
     }
 }

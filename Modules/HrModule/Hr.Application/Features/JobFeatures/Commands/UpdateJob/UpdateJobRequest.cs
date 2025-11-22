@@ -11,5 +11,9 @@ namespace Hr.Application.Features.JobFeatures.UpdateJob
         public WorkType? WorkType { get; set; }
         public DateTime PublishedDate { get; set; }
         public JobStatus Status { get; set; }
+        public string? Responsibilities { get; set; }
+        public string? RequiredSkills { get; set; }
+        public string? RequiredExperience { get; set; }
+        public string? RequiredQualification { get; set; }
     }
 }
