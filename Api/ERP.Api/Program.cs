@@ -1,11 +1,14 @@
 using ERP.Api.DependencyInjection;
 using Identity.Application.Settings;
+using Report.Persistence.Context;
+using Report.Persistence.Seeders;
+using System;
 
 namespace Inventory.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +30,13 @@ namespace Inventory.Api
 
 
             var app = builder.Build();
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var db = scope.ServiceProvider.GetRequiredService<ReportDbContext>();
+            //    var seeder = new ReportSeeder(db);
+            //    await seeder.SeedAsync();
+            //}
+
             app.UseCors("mypolicy");
        
                 app.UseSwagger();

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Events.HrEvents;
 using Hr.Application.Contracts.Infrastructure.FileService;
 using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
@@ -6,6 +7,7 @@ using Hr.Domain.Entities;
 using Hr.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using System.Diagnostics.Contracts;
 
 namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmployeeContract
 {
@@ -16,19 +18,22 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmploy
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IFileService _fileService;
+        private readonly IMediator _mediator;
 
         public CreateEmployeeContractHandler(
             IEmployeeContractRepository employeeContractRepository,
             IHrAttachmentRepository attachmentRepository,
             IUnitOfWork unitOfWork,
             IMapper mapper,
-            IFileService fileService)
+            IFileService fileService,
+            IMediator mediator)
         {
             _employeeContractRepository = employeeContractRepository;
             _attachmentRepository = attachmentRepository;
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _fileService = fileService;
+             _mediator = mediator;
         }
 
         public async Task<CreateEmployeeContractResponse> Handle(CreateEmployeeContractRequest request, CancellationToken cancellationToken)
@@ -75,6 +80,18 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmploy
                     }
                     await _unitOfWork.SaveChangesAsync();
                 }
+                var employeeContractCreated = await _employeeContractRepository.GetByIdAsync(employeeContract.Id);
+                await _mediator.Publish(new EmployeeContractCreatedEvent
+                {
+                    EmployeeId = employeeContractCreated?.EmployeeId??1,
+                    FullName = employeeContractCreated?.Employee?.FullName??"",
+                    DepartmentName = employeeContractCreated?.Job?.Department?.Name??"",
+                    JobTitle = employeeContractCreated?.Job?.Title??"",
+                    ManagerName =  "",
+                    HireDate = employeeContractCreated?.StartDate??DateTime.UtcNow,
+                    Salary = employeeContractCreated?.Salary??10000m,
+                    ContractType = employeeContractCreated?.ContractType.ToString()??""
+                });
 
                 var employeeContractDto = _mapper.Map<DTOs.EmployeeContractDto>(employeeContract);
 
