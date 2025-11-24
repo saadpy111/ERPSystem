@@ -11,13 +11,14 @@ using Microsoft.AspNetCore.Mvc;
 using Procurement.Api.Controllers;
 using Procurement.Api.DependencyInjection;
 using Procurement.Infrastructure.FileService;
+using Report.Api.Controllers;
+using Report.Api.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace ERP.Api.DependencyInjection
 {
     public static class ApiDependencyInjection
     {
-
         
         public static IServiceCollection AddApiDependencyInjection(this IServiceCollection services , IConfiguration configuration)
         {
@@ -29,7 +30,9 @@ namespace ERP.Api.DependencyInjection
             services.AddProcurementApiDependencyInjection(configuration);
 
             services.AddHrApiDependencyInjection(configuration);
-
+        
+            services.AddReportApiServices(configuration);
+            
             #endregion
 
             #region Cors
@@ -45,7 +48,6 @@ namespace ERP.Api.DependencyInjection
             #endregion
 
             #region Swagger
-       
              services.AddSwaggerGen(options =>
              {
 
@@ -53,6 +55,7 @@ namespace ERP.Api.DependencyInjection
                  options.SwaggerDoc("inventories", new() { Title = "Inventories API", Version = "v1" });
                  options.SwaggerDoc("Identity", new() { Title = "Identity API", Version = "v1" });
                  options.SwaggerDoc("procurement", new() { Title = "Procurement API", Version = "v1" });
+                 options.SwaggerDoc("reports", new() { Title = "Reports API", Version = "v1" });
                  options.DocInclusionPredicate((docName, apiDesc) =>
                  {
                      if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
@@ -94,6 +97,7 @@ namespace ERP.Api.DependencyInjection
             services.AddControllers().AddApplicationPart(typeof(AuthController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(VendorsController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(EmployeesController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(ReportsController).Assembly);
             return services;
         }
     }

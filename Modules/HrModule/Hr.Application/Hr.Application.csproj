@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\SharedKernel\Events\Events.csproj" />
     <ProjectReference Include="..\Hr.Domain\Hr.Domain.csproj" />
   </ItemGroup>
 
