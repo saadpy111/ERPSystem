@@ -28,7 +28,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.UpdateRecruitmentStag
                     return new UpdateRecruitmentStageResponse
                     {
                         Success = false,
-                        Message = "Recruitment stage not found"
+                        Message = "لم يتم العثور على مرحلة التوظيف"
                     };
                 }
 
@@ -44,7 +44,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.UpdateRecruitmentStag
                 return new UpdateRecruitmentStageResponse
                 {
                     Success = true,
-                    Message = "Recruitment stage updated successfully",
+                    Message = "تم تحديث مرحلة التوظيف بنجاح",
                     RecruitmentStage = recruitmentStageDto
                 };
             }
@@ -53,7 +53,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.UpdateRecruitmentStag
                 return new UpdateRecruitmentStageResponse
                 {
                     Success = false,
-                    Message = $"Error updating recruitment stage: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث مرحلة التوظيف"
                 };
             }
         }

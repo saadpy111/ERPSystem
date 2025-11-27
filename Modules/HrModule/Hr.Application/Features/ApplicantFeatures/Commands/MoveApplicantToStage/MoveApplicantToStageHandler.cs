@@ -31,7 +31,7 @@ namespace Hr.Application.Features.ApplicantFeatures.MoveApplicantToStage
                     return new MoveApplicantToStageResponse
                     {
                         Success = false,
-                        Message = "Applicant not found"
+                        Message = "المتقدم غير موجود"
                     };
                 }
 
@@ -41,7 +41,7 @@ namespace Hr.Application.Features.ApplicantFeatures.MoveApplicantToStage
                     return new MoveApplicantToStageResponse
                     {
                         Success = false,
-                        Message = "Recruitment stage not found"
+                        Message = "مرحلة التوظيف غير موجودة"
                     };
                 }
 
@@ -60,7 +60,7 @@ namespace Hr.Application.Features.ApplicantFeatures.MoveApplicantToStage
                 return new MoveApplicantToStageResponse
                 {
                     Success = true,
-                    Message = $"Applicant moved to {stage.Name} stage successfully",
+                    Message = $"تم نقل المتقدم إلى مرحلة {stage.Name} بنجاح",
                     Applicant = new ApplicantDto
                     {
                         ApplicantId = applicant.ApplicantId,
@@ -80,7 +80,7 @@ namespace Hr.Application.Features.ApplicantFeatures.MoveApplicantToStage
                 return new MoveApplicantToStageResponse
                 {
                     Success = false,
-                    Message = $"Error moving applicant to stage: {ex.Message}"
+                    Message = "حدث خطأ أثناء نقل المتقدم إلى المرحلة"
                 };
             }
         }

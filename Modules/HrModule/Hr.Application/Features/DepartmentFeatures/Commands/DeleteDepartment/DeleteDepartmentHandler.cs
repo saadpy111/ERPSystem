@@ -25,7 +25,7 @@ namespace Hr.Application.Features.DepartmentFeatures.DeleteDepartment
                     return new DeleteDepartmentResponse
                     {
                         Success = false,
-                        Message = "Department not found"
+                        Message = "القسم غير موجود"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.DepartmentFeatures.DeleteDepartment
                 return new DeleteDepartmentResponse
                 {
                     Success = true,
-                    Message = "Department deleted successfully"
+                    Message = "تم حذف القسم بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.DepartmentFeatures.DeleteDepartment
                 return new DeleteDepartmentResponse
                 {
                     Success = false,
-                    Message = $"Error deleting department: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف القسم"
                 };
             }
         }

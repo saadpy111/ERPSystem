@@ -5,8 +5,10 @@ using Hr.Application.Features.EmployeeContractFeatures.Commands.UpdateEmployeeCo
 using Hr.Application.Features.EmployeeContractFeatures.Commands.UploadAttachmentContract;
 using Hr.Application.Features.EmployeeContractFeatures.Queries.GetAllEmployeeContracts;
 using Hr.Application.Features.EmployeeContractFeatures.Queries.GetEmployeeContractById;
+using Hr.Application.DTOs;
 using Hr.Application.Features.EmployeeContractFeatures.Queries.GetEmployeeContractsByEmployeeId;
 using Hr.Application.Features.EmployeeContractFeatures.Queries.GetEmployeeContractsPaged;
+using Hr.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -73,8 +75,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateEmployeeContractRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 
@@ -127,6 +128,36 @@ namespace Hr.Api.Controllers
                 .Cast<Hr.Domain.Enums.ContractType>()
                 .Select(ct => new { Value = (int)ct, Name = ct.ToString() });
             return Ok(contractTypes);
+        }
+
+        [HttpGet("EmployeeContractMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "EmployeeContract",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "StartDate", Label = "Start Date" },
+                    new OrderableFieldDto { Key = "EndDate", Label = "End Date" },
+                    new OrderableFieldDto { Key = "Salary", Label = "Salary" },
+                    new OrderableFieldDto { Key = "ContractType", Label = "Contract Type" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "employeeId", Type = "number" },
+                    new FilterableFieldDto { Key = "jobId", Type = "number" },
+                    new FilterableFieldDto { Key = "contractType", Type = "enum", Values = Enum.GetNames(typeof(ContractType)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

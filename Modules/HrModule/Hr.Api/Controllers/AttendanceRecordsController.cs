@@ -3,6 +3,7 @@ using Hr.Application.Features.AttendanceRecordFeatures.DeleteAttendanceRecord;
 using Hr.Application.Features.AttendanceRecordFeatures.GetAllAttendanceRecords;
 using Hr.Application.Features.AttendanceRecordFeatures.GetAttendanceRecordById;
 using Hr.Application.Features.AttendanceRecordFeatures.GetAttendanceRecordsPaged;
+using Hr.Application.DTOs;
 using Hr.Application.Features.AttendanceRecordFeatures.UpdateAttendanceRecord;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -62,8 +63,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateAttendanceRecordRequest request)
         {
-            if (id != request.RecordId)
-                return BadRequest("ID mismatch");
+            request.RecordId = id;
 
             var result = await _mediator.Send(request);
 
@@ -83,6 +83,36 @@ namespace Hr.Api.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+
+        [HttpGet("AttendanceRecordMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "AttendanceRecord",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "Date", Label = "Date" },
+                    new OrderableFieldDto { Key = "CheckInTime", Label = "Check In Time" },
+                    new OrderableFieldDto { Key = "CheckOutTime", Label = "Check Out Time" },
+                    new OrderableFieldDto { Key = "DelayMinutes", Label = "Delay Minutes" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "employeeId", Type = "number" },
+                    new FilterableFieldDto { Key = "startDate", Type = "date" },
+                    new FilterableFieldDto { Key = "endDate", Type = "date" }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

@@ -3,6 +3,7 @@ using Hr.Application.Features.LeaveRequestFeatures.DeleteLeaveRequest;
 using Hr.Application.Features.LeaveRequestFeatures.GetAllLeaveRequests;
 using Hr.Application.Features.LeaveRequestFeatures.GetLeaveRequestById;
 using Hr.Application.Features.LeaveRequestFeatures.GetLeaveRequestsPaged;
+using Hr.Application.DTOs;
 using Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest;
 using Hr.Domain.Enums;
 using MediatR;
@@ -63,8 +64,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLeaveRequestRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 
@@ -95,6 +95,37 @@ namespace Hr.Api.Controllers
                 .Cast<LeaveRequestStatus>()
                 .Select(s => new { Value = (int)s, Name = s.ToString() });
             return Ok(statuses);
+        }
+
+        [HttpGet("LeaveRequestMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "LeaveRequest",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "StartDate", Label = "Start Date" },
+                    new OrderableFieldDto { Key = "EndDate", Label = "End Date" },
+                    new OrderableFieldDto { Key = "DurationDays", Label = "Duration Days" },
+                    new OrderableFieldDto { Key = "Status", Label = "Status" },
+                    new OrderableFieldDto { Key = "LeaveTypeName", Label = "Leave Type Name" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "employeeId", Type = "number" },
+                    new FilterableFieldDto { Key = "leaveType", Type = "string" },
+                    new FilterableFieldDto { Key = "status", Type = "enum", Values = Enum.GetNames(typeof(LeaveRequestStatus)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
 
 

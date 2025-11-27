@@ -8,6 +8,7 @@ using Hr.Application.Features.RecruitmentStageFeatures.GetOrderedRecruitmentStag
 using Hr.Application.Features.RecruitmentStageFeatures.GetRecruitmentStageById;
 using Hr.Application.Features.RecruitmentStageFeatures.GetRecruitmentStagesPaged;
 using Hr.Application.Features.RecruitmentStageFeatures.ReorderRecruitmentStages;
+using Hr.Application.DTOs;
 using Hr.Application.Features.RecruitmentStageFeatures.UpdateRecruitmentStage;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -83,8 +84,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateRecruitmentStageRequest request)
         {
-            if (id != request.StageId)
-                return BadRequest("ID mismatch");
+            request.StageId = id;
 
             var result = await _mediator.Send(request);
 
@@ -139,6 +139,31 @@ namespace Hr.Api.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+
+        [HttpGet("RecruitmentStageMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "RecruitmentStage",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "Name", Label = "Name" },
+                    new OrderableFieldDto { Key = "SequenceOrder", Label = "Sequence Order" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

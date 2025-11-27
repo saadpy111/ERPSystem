@@ -26,7 +26,7 @@ namespace Hr.Application.Features.EmployeeFeatures.ActivateEmployee
                     return new ActivateEmployeeResponse
                     {
                         Success = false,
-                        Message = "Employee not found"
+                        Message = "الموظف غير موجود"
                     };
                 }
 
@@ -37,7 +37,7 @@ namespace Hr.Application.Features.EmployeeFeatures.ActivateEmployee
                 return new ActivateEmployeeResponse
                 {
                     Success = true,
-                    Message = "Employee activated successfully"
+                    Message = "تم تفعيل الموظف بنجاح"
                 };
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace Hr.Application.Features.EmployeeFeatures.ActivateEmployee
                 return new ActivateEmployeeResponse
                 {
                     Success = false,
-                    Message = $"Error activating employee: {ex.Message}"
+                    Message = "حدث خطأ أثناء تفعيل الموظف"
                 };
             }
         }

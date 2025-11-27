@@ -29,7 +29,7 @@ namespace Hr.Application.Features.LeaveTypeFeatures.Commands.UpdateLeaveType
                     return new UpdateLeaveTypeResponse
                     {
                         Success = false,
-                        Message = "Leave type not found"
+                        Message = "نوع الإجازة غير موجود"
                     };
                 }
 
@@ -46,7 +46,7 @@ namespace Hr.Application.Features.LeaveTypeFeatures.Commands.UpdateLeaveType
                 return new UpdateLeaveTypeResponse
                 {
                     Success = true,
-                    Message = "Leave type updated successfully",
+                    Message = "تم تحديث نوع الإجازة بنجاح",
                     LeaveType = leaveTypeDto
                 };
             }
@@ -55,7 +55,7 @@ namespace Hr.Application.Features.LeaveTypeFeatures.Commands.UpdateLeaveType
                 return new UpdateLeaveTypeResponse
                 {
                     Success = false,
-                    Message = $"Error updating leave type: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث نوع الإجازة"
                 };
             }
         }

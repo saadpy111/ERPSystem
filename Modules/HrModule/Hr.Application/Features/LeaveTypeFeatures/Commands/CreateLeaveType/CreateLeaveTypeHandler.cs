@@ -40,7 +40,7 @@ namespace Hr.Application.Features.LeaveTypeFeatures.Commands.CreateLeaveType
                 return new CreateLeaveTypeResponse
                 {
                     Success = true,
-                    Message = "Leave type created successfully",
+                    Message = "تم إنشاء نوع الإجازة بنجاح",
                     LeaveType = leaveTypeDto
                 };
             }
@@ -49,7 +49,7 @@ namespace Hr.Application.Features.LeaveTypeFeatures.Commands.CreateLeaveType
                 return new CreateLeaveTypeResponse
                 {
                     Success = false,
-                    Message = $"Error creating leave type: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء نوع الإجازة"
                 };
             }
         }

@@ -1,4 +1,4 @@
-﻿using Hr.Application.Contracts.Persistence;
+﻿﻿using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
 using MediatR;
 
@@ -25,7 +25,7 @@ namespace Hr.Application.Features.JobFeatures.DeleteJob
                     return new DeleteJobResponse
                     {
                         Success = false,
-                        Message = "Job not found"
+                        Message = "الوظيفة غير موجودة"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.JobFeatures.DeleteJob
                 return new DeleteJobResponse
                 {
                     Success = true,
-                    Message = "Job deleted successfully"
+                    Message = "تم حذف الوظيفة بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.JobFeatures.DeleteJob
                 return new DeleteJobResponse
                 {
                     Success = false,
-                    Message = $"Error deleting job: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف الوظيفة"
                 };
             }
         }

@@ -63,8 +63,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateSalaryStructureComponentRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 

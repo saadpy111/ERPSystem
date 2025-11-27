@@ -42,7 +42,7 @@ namespace Hr.Application.Features.EmployeeFeatures.CreateEmployee
                     Email = request.Email,
                     PhoneNumber = request.PhoneNumber,
                     DateOfBirth = request.DateOfBirth,
-                    Status = EmployeeStatus.Active,
+                    Status =  request.Status,
                     Gender = request.Gender,
                     Address = request.Address,
                     ManagerId = request.ManagerId
@@ -92,7 +92,7 @@ namespace Hr.Application.Features.EmployeeFeatures.CreateEmployee
                 return new CreateEmployeeResponse
                 {
                     Success = true,
-                    Message = "Employee created successfully",
+                    Message = "تم إنشاء الموظف بنجاح",
                     Employee = employeeDto
                 };
             }
@@ -101,7 +101,7 @@ namespace Hr.Application.Features.EmployeeFeatures.CreateEmployee
                 return new CreateEmployeeResponse
                 {
                     Success = false,
-                    Message = $"Error creating employee: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء الموظف"
                 };
             }
         }

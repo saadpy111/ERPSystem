@@ -47,7 +47,7 @@ namespace Hr.Application.Features.ApplicantFeatures.UpdateApplicant
                     return new UpdateApplicantResponse
                     {
                         Success = false,
-                        Message = "Applicant not found"
+                        Message = "المتقدم غير موجود"
                     };
                 }
 
@@ -135,7 +135,7 @@ namespace Hr.Application.Features.ApplicantFeatures.UpdateApplicant
                 return new UpdateApplicantResponse
                 {
                     Success = true,
-                    Message = "Applicant updated successfully",
+                    Message = "تم تحديث المتقدم بنجاح",
                     Applicant = applicantDto
                 };
             }
@@ -144,7 +144,7 @@ namespace Hr.Application.Features.ApplicantFeatures.UpdateApplicant
                 return new UpdateApplicantResponse
                 {
                     Success = false,
-                    Message = $"Error updating applicant: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث المتقدم"
                 };
             }
         }

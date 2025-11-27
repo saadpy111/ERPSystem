@@ -25,7 +25,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.ActivateRecruitmentSt
                     return new ActivateRecruitmentStageResponse
                     {
                         Success = false,
-                        Message = "Recruitment stage not found"
+                        Message = "لم يتم العثور على مرحلة التوظيف"
                     };
                 }
 
@@ -36,7 +36,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.ActivateRecruitmentSt
                 return new ActivateRecruitmentStageResponse
                 {
                     Success = true,
-                    Message = "Recruitment stage activated successfully"
+                    Message = "تم تفعيل مرحلة التوظيف بنجاح"
                 };
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.ActivateRecruitmentSt
                 return new ActivateRecruitmentStageResponse
                 {
                     Success = false,
-                    Message = $"Error activating recruitment stage: {ex.Message}"
+                    Message = "حدث خطأ أثناء تفعيل مرحلة التوظيف"
                 };
             }
         }

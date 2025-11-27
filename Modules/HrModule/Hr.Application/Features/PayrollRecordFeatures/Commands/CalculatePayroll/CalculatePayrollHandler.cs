@@ -1,6 +1,7 @@
-﻿using AutoMapper;
+﻿﻿using AutoMapper;
 using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
+using Hr.Application.Features.PayrollRecordFeatures.Commands.CalculatePayroll;
 using Hr.Domain.Entities;
 using Hr.Domain.Enums;
 using MediatR;
@@ -39,7 +40,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayr
                     return new CalculatePayrollResponse
                     {
                         Success = false,
-                        Message = "Payroll record not found"
+                        Message = "لم يتم العثور على سجل الرواتب"
                     };
                 }
 
@@ -49,7 +50,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayr
                     return new CalculatePayrollResponse
                     {
                         Success = false,
-                        Message = "No active contract found for employee"
+                        Message = "لم يتم العثور على عقد نشط للموظف"
                     };
                 }
 
@@ -96,7 +97,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayr
                 return new CalculatePayrollResponse
                 {
                     Success = true,
-                    Message = "Payroll recalculated successfully",
+                    Message = "تم إعادة حساب الرواتب بنجاح",
                     TotalAllowances = totalAllowances,
                     TotalDeductions = totalDeductions,
                     TotalGrossSalary = payrollRecord.TotalGrossSalary,
@@ -108,7 +109,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayr
                 return new CalculatePayrollResponse
                 {
                     Success = false,
-                    Message = $"Error recalculating payroll: {ex.Message}"
+                    Message = "حدث خطأ أثناء إعادة حساب الرواتب"
                 };
             }
         }

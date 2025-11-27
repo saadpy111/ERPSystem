@@ -43,7 +43,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.CreateLeaveRequest
                 return new CreateLeaveRequestResponse
                 {
                     Success = true,
-                    Message = "Leave request created successfully",
+                    Message = "تم إنشاء طلب الإجازة بنجاح",
                     LeaveRequest = leaveRequestDto
                 };
             }
@@ -52,7 +52,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.CreateLeaveRequest
                 return new CreateLeaveRequestResponse
                 {
                     Success = false,
-                    Message = $"Error creating leave request: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء طلب الإجازة"
                 };
             }
         }

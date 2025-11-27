@@ -26,7 +26,7 @@ namespace Hr.Application.Features.EmployeeFeatures.PromoteEmployee
                     return new PromoteEmployeeResponse
                     {
                         Success = false,
-                        Message = "Employee not found"
+                        Message = "الموظف غير موجود"
                     };
                 }
 
@@ -41,7 +41,7 @@ namespace Hr.Application.Features.EmployeeFeatures.PromoteEmployee
                 return new PromoteEmployeeResponse
                 {
                     Success = true,
-                    Message = "Employee promoted successfully",
+                    Message = "تم ترقية الموظف بنجاح",
                     Employee = new EmployeeDto
                     {
                         EmployeeId = employee!.EmployeeId,
@@ -60,7 +60,7 @@ namespace Hr.Application.Features.EmployeeFeatures.PromoteEmployee
                 return new PromoteEmployeeResponse
                 {
                     Success = false,
-                    Message = $"Error promoting employee: {ex.Message}"
+                    Message = "حدث خطأ أثناء ترقية الموظف"
                 };
             }
         }

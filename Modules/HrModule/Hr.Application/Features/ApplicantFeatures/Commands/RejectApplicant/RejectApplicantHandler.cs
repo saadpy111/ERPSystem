@@ -26,7 +26,7 @@ namespace Hr.Application.Features.ApplicantFeatures.RejectApplicant
                     return new RejectApplicantResponse
                     {
                         Success = false,
-                        Message = "Applicant not found"
+                        Message = "المتقدم غير موجود"
                     };
                 }
 
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.ApplicantFeatures.RejectApplicant
                 return new RejectApplicantResponse
                 {
                     Success = true,
-                    Message = "Applicant rejected successfully",
+                    Message = "تم رفض المتقدم بنجاح",
                     Applicant = new ApplicantDto
                     {
                         ApplicantId = applicant.ApplicantId,
@@ -63,7 +63,7 @@ namespace Hr.Application.Features.ApplicantFeatures.RejectApplicant
                 return new RejectApplicantResponse
                 {
                     Success = false,
-                    Message = $"Error rejecting applicant: {ex.Message}"
+                    Message = "حدث خطأ أثناء رفض المتقدم"
                 };
             }
         }

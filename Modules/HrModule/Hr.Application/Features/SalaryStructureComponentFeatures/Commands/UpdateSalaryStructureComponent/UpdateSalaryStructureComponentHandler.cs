@@ -35,7 +35,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Upda
                     return new UpdateSalaryStructureComponentResponse
                     {
                         Success = false,
-                        Message = "Salary structure component not found"
+                        Message = "لم يتم العثور على مكون هيكل الرواتب"
                     };
                 }
 
@@ -56,7 +56,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Upda
                 return new UpdateSalaryStructureComponentResponse
                 {
                     Success = true,
-                    Message = "Salary structure component updated successfully",
+                    Message = "تم تحديث مكون هيكل الرواتب بنجاح",
                     SalaryStructureComponent = salaryStructureComponentDto
                 };
             }
@@ -65,7 +65,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Upda
                 return new UpdateSalaryStructureComponentResponse
                 {
                     Success = false,
-                    Message = $"Error updating salary structure component: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث مكون هيكل الرواتب"
                 };
             }
         }

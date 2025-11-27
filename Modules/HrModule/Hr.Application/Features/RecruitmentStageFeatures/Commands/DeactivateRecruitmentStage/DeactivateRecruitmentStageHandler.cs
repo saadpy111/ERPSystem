@@ -25,7 +25,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.DeactivateRecruitment
                     return new DeactivateRecruitmentStageResponse
                     {
                         Success = false,
-                        Message = "Recruitment stage not found"
+                        Message = "لم يتم العثور على مرحلة التوظيف"
                     };
                 }
 
@@ -36,7 +36,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.DeactivateRecruitment
                 return new DeactivateRecruitmentStageResponse
                 {
                     Success = true,
-                    Message = "Recruitment stage deactivated successfully"
+                    Message = "تم إلغاء تفعيل مرحلة التوظيف بنجاح"
                 };
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.DeactivateRecruitment
                 return new DeactivateRecruitmentStageResponse
                 {
                     Success = false,
-                    Message = $"Error deactivating recruitment stage: {ex.Message}"
+                    Message = "حدث خطأ أثناء إلغاء تفعيل مرحلة التوظيف"
                 };
             }
         }

@@ -6,6 +6,7 @@ using Hr.Application.Features.DepartmentFeatures.GetAllDepartments;
 using Hr.Application.Features.DepartmentFeatures.GetDepartmentById;
 using Hr.Application.Features.DepartmentFeatures.GetDepartmentsPaged;
 using Hr.Application.Features.DepartmentFeatures.Queries.GetDepartmentTree;
+using Hr.Application.DTOs;
 using Hr.Application.Features.DepartmentFeatures.UpdateDepartment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -68,8 +69,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateDepartmentRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 
@@ -111,6 +111,30 @@ namespace Hr.Api.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+
+        [HttpGet("DepartmentMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "Department",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "Name", Label = "Name" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

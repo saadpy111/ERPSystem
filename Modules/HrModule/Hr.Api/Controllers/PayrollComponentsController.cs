@@ -3,6 +3,7 @@ using Hr.Application.Features.PayrollComponentFeatures.DeletePayrollComponent;
 using Hr.Application.Features.PayrollComponentFeatures.GetAllPayrollComponents;
 using Hr.Application.Features.PayrollComponentFeatures.GetPayrollComponentById;
 using Hr.Application.Features.PayrollComponentFeatures.GetPayrollComponentsPaged;
+using Hr.Application.DTOs;
 using Hr.Application.Features.PayrollComponentFeatures.UpdatePayrollComponent;
 using Hr.Domain.Enums;
 using MediatR;
@@ -63,8 +64,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePayrollComponentRequest request)
         {
-            if (id != request.ComponentId)
-                return BadRequest("ID mismatch");
+            request.ComponentId = id;
 
             var result = await _mediator.Send(request);
 
@@ -95,6 +95,33 @@ namespace Hr.Api.Controllers
                 .Cast<PayrollComponentType>()
                 .Select(t => new { Value = (int)t, Name = t.ToString() });
             return Ok(types);
+        }
+
+        [HttpGet("PayrollComponentMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "PayrollComponent",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "Name", Label = "Name" },
+                    new OrderableFieldDto { Key = "ComponentType", Label = "Component Type" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "payrollRecordId", Type = "number" },
+                    new FilterableFieldDto { Key = "componentType", Type = "enum", Values = Enum.GetNames(typeof(PayrollComponentType)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

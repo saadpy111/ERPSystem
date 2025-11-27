@@ -25,7 +25,7 @@ namespace Hr.Application.Features.LoanFeatures.DeleteLoan
                     return new DeleteLoanResponse
                     {
                         Success = false,
-                        Message = "Loan not found"
+                        Message = "لم يتم العثور على القرض"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.LoanFeatures.DeleteLoan
                 return new DeleteLoanResponse
                 {
                     Success = true,
-                    Message = "Loan deleted successfully"
+                    Message = "تم حذف القرض بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.LoanFeatures.DeleteLoan
                 return new DeleteLoanResponse
                 {
                     Success = false,
-                    Message = $"Error deleting loan: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف القرض"
                 };
             }
         }

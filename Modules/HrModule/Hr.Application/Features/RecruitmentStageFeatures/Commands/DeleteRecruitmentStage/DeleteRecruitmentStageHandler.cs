@@ -25,7 +25,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.DeleteRecruitmentStag
                     return new DeleteRecruitmentStageResponse
                     {
                         Success = false,
-                        Message = "Recruitment stage not found"
+                        Message = "لم يتم العثور على مرحلة التوظيف"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.DeleteRecruitmentStag
                 return new DeleteRecruitmentStageResponse
                 {
                     Success = true,
-                    Message = "Recruitment stage deleted successfully"
+                    Message = "تم حذف مرحلة التوظيف بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.DeleteRecruitmentStag
                 return new DeleteRecruitmentStageResponse
                 {
                     Success = false,
-                    Message = $"Error deleting recruitment stage: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف مرحلة التوظيف"
                 };
             }
         }

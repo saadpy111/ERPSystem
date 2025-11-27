@@ -8,6 +8,7 @@ using Hr.Application.Features.JobFeatures.GetJobApplicants;
 using Hr.Application.Features.JobFeatures.GetJobById;
 using Hr.Application.Features.JobFeatures.GetJobsByDepartment;
 using Hr.Application.Features.JobFeatures.GetJobsPaged;
+using Hr.Application.DTOs;
 using Hr.Application.Features.JobFeatures.UpdateJob;
 using Hr.Domain.Enums;
 using MediatR;
@@ -68,8 +69,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateJobRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 
@@ -159,6 +159,35 @@ namespace Hr.Api.Controllers
                 .Cast<WorkType>()
                 .Select(w => new { Value = (int)w, Name = w.ToString() });
             return Ok(workTypes);
+        }
+
+        [HttpGet("JobMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "Job",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "Title", Label = "Title" },
+                    new OrderableFieldDto { Key = "PublishedDate", Label = "Published Date" },
+                    new OrderableFieldDto { Key = "Status", Label = "Status" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "departmentId", Type = "number" },
+                    new FilterableFieldDto { Key = "status", Type = "enum", Values = Enum.GetNames(typeof(JobStatus)).ToList() },
+                    new FilterableFieldDto { Key = "workType", Type = "enum", Values = Enum.GetNames(typeof(WorkType)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

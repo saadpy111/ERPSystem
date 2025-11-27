@@ -40,7 +40,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.CreateAttendanceRecor
                 return new CreateAttendanceRecordResponse
                 {
                     Success = true,
-                    Message = "Attendance record created successfully",
+                    Message = "تم إنشاء سجل الحضور بنجاح",
                     AttendanceRecord = attendanceRecordDto
                 };
             }
@@ -49,7 +49,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.CreateAttendanceRecor
                 return new CreateAttendanceRecordResponse
                 {
                     Success = false,
-                    Message = $"Error creating attendance record: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء سجل الحضور"
                 };
             }
         }

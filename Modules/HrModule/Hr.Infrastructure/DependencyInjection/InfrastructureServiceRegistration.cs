@@ -8,10 +8,7 @@ namespace Hr.Infrastructure.DependencyInjection
     {
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
         {
-            // Register infrastructure services here when needed
-            services.AddScoped<IFileService, HrLocalFileService>(provider =>
-                new HrLocalFileService("wwwroot/uploads"));
-            
+     
             return services;
         }
     }

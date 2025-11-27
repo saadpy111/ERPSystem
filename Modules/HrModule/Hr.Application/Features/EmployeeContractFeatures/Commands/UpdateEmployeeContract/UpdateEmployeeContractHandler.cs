@@ -41,7 +41,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UpdateEmploy
                     return new UpdateEmployeeContractResponse
                     {
                         Success = false,
-                        Message = "Employee contract not found"
+                        Message = "لم يتم العثور على عقد الموظف"
                     };
                 }
 
@@ -89,7 +89,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UpdateEmploy
                 return new UpdateEmployeeContractResponse
                 {
                     Success = true,
-                    Message = "Employee contract updated successfully",
+                    Message = "تم تحديث عقد الموظف بنجاح",
                     EmployeeContract = employeeContractDto
                 };
             }
@@ -98,7 +98,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UpdateEmploy
                 return new UpdateEmployeeContractResponse
                 {
                     Success = false,
-                    Message = $"Error updating employee contract: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث عقد الموظف"
                 };
             }
         }

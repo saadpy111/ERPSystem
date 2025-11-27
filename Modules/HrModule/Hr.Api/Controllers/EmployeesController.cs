@@ -10,6 +10,7 @@ using Hr.Application.Features.EmployeeFeatures.GetEmployeeSalaryDetails;
 using Hr.Application.Features.EmployeeFeatures.GetEmployeesPaged;
 using Hr.Application.Features.EmployeeFeatures.PromoteEmployee;
 using Hr.Application.Features.EmployeeFeatures.TerminateEmployee;
+using Hr.Application.DTOs;
 using Hr.Application.Features.EmployeeFeatures.UpdateEmployee;
 using Hr.Application.Features.EmployeeFeatures.Commands.DeleteAttachment;
 using Hr.Application.Features.EmployeeFeatures.Commands.UploadAttachment;
@@ -75,8 +76,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateEmployeeRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 
@@ -215,6 +215,33 @@ namespace Hr.Api.Controllers
                 .Cast<EmployeeStatus>()
                 .Select(s => new { Value = (int)s, Name = s.ToString() });
             return Ok(statuses);
+        }
+
+        [HttpGet("EmployeeMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "Employee",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "FullName", Label = "Full Name" },
+                    new OrderableFieldDto { Key = "Email", Label = "Email" },
+                    new OrderableFieldDto { Key = "Status", Label = "Status" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "status", Type = "enum", Values = Enum.GetNames(typeof(EmployeeStatus)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

@@ -36,7 +36,7 @@ namespace Hr.Application.Features.EmployeeFeatures.UpdateEmployee
                     return new UpdateEmployeeResponse
                     {
                         Success = false,
-                        Message = "Employee not found"
+                        Message = "الموظف غير موجود"
                     };
                 }
                 #region BaseFileds
@@ -103,7 +103,7 @@ namespace Hr.Application.Features.EmployeeFeatures.UpdateEmployee
                 return new UpdateEmployeeResponse
                 {
                     Success = true,
-                    Message = "Employee updated successfully",
+                    Message = "تم تحديث الموظف بنجاح",
                     Employee = employeeDto
                 };
             }
@@ -112,7 +112,7 @@ namespace Hr.Application.Features.EmployeeFeatures.UpdateEmployee
                 return new UpdateEmployeeResponse
                 {
                     Success = false,
-                    Message = $"Error updating employee: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث الموظف"
                 };
             }
         }

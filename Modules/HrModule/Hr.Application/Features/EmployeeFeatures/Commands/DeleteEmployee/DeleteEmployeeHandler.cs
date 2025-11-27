@@ -25,7 +25,7 @@ namespace Hr.Application.Features.EmployeeFeatures.DeleteEmployee
                     return new DeleteEmployeeResponse
                     {
                         Success = false,
-                        Message = "Employee not found"
+                        Message = "الموظف غير موجود"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.EmployeeFeatures.DeleteEmployee
                 return new DeleteEmployeeResponse
                 {
                     Success = true,
-                    Message = "Employee deleted successfully"
+                    Message = "تم حذف الموظف بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.EmployeeFeatures.DeleteEmployee
                 return new DeleteEmployeeResponse
                 {
                     Success = false,
-                    Message = $"Error deleting employee: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف الموظف"
                 };
             }
         }
