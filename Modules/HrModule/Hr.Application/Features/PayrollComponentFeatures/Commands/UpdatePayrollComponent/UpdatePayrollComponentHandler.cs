@@ -2,6 +2,7 @@ using AutoMapper;
 using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
 using Hr.Application.Features.PayrollComponentFeatures.CreatePayrollComponent;
+using Hr.Application.Features.PayrollRecordFeatures.Commands.CalculatePayroll;
 using Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayroll;
 using MediatR;
 
@@ -32,7 +33,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.UpdatePayrollComponen
                     return new UpdatePayrollComponentResponse
                     {
                         Success = false,
-                        Message = "Payroll component not found"
+                        Message = "لم يتم العثور على مكون الرواتب"
                     };
                 }
 
@@ -67,7 +68,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.UpdatePayrollComponen
                 return new UpdatePayrollComponentResponse
                 {
                     Success = true,
-                    Message = "Payroll component updated successfully",
+                    Message = "تم تحديث مكون الرواتب بنجاح",
                     PayrollComponent = payrollComponentDto
                 };
             }
@@ -76,7 +77,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.UpdatePayrollComponen
                 return new UpdatePayrollComponentResponse
                 {
                     Success = false,
-                    Message = $"Error updating payroll component: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث مكون الرواتب"
                 };
             }
         }

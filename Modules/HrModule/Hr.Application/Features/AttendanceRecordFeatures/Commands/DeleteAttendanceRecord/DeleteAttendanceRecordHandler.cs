@@ -25,7 +25,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.DeleteAttendanceRecor
                     return new DeleteAttendanceRecordResponse
                     {
                         Success = false,
-                        Message = "Attendance record not found"
+                        Message = "سجل الحضور غير موجود"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.DeleteAttendanceRecor
                 return new DeleteAttendanceRecordResponse
                 {
                     Success = true,
-                    Message = "Attendance record deleted successfully"
+                    Message = "تم حذف سجل الحضور بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.DeleteAttendanceRecor
                 return new DeleteAttendanceRecordResponse
                 {
                     Success = false,
-                    Message = $"Error deleting attendance record: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف سجل الحضور"
                 };
             }
         }

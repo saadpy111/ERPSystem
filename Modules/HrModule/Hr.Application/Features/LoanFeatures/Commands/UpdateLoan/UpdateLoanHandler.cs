@@ -28,7 +28,7 @@ namespace Hr.Application.Features.LoanFeatures.UpdateLoan
                     return new UpdateLoanResponse
                     {
                         Success = false,
-                        Message = "Loan not found"
+                        Message = "لم يتم العثور على القرض"
                     };
                 }
 
@@ -48,7 +48,7 @@ namespace Hr.Application.Features.LoanFeatures.UpdateLoan
                 return new UpdateLoanResponse
                 {
                     Success = true,
-                    Message = "Loan updated successfully",
+                    Message = "تم تحديث القرض بنجاح",
                     Loan = loanDto
                 };
             }
@@ -57,7 +57,7 @@ namespace Hr.Application.Features.LoanFeatures.UpdateLoan
                 return new UpdateLoanResponse
                 {
                     Success = false,
-                    Message = $"Error updating loan: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث القرض"
                 };
             }
         }

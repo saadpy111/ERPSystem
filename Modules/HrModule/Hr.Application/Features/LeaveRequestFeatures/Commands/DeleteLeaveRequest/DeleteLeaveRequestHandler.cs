@@ -25,7 +25,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.DeleteLeaveRequest
                     return new DeleteLeaveRequestResponse
                     {
                         Success = false,
-                        Message = "Leave request not found"
+                        Message = "طلب الإجازة غير موجود"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.DeleteLeaveRequest
                 return new DeleteLeaveRequestResponse
                 {
                     Success = true,
-                    Message = "Leave request deleted successfully"
+                    Message = "تم حذف طلب الإجازة بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.DeleteLeaveRequest
                 return new DeleteLeaveRequestResponse
                 {
                     Success = false,
-                    Message = $"Error deleting leave request: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف طلب الإجازة"
                 };
             }
         }

@@ -30,7 +30,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Dele
                     return new DeleteSalaryStructureComponentResponse
                     {
                         Success = false,
-                        Message = "Salary structure component not found"
+                        Message = "لم يتم العثور على مكون هيكل الرواتب"
                     };
                 }
 
@@ -40,7 +40,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Dele
                 return new DeleteSalaryStructureComponentResponse
                 {
                     Success = true,
-                    Message = "Salary structure component deleted successfully"
+                    Message = "تم حذف مكون هيكل الرواتب بنجاح"
                 };
             }
             catch (Exception ex)
@@ -48,7 +48,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Dele
                 return new DeleteSalaryStructureComponentResponse
                 {
                     Success = false,
-                    Message = $"Error deleting salary structure component: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف مكون هيكل الرواتب"
                 };
             }
         }

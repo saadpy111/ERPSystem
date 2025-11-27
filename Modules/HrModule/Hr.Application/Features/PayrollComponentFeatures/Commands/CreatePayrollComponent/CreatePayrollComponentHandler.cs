@@ -1,6 +1,7 @@
 using AutoMapper;
 using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
+using Hr.Application.Features.PayrollRecordFeatures.Commands.CalculatePayroll;
 using Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayroll;
 using Hr.Domain.Entities;
 using MediatR;
@@ -69,7 +70,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.CreatePayrollComponen
                 return new CreatePayrollComponentResponse
                 {
                     Success = true,
-                    Message = "Payroll component created successfully",
+                    Message = "تم إنشاء مكون الرواتب بنجاح",
                     PayrollComponent = payrollComponentDto
                 };
             }
@@ -78,7 +79,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.CreatePayrollComponen
                 return new CreatePayrollComponentResponse
                 {
                     Success = false,
-                    Message = $"Error creating payroll component: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء مكون الرواتب"
                 };
             }
         }

@@ -25,7 +25,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.ReorderRecruitmentSta
                     return new ReorderRecruitmentStagesResponse
                     {
                         Success = false,
-                        Message = "No stage orders provided"
+                        Message = "لم يتم تقديم ترتيب المراحل"
                     };
                 }
 
@@ -55,7 +55,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.ReorderRecruitmentSta
                 return new ReorderRecruitmentStagesResponse
                 {
                     Success = true,
-                    Message = "Recruitment stages reordered successfully",
+                    Message = "تم إعادة ترتيب مراحل التوظيف بنجاح",
                     ReorderedStages = updatedStages.OrderBy(s => s.SequenceOrder)
                 };
             }
@@ -64,7 +64,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.ReorderRecruitmentSta
                 return new ReorderRecruitmentStagesResponse
                 {
                     Success = false,
-                    Message = $"Error reordering recruitment stages: {ex.Message}"
+                    Message = "حدث خطأ أثناء إعادة ترتيب مراحل التوظيف"
                 };
             }
         }

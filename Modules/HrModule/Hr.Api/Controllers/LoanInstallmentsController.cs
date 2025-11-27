@@ -3,6 +3,7 @@ using Hr.Application.Features.LoanInstallmentFeatures.GetAllLoanInstallments;
 using Hr.Application.Features.LoanInstallmentFeatures.GetLoanInstallmentById;
 using Hr.Application.Features.LoanInstallmentFeatures.GetLoanInstallmentsPaged;
 using Hr.Application.Features.LoanInstallmentFeatures.UpdateLoanInstallment;
+using Hr.Application.DTOs;
 using Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment;
 using Hr.Domain.Enums;
 using MediatR;
@@ -52,8 +53,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLoanInstallmentRequest request)
         {
-            if (id != request.InstallmentId)
-                return BadRequest("ID mismatch");
+            request.InstallmentId = id;
 
             var result = await _mediator.Send(request);
 
@@ -78,17 +78,16 @@ namespace Hr.Api.Controllers
         [HttpPost("{id}/pay")]
         public async Task<IActionResult> PayInstallment(int id, [FromBody] PayLoanInstallmentRequest request)
         {
-            if (id != request.InstallmentId)
-                return BadRequest("ID mismatch");
+            request.InstallmentId = id;
 
             var result = await _mediator.Send(request);
-            
+
             if (!result.Success)
                 return BadRequest(result);
 
             return Ok(result);
-        }
 
+        }
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
@@ -98,6 +97,35 @@ namespace Hr.Api.Controllers
                 .Cast<InstallmentStatus>()
                 .Select(s => new { Value = (int)s, Name = s.ToString() });
             return Ok(statuses);
+        }
+
+        [HttpGet("LoanInstallmentMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "LoanInstallment",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "DueDate", Label = "Due Date" },
+                    new OrderableFieldDto { Key = "AmountDue", Label = "Amount Due" },
+                    new OrderableFieldDto { Key = "PaymentDate", Label = "Payment Date" },
+                    new OrderableFieldDto { Key = "Status", Label = "Status" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "loanId", Type = "number" },
+                    new FilterableFieldDto { Key = "status", Type = "enum", Values = Enum.GetNames(typeof(InstallmentStatus)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace Hr.Application.Features.EmployeeFeatures.TerminateEmployee
                     return new TerminateEmployeeResponse
                     {
                         Success = false,
-                        Message = "Employee not found"
+                        Message = "الموظف غير موجود"
                     };
                 }
 
@@ -37,7 +37,7 @@ namespace Hr.Application.Features.EmployeeFeatures.TerminateEmployee
                 return new TerminateEmployeeResponse
                 {
                     Success = true,
-                    Message = "Employee terminated successfully"
+                    Message = "تم إنهاء خدمة الموظف بنجاح"
                 };
             }
             catch (Exception ex)
@@ -45,7 +45,7 @@ namespace Hr.Application.Features.EmployeeFeatures.TerminateEmployee
                 return new TerminateEmployeeResponse
                 {
                     Success = false,
-                    Message = $"Error terminating employee: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنهاء خدمة الموظف"
                 };
             }
         }

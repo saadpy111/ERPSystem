@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SharedKernel\Events\Events.csproj" />
     <ProjectReference Include="..\Report.Domain\Report.Domain.csproj" />
   </ItemGroup>
 

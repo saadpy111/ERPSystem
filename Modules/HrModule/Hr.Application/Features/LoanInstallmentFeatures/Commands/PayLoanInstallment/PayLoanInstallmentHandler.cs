@@ -36,7 +36,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment
                     return new PayLoanInstallmentResponse
                     {
                         Success = false,
-                        Message = "Loan installment not found"
+                        Message = "لم يتم العثور على قسط القرض"
                     };
                 }
 
@@ -46,7 +46,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment
                     return new PayLoanInstallmentResponse
                     {
                         Success = false,
-                        Message = "Loan installment is already paid"
+                        Message = "قسط القرض مدفوع بالفعل"
                     };
                 }
 
@@ -62,7 +62,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment
                     return new PayLoanInstallmentResponse
                     {
                         Success = false,
-                        Message = "Associated loan not found"
+                        Message = "لم يتم العثور على القرض المرتبط"
                     };
                 }
 
@@ -86,7 +86,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment
                 return new PayLoanInstallmentResponse
                 {
                     Success = true,
-                    Message = "Loan installment paid successfully",
+                    Message = "تم دفع قسط القرض بنجاح",
                     InstallmentId = installment.InstallmentId
                 };
             }
@@ -95,7 +95,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment
                 return new PayLoanInstallmentResponse
                 {
                     Success = false,
-                    Message = $"Error paying loan installment: {ex.Message}"
+                    Message = "حدث خطأ أثناء دفع قسط القرض"
                 };
             }
         }

@@ -28,7 +28,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest
                     return new UpdateLeaveRequestResponse
                     {
                         Success = false,
-                        Message = "Leave request not found"
+                        Message = "طلب الإجازة غير موجود"
                     };
                 }
 
@@ -48,7 +48,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest
                 return new UpdateLeaveRequestResponse
                 {
                     Success = true,
-                    Message = "Leave request updated successfully",
+                    Message = "تم تحديث طلب الإجازة بنجاح",
                     LeaveRequest = leaveRequestDto
                 };
             }
@@ -57,7 +57,7 @@ namespace Hr.Application.Features.LeaveRequestFeatures.UpdateLeaveRequest
                 return new UpdateLeaveRequestResponse
                 {
                     Success = false,
-                    Message = $"Error updating leave request: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث طلب الإجازة"
                 };
             }
         }

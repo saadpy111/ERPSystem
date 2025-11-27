@@ -3,6 +3,7 @@ using Hr.Application.Features.LeaveTypeFeatures.Commands.DeleteLeaveType;
 using Hr.Application.Features.LeaveTypeFeatures.Commands.UpdateLeaveType;
 using Hr.Application.Features.LeaveTypeFeatures.Queries.GetAllLeaveTypes;
 using Hr.Application.Features.LeaveTypeFeatures.Queries.GetLeaveTypeById;
+using Hr.Application.DTOs;
 using Hr.Application.Features.LeaveTypeFeatures.Queries.GetLeaveTypesPaged;
 using Hr.Domain.Enums;
 using MediatR;
@@ -63,8 +64,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLeaveTypeRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 
@@ -95,6 +95,33 @@ namespace Hr.Api.Controllers
                 .Cast<LeaveTypeStatus>()
                 .Select(s => new { Value = (int)s, Name = s.ToString() });
             return Ok(statuses);
+        }
+
+        [HttpGet("LeaveTypeMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "LeaveType",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "LeaveTypeName", Label = "Leave Type Name" },
+                    new OrderableFieldDto { Key = "DurationDays", Label = "Duration Days" },
+                    new OrderableFieldDto { Key = "Status", Label = "Status" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "status", Type = "enum", Values = Enum.GetNames(typeof(LeaveTypeStatus)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

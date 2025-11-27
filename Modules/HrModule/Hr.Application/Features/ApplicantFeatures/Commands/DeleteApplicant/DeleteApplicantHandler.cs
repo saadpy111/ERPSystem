@@ -25,7 +25,7 @@ namespace Hr.Application.Features.ApplicantFeatures.DeleteApplicant
                     return new DeleteApplicantResponse
                     {
                         Success = false,
-                        Message = "Applicant not found"
+                        Message = "المتقدم غير موجود"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.ApplicantFeatures.DeleteApplicant
                 return new DeleteApplicantResponse
                 {
                     Success = true,
-                    Message = "Applicant deleted successfully"
+                    Message = "تم حذف المتقدم بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.ApplicantFeatures.DeleteApplicant
                 return new DeleteApplicantResponse
                 {
                     Success = false,
-                    Message = $"Error deleting applicant: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف المتقدم"
                 };
             }
         }

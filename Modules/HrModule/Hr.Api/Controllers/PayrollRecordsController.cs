@@ -3,6 +3,7 @@ using Hr.Application.Features.PayrollRecordFeatures.DeletePayrollRecord;
 using Hr.Application.Features.PayrollRecordFeatures.GetAllPayrollRecords;
 using Hr.Application.Features.PayrollRecordFeatures.GetPayrollRecordById;
 using Hr.Application.Features.PayrollRecordFeatures.GetPayrollRecordsPaged;
+using Hr.Application.DTOs;
 using Hr.Application.Features.PayrollRecordFeatures.UpdatePayrollRecord;
 using Hr.Domain.Enums;
 using MediatR;
@@ -63,8 +64,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePayrollRecordRequest request)
         {
-            if (id != request.PayrollId)
-                return BadRequest("ID mismatch");
+            request.PayrollId = id;
 
             var result = await _mediator.Send(request);
 
@@ -95,6 +95,37 @@ namespace Hr.Api.Controllers
                 .Cast<PayrollStatus>()
                 .Select(s => new { Value = (int)s, Name = s.ToString() });
             return Ok(statuses);
+        }
+
+        [HttpGet("PayrollRecordMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "PayrollRecord",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "PeriodYear", Label = "Period Year" },
+                    new OrderableFieldDto { Key = "PeriodMonth", Label = "Period Month" },
+                    new OrderableFieldDto { Key = "NetSalary", Label = "Net Salary" },
+                    new OrderableFieldDto { Key = "Status", Label = "Status" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                    new FilterableFieldDto { Key = "employeeId", Type = "number" },
+                    new FilterableFieldDto { Key = "periodYear", Type = "number" },
+                    new FilterableFieldDto { Key = "periodMonth", Type = "number" },
+                    new FilterableFieldDto { Key = "status", Type = "enum", Values = Enum.GetNames(typeof(PayrollStatus)).ToList() }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

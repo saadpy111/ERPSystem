@@ -25,7 +25,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.DeletePayrollRecord
                     return new DeletePayrollRecordResponse
                     {
                         Success = false,
-                        Message = "Payroll record not found"
+                        Message = "لم يتم العثور على سجل الرواتب"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.DeletePayrollRecord
                 return new DeletePayrollRecordResponse
                 {
                     Success = true,
-                    Message = "Payroll record deleted successfully"
+                    Message = "تم حذف سجل الرواتب بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.DeletePayrollRecord
                 return new DeletePayrollRecordResponse
                 {
                     Success = false,
-                    Message = $"Error deleting payroll record: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف سجل الرواتب"
                 };
             }
         }

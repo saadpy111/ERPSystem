@@ -28,7 +28,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.UpdateLoanInstallment
                     return new UpdateLoanInstallmentResponse
                     {
                         Success = false,
-                        Message = "Loan installment not found"
+                        Message = "لم يتم العثور على قسط القرض"
                     };
                 }
 
@@ -47,7 +47,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.UpdateLoanInstallment
                 return new UpdateLoanInstallmentResponse
                 {
                     Success = true,
-                    Message = "Loan installment updated successfully",
+                    Message = "تم تحديث قسط القرض بنجاح",
                     LoanInstallment = loanInstallmentDto
                 };
             }
@@ -56,7 +56,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.UpdateLoanInstallment
                 return new UpdateLoanInstallmentResponse
                 {
                     Success = false,
-                    Message = $"Error updating loan installment: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث قسط القرض"
                 };
             }
         }

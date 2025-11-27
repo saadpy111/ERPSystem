@@ -25,7 +25,7 @@ namespace Hr.Application.Features.JobFeatures.ActivateJob
                     return new ActivateJobResponse
                     {
                         Success = false,
-                        Message = "Job not found"
+                        Message = "الوظيفة غير موجودة"
                     };
                 }
 
@@ -36,7 +36,7 @@ namespace Hr.Application.Features.JobFeatures.ActivateJob
                 return new ActivateJobResponse
                 {
                     Success = true,
-                    Message = "Job activated successfully"
+                    Message = "تم تفعيل الوظيفة بنجاح"
                 };
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace Hr.Application.Features.JobFeatures.ActivateJob
                 return new ActivateJobResponse
                 {
                     Success = false,
-                    Message = $"Error activating job: {ex.Message}"
+                    Message = "حدث خطأ أثناء تفعيل الوظيفة"
                 };
             }
         }

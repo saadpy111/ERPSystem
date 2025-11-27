@@ -32,7 +32,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.DeleteAttach
                     return new DeleteAttachmentContractResponse
                     {
                         Success = false,
-                        Message = "Attachment not found"
+                        Message = "لم يتم العثور على المرفق"
                     };
                 }
 
@@ -46,7 +46,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.DeleteAttach
                 return new DeleteAttachmentContractResponse
                 {
                     Success = true,
-                    Message = "Attachment deleted successfully"
+                    Message = "تم حذف المرفق بنجاح"
                 };
             }
             catch (Exception ex)
@@ -54,7 +54,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.DeleteAttach
                 return new DeleteAttachmentContractResponse
                 {
                     Success = false,
-                    Message = $"Error deleting attachment: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف المرفق"
                 };
             }
         }

@@ -65,7 +65,7 @@ namespace Hr.Application.Features.LoanFeatures.CreateLoan
                 return new CreateLoanResponse
                 {
                     Success = true,
-                    Message = "Loan and installments created successfully",
+                    Message = "تم إنشاء القرض وأقساطه بنجاح",
                     Loan = loanDto
                 };
             }
@@ -74,7 +74,7 @@ namespace Hr.Application.Features.LoanFeatures.CreateLoan
                 return new CreateLoanResponse
                 {
                     Success = false,
-                    Message = $"Error creating loan: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء القرض"
                 };
             }
         }

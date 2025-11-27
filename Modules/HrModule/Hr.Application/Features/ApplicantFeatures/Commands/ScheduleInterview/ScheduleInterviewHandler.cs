@@ -26,7 +26,7 @@ namespace Hr.Application.Features.ApplicantFeatures.ScheduleInterview
                     return new ScheduleInterviewResponse
                     {
                         Success = false,
-                        Message = "Applicant not found"
+                        Message = "المتقدم غير موجود"
                     };
                 }
 
@@ -47,7 +47,7 @@ namespace Hr.Application.Features.ApplicantFeatures.ScheduleInterview
                 return new ScheduleInterviewResponse
                 {
                     Success = true,
-                    Message = $"Interview scheduled successfully for {request.InterviewDate:yyyy-MM-dd HH:mm}",
+                    Message = $"تم جدولة المقابلة بنجاح لـ {request.InterviewDate:yyyy-MM-dd HH:mm}",
                     Applicant = new ApplicantDto
                     {
                         ApplicantId = applicant.ApplicantId,
@@ -68,7 +68,7 @@ namespace Hr.Application.Features.ApplicantFeatures.ScheduleInterview
                 return new ScheduleInterviewResponse
                 {
                     Success = false,
-                    Message = $"Error scheduling interview: {ex.Message}"
+                    Message = "حدث خطأ أثناء جدولة المقابلة"
                 };
             }
         }

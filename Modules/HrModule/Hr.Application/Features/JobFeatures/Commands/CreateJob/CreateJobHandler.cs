@@ -45,7 +45,7 @@ namespace Hr.Application.Features.JobFeatures.CreateJob
                 return new CreateJobResponse
                 {
                     Success = true,
-                    Message = "Job created successfully",
+                    Message = "تم إنشاء الوظيفة بنجاح",
                     Job = jobDto
                 };
             }
@@ -54,7 +54,7 @@ namespace Hr.Application.Features.JobFeatures.CreateJob
                 return new CreateJobResponse
                 {
                     Success = false,
-                    Message = $"Error creating job: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء الوظيفة"
                 };
             }
         }

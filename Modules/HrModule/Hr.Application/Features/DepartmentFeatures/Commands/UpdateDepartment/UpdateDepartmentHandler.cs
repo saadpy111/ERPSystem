@@ -35,7 +35,7 @@ namespace Hr.Application.Features.DepartmentFeatures.UpdateDepartment
                     return new UpdateDepartmentResponse
                     {
                         Success = false,
-                        Message = "Department not found"
+                        Message = "القسم غير موجود"
                     };
                 }
 
@@ -77,7 +77,7 @@ namespace Hr.Application.Features.DepartmentFeatures.UpdateDepartment
                 return new UpdateDepartmentResponse
                 {
                     Success = true,
-                    Message = "Department updated successfully",
+                    Message = "تم تحديث القسم بنجاح",
                     Department = departmentDto
                 };
             }
@@ -86,7 +86,7 @@ namespace Hr.Application.Features.DepartmentFeatures.UpdateDepartment
                 return new UpdateDepartmentResponse
                 {
                     Success = false,
-                    Message = $"Error updating department: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث القسم"
                 };
             }
         }

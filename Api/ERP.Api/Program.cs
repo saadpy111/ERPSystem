@@ -1,7 +1,7 @@
 using ERP.Api.DependencyInjection;
 using Identity.Application.Settings;
-using Report.Persistence.Context;
-using Report.Persistence.Seeders;
+//using Report.Persistence.Context;
+//using Report.Persistence.Seeders;
 using System;
 
 namespace Inventory.Api

@@ -98,7 +98,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmploy
                 return new CreateEmployeeContractResponse
                 {
                     Success = true,
-                    Message = "Employee contract created successfully",
+                    Message = "تم إنشاء عقد الموظف بنجاح",
                     EmployeeContract = employeeContractDto
                 };
             }
@@ -107,7 +107,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmploy
                 return new CreateEmployeeContractResponse
                 {
                     Success = false,
-                    Message = $"Error creating employee contract: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء عقد الموظف"
                 };
             }
         }

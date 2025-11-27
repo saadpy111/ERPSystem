@@ -50,7 +50,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Crea
                 return new CreateSalaryStructureComponentResponse
                 {
                     Success = true,
-                    Message = "Salary structure component created successfully",
+                    Message = "تم إنشاء مكون هيكل الرواتب بنجاح",
                     SalaryStructureComponent = salaryStructureComponentDto
                 };
             }
@@ -59,7 +59,7 @@ namespace Hr.Application.Features.SalaryStructureComponentFeatures.Commands.Crea
                 return new CreateSalaryStructureComponentResponse
                 {
                     Success = false,
-                    Message = $"Error creating salary structure component: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء مكون هيكل الرواتب"
                 };
             }
         }

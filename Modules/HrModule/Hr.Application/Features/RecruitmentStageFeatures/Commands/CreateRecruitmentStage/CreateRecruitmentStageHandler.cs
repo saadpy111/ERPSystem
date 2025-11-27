@@ -38,7 +38,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.CreateRecruitmentStag
                 return new CreateRecruitmentStageResponse
                 {
                     Success = true,
-                    Message = "Recruitment stage created successfully",
+                    Message = "تم إنشاء مرحلة التوظيف بنجاح",
                     RecruitmentStage = recruitmentStageDto
                 };
             }
@@ -47,7 +47,7 @@ namespace Hr.Application.Features.RecruitmentStageFeatures.CreateRecruitmentStag
                 return new CreateRecruitmentStageResponse
                 {
                     Success = false,
-                    Message = $"Error creating recruitment stage: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء مرحلة التوظيف"
                 };
             }
         }

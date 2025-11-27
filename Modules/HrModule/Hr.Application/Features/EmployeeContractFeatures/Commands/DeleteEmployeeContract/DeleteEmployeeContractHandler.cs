@@ -25,7 +25,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.DeleteEmploy
                     return new DeleteEmployeeContractResponse
                     {
                         Success = false,
-                        Message = "Employee contract not found"
+                        Message = "لم يتم العثور على عقد الموظف"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.DeleteEmploy
                 return new DeleteEmployeeContractResponse
                 {
                     Success = true,
-                    Message = "Employee contract deleted successfully"
+                    Message = "تم حذف عقد الموظف بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.DeleteEmploy
                 return new DeleteEmployeeContractResponse
                 {
                     Success = false,
-                    Message = $"Error deleting employee contract: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف عقد الموظف"
                 };
             }
         }

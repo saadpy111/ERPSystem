@@ -25,7 +25,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.DeleteLoanInstallment
                     return new DeleteLoanInstallmentResponse
                     {
                         Success = false,
-                        Message = "Loan installment not found"
+                        Message = "لم يتم العثور على قسط القرض"
                     };
                 }
 
@@ -35,7 +35,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.DeleteLoanInstallment
                 return new DeleteLoanInstallmentResponse
                 {
                     Success = true,
-                    Message = "Loan installment deleted successfully"
+                    Message = "تم حذف قسط القرض بنجاح"
                 };
             }
             catch (Exception ex)
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.LoanInstallmentFeatures.DeleteLoanInstallment
                 return new DeleteLoanInstallmentResponse
                 {
                     Success = false,
-                    Message = $"Error deleting loan installment: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف قسط القرض"
                 };
             }
         }

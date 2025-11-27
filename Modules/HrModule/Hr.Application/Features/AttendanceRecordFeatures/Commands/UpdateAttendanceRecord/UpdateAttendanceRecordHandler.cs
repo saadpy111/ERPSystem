@@ -28,7 +28,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.UpdateAttendanceRecor
                     return new UpdateAttendanceRecordResponse
                     {
                         Success = false,
-                        Message = "Attendance record not found"
+                        Message = "سجل الحضور غير موجود"
                     };
                 }
 
@@ -46,7 +46,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.UpdateAttendanceRecor
                 return new UpdateAttendanceRecordResponse
                 {
                     Success = true,
-                    Message = "Attendance record updated successfully",
+                    Message = "تم تحديث سجل الحضور بنجاح",
                     AttendanceRecord = attendanceRecordDto
                 };
             }
@@ -55,7 +55,7 @@ namespace Hr.Application.Features.AttendanceRecordFeatures.UpdateAttendanceRecor
                 return new UpdateAttendanceRecordResponse
                 {
                     Success = false,
-                    Message = $"Error updating attendance record: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث سجل الحضور"
                 };
             }
         }

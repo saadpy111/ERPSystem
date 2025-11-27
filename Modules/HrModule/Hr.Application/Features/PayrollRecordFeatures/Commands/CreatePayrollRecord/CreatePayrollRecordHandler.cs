@@ -1,6 +1,7 @@
 using AutoMapper;
 using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
+using Hr.Application.Features.PayrollRecordFeatures.Commands.CalculatePayroll;
 using Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayroll;
 using Hr.Domain.Entities;
 using Hr.Domain.Enums;
@@ -40,7 +41,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.CreatePayrollRecord
                 var contract = await _employeeContractRepository.GetContractByEmployeeIdAsync(request.EmployeeId);
 
                 if (contract == null)
-                    throw new Exception("No active contract found.");
+                    throw new Exception("لم يتم العثور على عقد نشط.");
 
                 var payroll = new PayrollRecord
                 {
@@ -97,7 +98,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.CreatePayrollRecord
                 return new CreatePayrollRecordResponse
                 {
                     Success = true,
-                    Message = "Payroll record created successfully",
+                    Message = "تم إنشاء سجل الرواتب بنجاح",
                     PayrollRecord = payrollRecordDto
                 };
             }
@@ -106,7 +107,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.CreatePayrollRecord
                 return new CreatePayrollRecordResponse
                 {
                     Success = false,
-                    Message = $"Error creating payroll record: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء سجل الرواتب"
                 };
             }
         }

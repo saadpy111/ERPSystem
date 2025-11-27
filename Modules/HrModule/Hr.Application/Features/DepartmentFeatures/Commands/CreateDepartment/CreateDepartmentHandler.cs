@@ -32,51 +32,62 @@ namespace Hr.Application.Features.DepartmentFeatures.CreateDepartment
 
         public async Task<CreateDepartmentResponse> Handle(CreateDepartmentRequest request, CancellationToken cancellationToken)
         {
-            var department = new Department
+            try
             {
-                Name = request.Name,
-                Description = request.Description,
-                ParentDepartmentId = request.ParentDepartmentId,
-                ManagerId = request.ManagerId,
-                CreatedAt = DateTime.UtcNow
-            };
-
-            await _departmentRepository.AddAsync(department);
-            await _unitOfWork.SaveChangesAsync();
-
-            // Handle attachment files
-            if (request.AttachmentFiles != null && request.AttachmentFiles.Any())
-            {
-                foreach (var file in request.AttachmentFiles)
+                var department = new Department
                 {
-                    if (file.Length > 0)
-                    {
-                        var fileUrl = await _fileService.SaveFileAsync(file, "departments");
-                        var attachment = new HrAttachment
-                        {
-                            FileName = file.FileName,
-                            FileUrl = fileUrl,
-                            ContentType = file.ContentType,
-                            FileSize = file.Length,
-                            EntityType = "Department",
-                            EntityId = department.DepartmentId,
-                            Description = $"Attachment for Department {department.Name}",
-                            UploadedAt = DateTime.UtcNow
-                        };
-                        await _attachmentRepository.AddAsync(attachment);
-                    }
-                }
+                    Name = request.Name,
+                    Description = request.Description,
+                    ParentDepartmentId = request.ParentDepartmentId,
+                    ManagerId = request.ManagerId,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _departmentRepository.AddAsync(department);
                 await _unitOfWork.SaveChangesAsync();
+
+                // Handle attachment files
+                if (request.AttachmentFiles != null && request.AttachmentFiles.Any())
+                {
+                    foreach (var file in request.AttachmentFiles)
+                    {
+                        if (file.Length > 0)
+                        {
+                            var fileUrl = await _fileService.SaveFileAsync(file, "departments");
+                            var attachment = new HrAttachment
+                            {
+                                FileName = file.FileName,
+                                FileUrl = fileUrl,
+                                ContentType = file.ContentType,
+                                FileSize = file.Length,
+                                EntityType = "Department",
+                                EntityId = department.DepartmentId,
+                                Description = $"Attachment for Department {department.Name}",
+                                UploadedAt = DateTime.UtcNow
+                            };
+                            await _attachmentRepository.AddAsync(attachment);
+                        }
+                    }
+                    await _unitOfWork.SaveChangesAsync();
+                }
+
+                var departmentDto = _mapper.Map<DTOs.DepartmentDto>(department);
+
+                return new CreateDepartmentResponse
+                {
+                    Success = true,
+                    Message = "تم إنشاء القسم بنجاح",
+                    Department = departmentDto
+                };
             }
-
-            var departmentDto = _mapper.Map<DTOs.DepartmentDto>(department);
-
-            return new CreateDepartmentResponse
+            catch (Exception ex)
             {
-                Success = true,
-                Message = "Department created successfully",
-                Department = departmentDto
-            };
+                return new CreateDepartmentResponse
+                {
+                    Success = false,
+                    Message = "حدث خطأ أثناء إنشاء القسم"
+                };
+            }
         }
     }
 }

@@ -41,7 +41,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UploadAttach
                     return new UploadAttachmentContractResponse
                     {
                         Success = false,
-                        Message = "Employee contract not found"
+                        Message = "لم يتم العثور على عقد الموظف"
                     };
                 }
 
@@ -78,7 +78,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UploadAttach
                 return new UploadAttachmentContractResponse
                 {
                     Success = true,
-                    Message = "Attachments uploaded successfully",
+                    Message = "تم رفع المرفقات بنجاح",
                     Attachments = attachmentDtos
                 };
             }
@@ -87,7 +87,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.UploadAttach
                 return new UploadAttachmentContractResponse
                 {
                     Success = false,
-                    Message = $"Error uploading attachments: {ex.Message}"
+                    Message = "حدث خطأ أثناء رفع المرفقات"
                 };
             }
         }

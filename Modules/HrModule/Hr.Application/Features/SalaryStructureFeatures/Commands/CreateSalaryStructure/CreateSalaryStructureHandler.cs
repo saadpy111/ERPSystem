@@ -73,7 +73,7 @@ namespace Hr.Application.Features.SalaryStructureFeatures.Commands.CreateSalaryS
                 return new CreateSalaryStructureResponse
                 {
                     Success = true,
-                    Message = "Salary structure created successfully",
+                    Message = "تم إنشاء هيكل الرواتب بنجاح",
                     SalaryStructure = salaryStructureDto
                 };
             }
@@ -82,7 +82,7 @@ namespace Hr.Application.Features.SalaryStructureFeatures.Commands.CreateSalaryS
                 return new CreateSalaryStructureResponse
                 {
                     Success = false,
-                    Message = $"Error creating salary structure: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء هيكل الرواتب"
                 };
             }
         }

@@ -2,6 +2,7 @@ using Hr.Application.Features.SalaryStructureFeatures.Commands.CreateSalaryStruc
 using Hr.Application.Features.SalaryStructureFeatures.Commands.DeleteSalaryStructure;
 using Hr.Application.Features.SalaryStructureFeatures.Commands.UpdateSalaryStructure;
 using Hr.Application.Features.SalaryStructureFeatures.Queries.GetAllSalaryStructures;
+using Hr.Application.DTOs;
 using Hr.Application.Features.SalaryStructureFeatures.Queries.GetSalaryStructureById;
 using Hr.Domain.Enums;
 using MediatR;
@@ -64,8 +65,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateSalaryStructureRequest request)
         {
-            if (id != request.Id)
-                return BadRequest("ID mismatch");
+            request.Id = id;
 
             var result = await _mediator.Send(request);
 
@@ -85,6 +85,32 @@ namespace Hr.Api.Controllers
                 return BadRequest(result);
 
             return Ok(result);
+        }
+
+        [HttpGet("SalaryStructureMetadata")]
+        public IActionResult GetMetadata()
+        {
+            var metadata = new EntityMetadataDto
+            {
+                EntityName = "SalaryStructure",
+                OrderableFields = new List<OrderableFieldDto>
+                {
+                    new OrderableFieldDto { Key = "Name", Label = "Name" },
+                    new OrderableFieldDto { Key = "EffectiveDate", Label = "Effective Date" },
+                    new OrderableFieldDto { Key = "IsActive", Label = "Is Active" }
+                },
+                FilterableFields = new List<FilterableFieldDto>
+                {
+                    new FilterableFieldDto { Key = "searchTerm", Type = "string" }
+                },
+                Pagination = new PaginationMetadataDto
+                {
+                    DefaultPageSize = 10,
+                    MaxPageSize = 100
+                }
+            };
+
+            return Ok(metadata);
         }
     }
 }

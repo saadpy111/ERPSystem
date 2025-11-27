@@ -25,7 +25,7 @@ namespace Hr.Application.Features.JobFeatures.DeactivateJob
                     return new DeactivateJobResponse
                     {
                         Success = false,
-                        Message = "Job not found"
+                        Message = "الوظيفة غير موجودة"
                     };
                 }
 
@@ -36,7 +36,7 @@ namespace Hr.Application.Features.JobFeatures.DeactivateJob
                 return new DeactivateJobResponse
                 {
                     Success = true,
-                    Message = "Job deactivated successfully"
+                    Message = "تم إلغاء تفعيل الوظيفة بنجاح"
                 };
             }
             catch (Exception ex)
@@ -44,7 +44,7 @@ namespace Hr.Application.Features.JobFeatures.DeactivateJob
                 return new DeactivateJobResponse
                 {
                     Success = false,
-                    Message = $"Error deactivating job: {ex.Message}"
+                    Message = "حدث خطأ أثناء إلغاء تفعيل الوظيفة"
                 };
             }
         }

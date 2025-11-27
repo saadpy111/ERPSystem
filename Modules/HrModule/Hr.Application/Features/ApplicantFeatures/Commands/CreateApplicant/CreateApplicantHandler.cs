@@ -126,7 +126,7 @@ namespace Hr.Application.Features.ApplicantFeatures.CreateApplicant
                 return new CreateApplicantResponse
                 {
                     Success = true,
-                    Message = "Applicant created successfully",
+                    Message = "تم إنشاء المتقدم بنجاح",
                     Applicant = applicantDto
                 };
             }
@@ -135,7 +135,7 @@ namespace Hr.Application.Features.ApplicantFeatures.CreateApplicant
                 return new CreateApplicantResponse
                 {
                     Success = false,
-                    Message = $"Error creating applicant: {ex.Message}"
+                    Message = "حدث خطأ أثناء إنشاء المتقدم"
                 };
             }
         }

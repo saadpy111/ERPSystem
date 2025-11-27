@@ -28,7 +28,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.UpdatePayrollRecord
                     return new UpdatePayrollRecordResponse
                     {
                         Success = false,
-                        Message = "Payroll record not found"
+                        Message = "لم يتم العثور على سجل الرواتب"
                     };
                 }
 
@@ -44,7 +44,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.UpdatePayrollRecord
                 return new UpdatePayrollRecordResponse
                 {
                     Success = true,
-                    Message = "Payroll record updated successfully",
+                    Message = "تم تحديث سجل الرواتب بنجاح",
                     PayrollRecord = payrollRecordDto
                 };
             }
@@ -53,7 +53,7 @@ namespace Hr.Application.Features.PayrollRecordFeatures.UpdatePayrollRecord
                 return new UpdatePayrollRecordResponse
                 {
                     Success = false,
-                    Message = $"Error updating payroll record: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث سجل الرواتب"
                 };
             }
         }

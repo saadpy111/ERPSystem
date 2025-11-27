@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+﻿﻿using AutoMapper;
 using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
 using MediatR;
@@ -28,7 +28,7 @@ namespace Hr.Application.Features.JobFeatures.UpdateJob
                     return new UpdateJobResponse
                     {
                         Success = false,
-                        Message = "Job not found"
+                        Message = "الوظيفة غير موجودة"
                     };
                 }
 
@@ -50,7 +50,7 @@ namespace Hr.Application.Features.JobFeatures.UpdateJob
                 return new UpdateJobResponse
                 {
                     Success = true,
-                    Message = "Job updated successfully",
+                    Message = "تم تحديث الوظيفة بنجاح",
                     Job = jobDto
                 };
             }
@@ -59,7 +59,7 @@ namespace Hr.Application.Features.JobFeatures.UpdateJob
                 return new UpdateJobResponse
                 {
                     Success = false,
-                    Message = $"Error updating job: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث الوظيفة"
                 };
             }
         }

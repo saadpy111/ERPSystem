@@ -1,6 +1,7 @@
 using Hr.Application.Contracts.Persistence;
 using Hr.Application.Contracts.Persistence.Repositories;
 using Hr.Application.Features.PayrollComponentFeatures.CreatePayrollComponent;
+using Hr.Application.Features.PayrollRecordFeatures.Commands.CalculatePayroll;
 using Hr.Application.Features.PayrollRecordFeatures.Commands.RecalculatePayroll;
 using MediatR;
 
@@ -29,7 +30,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.DeletePayrollComponen
                     return new DeletePayrollComponentResponse
                     {
                         Success = false,
-                        Message = "Payroll component not found"
+                        Message = "لم يتم العثور على مكون الرواتب"
                     };
                 }
 
@@ -55,7 +56,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.DeletePayrollComponen
                 return new DeletePayrollComponentResponse
                 {
                     Success = true,
-                    Message = "Payroll component deleted successfully"
+                    Message = "تم حذف مكون الرواتب بنجاح"
                 };
             }
             catch (Exception ex)
@@ -63,7 +64,7 @@ namespace Hr.Application.Features.PayrollComponentFeatures.DeletePayrollComponen
                 return new DeletePayrollComponentResponse
                 {
                     Success = false,
-                    Message = $"Error deleting payroll component: {ex.Message}"
+                    Message = "حدث خطأ أثناء حذف مكون الرواتب"
                 };
             }
         }

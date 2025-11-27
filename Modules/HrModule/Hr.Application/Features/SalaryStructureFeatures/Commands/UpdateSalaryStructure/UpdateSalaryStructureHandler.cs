@@ -41,7 +41,7 @@ namespace Hr.Application.Features.SalaryStructureFeatures.Commands.UpdateSalaryS
                     return new UpdateSalaryStructureResponse
                     {
                         Success = false,
-                        Message = "Salary structure not found"
+                        Message = "لم يتم العثور على هيكل الرواتب"
                     };
                 }
 
@@ -106,7 +106,7 @@ namespace Hr.Application.Features.SalaryStructureFeatures.Commands.UpdateSalaryS
                 return new UpdateSalaryStructureResponse
                 {
                     Success = true,
-                    Message = "Salary structure updated successfully",
+                    Message = "تم تحديث هيكل الرواتب بنجاح",
                     SalaryStructure = salaryStructureDto
                 };
             }
@@ -115,7 +115,7 @@ namespace Hr.Application.Features.SalaryStructureFeatures.Commands.UpdateSalaryS
                 return new UpdateSalaryStructureResponse
                 {
                     Success = false,
-                    Message = $"Error updating salary structure: {ex.Message}"
+                    Message = "حدث خطأ أثناء تحديث هيكل الرواتب"
                 };
             }
         }

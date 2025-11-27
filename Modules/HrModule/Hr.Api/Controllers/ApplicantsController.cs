@@ -11,6 +11,7 @@ using Hr.Application.Features.ApplicantFeatures.GetApplicantsPaged;
 using Hr.Application.Features.ApplicantFeatures.MoveApplicantToStage;
 using Hr.Application.Features.ApplicantFeatures.RejectApplicant;
 using Hr.Application.Features.ApplicantFeatures.ScheduleInterview;
+using Hr.Application.DTOs;
 using Hr.Application.Features.ApplicantFeatures.UpdateApplicant;
 using Hr.Domain.Enums;
 using MediatR;
@@ -34,7 +35,7 @@ namespace Hr.Api.Controllers
         public async Task<IActionResult> Create([FromForm] CreateApplicantRequest request)
         {
             var result = await _mediator.Send(request);
-            
+
             if (!result.Success)
                 return BadRequest(result);
 
@@ -87,8 +88,7 @@ namespace Hr.Api.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateApplicantRequest request)
         {
-            if (id != request.ApplicantId)
-                return BadRequest("ID mismatch");
+            request.ApplicantId = id;
 
             var result = await _mediator.Send(request);
 
@@ -101,8 +101,7 @@ namespace Hr.Api.Controllers
         [HttpPatch("{id}/move-to-stage")]
         public async Task<IActionResult> MoveToStage(int id, [FromBody] MoveApplicantToStageRequest request)
         {
-            if (id != request.ApplicantId)
-                return BadRequest("ID mismatch");
+            request.ApplicantId = id;
 
             var result = await _mediator.Send(request);
 
@@ -115,8 +114,7 @@ namespace Hr.Api.Controllers
         [HttpPatch("{id}/accept")]
         public async Task<IActionResult> Accept(int id, [FromBody] AcceptApplicantRequest request)
         {
-            if (id != request.ApplicantId)
-                return BadRequest("ID mismatch");
+            request.ApplicantId = id;
 
             var result = await _mediator.Send(request);
 
@@ -129,8 +127,7 @@ namespace Hr.Api.Controllers
         [HttpPatch("{id}/reject")]
         public async Task<IActionResult> Reject(int id, [FromBody] RejectApplicantRequest request)
         {
-            if (id != request.ApplicantId)
-                return BadRequest("ID mismatch");
+            request.ApplicantId = id;
 
             var result = await _mediator.Send(request);
 
@@ -143,60 +140,89 @@ namespace Hr.Api.Controllers
         [HttpPost("{id}/schedule-interview")]
         public async Task<IActionResult> ScheduleInterview(int id, [FromBody] ScheduleInterviewRequest request)
         {
-            if (id != request.ApplicantId)
-                return BadRequest("ID mismatch");
-
-            var result = await _mediator.Send(request);
-
-            if (!result.Success)
-                return BadRequest(result);
-
-            return Ok(result);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var request = new DeleteApplicantRequest { ApplicantId = id };
-            var result = await _mediator.Send(request);
-
-            if (!result.Success)
-                return BadRequest(result);
-
-            return Ok(result);
-        }
-
-        // Enum Endpoints
-
-        [HttpGet("enums/statuses")]
-        public IActionResult GetApplicantStatuses()
-        {
-            var statuses = Enum.GetValues(typeof(ApplicantStatus))
-                .Cast<ApplicantStatus>()
-                .Select(s => new { Value = (int)s, Name = s.ToString() });
-            return Ok(statuses);
-        }
-
-        [HttpPost("{id}/attachments")]
-        public async Task<IActionResult> UploadAttachment(int id, [FromForm] UploadAttachmentApplicantRequest request)
-        {
             request.ApplicantId = id;
+
             var result = await _mediator.Send(request);
+
             if (!result.Success)
                 return BadRequest(result);
 
             return Ok(result);
         }
 
-        [HttpDelete("attachments/{attachmentId}")]
-        public async Task<IActionResult> DeleteAttachment(int attachmentId)
-        {
-            var request = new DeleteAttachmentApplicantRequest { AttachmentId = attachmentId };
-            var result = await _mediator.Send(request);
-            if (!result.Success)
-                return BadRequest(result);
+            [HttpDelete("{id}")]
+            public async Task<IActionResult> Delete(int id)
+            {
+                var request = new DeleteApplicantRequest { ApplicantId = id };
+                var result = await _mediator.Send(request);
 
-            return Ok(result);
+                if (!result.Success)
+                    return BadRequest(result);
+
+                return Ok(result);
+            }
+
+            // Enum Endpoints
+
+            [HttpGet("enums/statuses")]
+            public IActionResult GetApplicantStatuses()
+            {
+                var statuses = Enum.GetValues(typeof(ApplicantStatus))
+                    .Cast<ApplicantStatus>()
+                    .Select(s => new { Value = (int)s, Name = s.ToString() });
+                return Ok(statuses);
+            }
+
+            [HttpPost("{id}/attachments")]
+            public async Task<IActionResult> UploadAttachment(int id, [FromForm] UploadAttachmentApplicantRequest request)
+            {
+                request.ApplicantId = id;
+                var result = await _mediator.Send(request);
+                if (!result.Success)
+                    return BadRequest(result);
+
+                return Ok(result);
+            }
+
+            [HttpDelete("attachments/{attachmentId}")]
+            public async Task<IActionResult> DeleteAttachment(int attachmentId)
+            {
+                var request = new DeleteAttachmentApplicantRequest { AttachmentId = attachmentId };
+                var result = await _mediator.Send(request);
+                if (!result.Success)
+                    return BadRequest(result);
+
+                return Ok(result);
+            }
+
+            [HttpGet("ApplicantMetadata")]
+            public IActionResult GetMetadata()
+            {
+                var metadata = new EntityMetadataDto
+                {
+                    EntityName = "Applicant",
+                    OrderableFields = new List<OrderableFieldDto>
+                    {
+                        new OrderableFieldDto { Key = "FullName", Label = "Full Name" },
+                        new OrderableFieldDto { Key = "ApplicationDate", Label = "Application Date" },
+                        new OrderableFieldDto { Key = "Status", Label = "Status" }
+                    },
+                    FilterableFields = new List<FilterableFieldDto>
+                    {
+                        new FilterableFieldDto { Key = "searchTerm", Type = "string" },
+                        new FilterableFieldDto { Key = "jobId", Type = "number" },
+                        new FilterableFieldDto { Key = "currentStageId", Type = "number" },
+                        new FilterableFieldDto { Key = "status", Type = "enum", Values = Enum.GetNames(typeof(ApplicantStatus)).ToList() }
+                    },
+                    Pagination = new PaginationMetadataDto
+                    {
+                        DefaultPageSize = 10,
+                        MaxPageSize = 100
+                    }
+                };
+
+                return Ok(metadata);
+            }
         }
-    }
+    
 }

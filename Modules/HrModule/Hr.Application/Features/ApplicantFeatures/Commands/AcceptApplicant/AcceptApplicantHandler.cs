@@ -26,7 +26,7 @@ namespace Hr.Application.Features.ApplicantFeatures.AcceptApplicant
                     return new AcceptApplicantResponse
                     {
                         Success = false,
-                        Message = "Applicant not found"
+                        Message = "المتقدم غير موجود"
                     };
                 }
 
@@ -43,7 +43,7 @@ namespace Hr.Application.Features.ApplicantFeatures.AcceptApplicant
                 return new AcceptApplicantResponse
                 {
                     Success = true,
-                    Message = "Applicant accepted successfully",
+                    Message = "تم قبول المتقدم بنجاح",
                     Applicant = new ApplicantDto
                     {
                         ApplicantId = applicant.ApplicantId,
@@ -63,7 +63,7 @@ namespace Hr.Application.Features.ApplicantFeatures.AcceptApplicant
                 return new AcceptApplicantResponse
                 {
                     Success = false,
-                    Message = $"Error accepting applicant: {ex.Message}"
+                    Message = "حدث خطأ أثناء قبول المتقدم"
                 };
             }
         }
