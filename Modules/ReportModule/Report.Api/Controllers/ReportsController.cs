@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Report.Application.Contracts.Persistence.Repositories;
 using Report.Application.DTOs;
 using Report.Application.Features.ReportFeatures.RunReport;
+using Report.Application.Features.ReportFeatures.RunReportWithAiPrompet;
 using Report.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -59,6 +60,14 @@ namespace Report.Api.Controllers
 
         [HttpPost("{id}/execute")]
         public async Task<IActionResult> Execute(int id, [FromBody] RunReportCommandRequest req)
+        {
+            req.ReportId = id;
+            var result = await _mediator.Send(req);
+            return Ok(result);
+        }
+
+        [HttpPost("{id}/aiExecute")]
+        public async Task<IActionResult> ExecuteSql(int id, [FromBody] RunReportWithAiPromptRequest req)
         {
             req.ReportId = id;
             var result = await _mediator.Send(req);

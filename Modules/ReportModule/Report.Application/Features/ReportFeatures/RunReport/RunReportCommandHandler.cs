@@ -31,8 +31,7 @@ namespace Report.Application.Features.ReportFeatures.RunReport
 
             #region Execute Main Query
             var query = BuildQuery(report, request);
-            var connectionString = _configuration?.GetConnectionString("ConnectionString") ?? "";
-            var rows = await _queryEngine.ExecuteAsync(query, connectionString);
+            var rows = await _queryEngine.ExecuteAsync(query);
             #endregion
 
             #region Execute Count Query
@@ -43,7 +42,7 @@ namespace Report.Application.Features.ReportFeatures.RunReport
                 //countQuery.ClearOrder();
                 //countQuery.ClearLimit();
                 //countQuery.ClearOffset();
-                total = await _queryEngine.CountAsync(countQuery, connectionString);
+                total = await _queryEngine.CountAsync(countQuery);
             }
             #endregion
 
