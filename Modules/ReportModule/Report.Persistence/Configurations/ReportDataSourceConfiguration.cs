@@ -14,10 +14,7 @@ namespace Report.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(100);
                 
-            builder.Property(ds => ds.ConnectionString)
-                .IsRequired()
-                .HasMaxLength(500);
-                
+      
             builder.Property(ds => ds.SqlTemplate)
                 .HasMaxLength(1000);
                 

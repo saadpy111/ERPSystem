@@ -26,7 +26,7 @@ namespace Report.Persistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Report.Domain.Entities.Report?> GetByIdAsync(int id)
+        public async Task<Report.Domain.Entities.Report?> GetFullReportAsync(int id)
         {
             return await _context.Reports
                 .Include(r => r.Fields)
@@ -34,6 +34,7 @@ namespace Report.Persistence.Repositories
                 .Include(r => r.Filters)
                 .Include(r => r.Groups)
                 .Include(r => r.Sortings)
+                .Include(r => r.ReportDataSource)
                 .FirstOrDefaultAsync(r => r.ReportId == id);
         }
     }

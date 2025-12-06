@@ -23,7 +23,6 @@ namespace Report.Domain.Entities
 
         public DateTime HireDate { get; set; }
 
-        // Meta
-        public DateTime UpdatedAt { get; set; }
+       
     }
 }

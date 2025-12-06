@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Report.Application.Contracts.Persistence.Repositories;
 using Report.Persistence.Context;
+using Report.Persistence.QueryEngine;
 using Report.Persistence.Repositories;
 using Report.Persistence.Seeders;
 using System;
@@ -20,9 +21,12 @@ namespace Report.Persistence.DependencyInjection
                 options.UseSqlServer(con);
             });
             #endregion
-        
+
 
             #region Register repository implementations
+            services.AddScoped<IReportQueryEngine, ReportQueryEngine>();
+
+            services.AddScoped<ReportSeedService>();
             services.AddScoped<IReportsRepository, ReportsRepository>();
             services.AddScoped<IReportDataSourcesRepository, ReportDataSourcesRepository>();
             services.AddScoped<IReportFieldsRepository, ReportFieldsRepository>();

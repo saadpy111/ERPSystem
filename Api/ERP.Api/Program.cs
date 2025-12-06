@@ -1,5 +1,7 @@
 using ERP.Api.DependencyInjection;
 using Identity.Application.Settings;
+using Report.Persistence.Seeders;
+
 //using Report.Persistence.Context;
 //using Report.Persistence.Seeders;
 using System;
@@ -30,12 +32,11 @@ namespace Inventory.Api
 
 
             var app = builder.Build();
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var db = scope.ServiceProvider.GetRequiredService<ReportDbContext>();
-            //    var seeder = new ReportSeeder(db);
-            //    await seeder.SeedAsync();
-            //}
+            using (var scope = app.Services.CreateScope())
+            {
+                var seeder = scope.ServiceProvider.GetRequiredService<ReportSeedService>();
+                await seeder.SeedAsync();
+            }
 
             app.UseCors("mypolicy");
        
@@ -48,6 +49,7 @@ namespace Inventory.Api
                     c.SwaggerEndpoint("/swagger/Identity/swagger.json", "Identity API");
                     c.SwaggerEndpoint("/swagger/procurement/swagger.json", "Procurement API");
                     c.SwaggerEndpoint("/swagger/Hr/swagger.json", "Hr API");
+                    c.SwaggerEndpoint("/swagger/Report/swagger.json", "Report API");
                     c.DefaultModelExpandDepth(2);
                 });
 

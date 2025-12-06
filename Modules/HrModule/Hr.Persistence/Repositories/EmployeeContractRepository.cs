@@ -29,7 +29,9 @@ namespace Hr.Persistence.Repositories
         {
             return await _context.EmployeeContracts
                 .Include(ec => ec.Employee)
+                .ThenInclude(e=>e.Manager)
                 .Include(ec => ec.Job)
+                .ThenInclude(j=>j.Department)
                 .Include(ec => ec.SalaryStructure)
                 .ThenInclude(s => s.Components)
                 .FirstOrDefaultAsync(ec => ec.Id == id);

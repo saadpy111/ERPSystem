@@ -63,7 +63,7 @@ namespace Report.Persistence.Migrations
                     b.Property<decimal>("Salary")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("EmployeeReportId");
@@ -100,10 +100,15 @@ namespace Report.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ReportDataSourceId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ReportId");
+
+                    b.HasIndex("ReportDataSourceId");
 
                     b.ToTable("Reports", "Report");
                 });
@@ -115,11 +120,6 @@ namespace Report.Persistence.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportDataSourceId"));
-
-                    b.Property<string>("ConnectionString")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -337,6 +337,15 @@ namespace Report.Persistence.Migrations
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportSortings", "Report");
+                });
+
+            modelBuilder.Entity("Report.Domain.Entities.Report", b =>
+                {
+                    b.HasOne("Report.Domain.Entities.ReportDataSource", "ReportDataSource")
+                        .WithMany()
+                        .HasForeignKey("ReportDataSourceId");
+
+                    b.Navigation("ReportDataSource");
                 });
 
             modelBuilder.Entity("Report.Domain.Entities.ReportField", b =>

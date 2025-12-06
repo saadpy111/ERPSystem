@@ -12,8 +12,8 @@ using Report.Persistence.Context;
 namespace Report.Persistence.Migrations
 {
     [DbContext(typeof(ReportDbContext))]
-    [Migration("20251123130334_init")]
-    partial class init
+    [Migration("20251129175057_initReport")]
+    partial class initReport
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,44 +26,55 @@ namespace Report.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportDataSourceEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.EmployeeReport", b =>
                 {
-                    b.Property<int>("DataSourceId")
+                    b.Property<int>("EmployeeReportId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DataSourceId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EmployeeReportId"));
 
-                    b.Property<string>("ConnectionString")
+                    b.Property<string>("ContractType")
                         .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("DepartmentName")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ReportId")
+                    b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("HireDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("JobTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ManagerName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("Salary")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("DataSourceId");
+                    b.HasKey("EmployeeReportId");
 
-                    b.HasIndex("ReportId");
-
-                    b.ToTable("ReportDataSources", "Report");
+                    b.ToTable("EmployeeReports", "Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.Report", b =>
                 {
                     b.Property<int>("ReportId")
                         .ValueGeneratedOnAdd()
@@ -79,7 +90,9 @@ namespace Report.Persistence.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -90,21 +103,62 @@ namespace Report.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ReportDataSourceId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("ReportId");
 
+                    b.HasIndex("ReportDataSourceId");
+
                     b.ToTable("Reports", "Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportFieldEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportDataSource", b =>
                 {
-                    b.Property<int>("FieldId")
+                    b.Property<int>("ReportDataSourceId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FieldId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportDataSourceId"));
+
+                    b.Property<string>("ConnectionString")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("SqlTemplate")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ReportDataSourceId");
+
+                    b.ToTable("ReportDataSources", "Report");
+                });
+
+            modelBuilder.Entity("Report.Domain.Entities.ReportField", b =>
+                {
+                    b.Property<int>("ReportFieldId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportFieldId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -112,6 +166,11 @@ namespace Report.Persistence.Migrations
                     b.Property<string>("DisplayName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Expression")
+                        .IsRequired()
+                        .HasMaxLength(5000)
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsVisible")
                         .HasColumnType("bit");
@@ -133,20 +192,20 @@ namespace Report.Persistence.Migrations
                     b.Property<int?>("Width")
                         .HasColumnType("int");
 
-                    b.HasKey("FieldId");
+                    b.HasKey("ReportFieldId");
 
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportFields", "Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportFilterEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportFilter", b =>
                 {
-                    b.Property<int>("FilterId")
+                    b.Property<int>("ReportFilterId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FilterId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportFilterId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -159,37 +218,38 @@ namespace Report.Persistence.Migrations
                     b.Property<int>("Operator")
                         .HasColumnType("int");
 
+                    b.Property<string>("ParameterName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ReportId")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("FilterId");
+                    b.HasKey("ReportFilterId");
 
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportFilters", "Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportGroupEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportGroup", b =>
                 {
-                    b.Property<int>("GroupId")
+                    b.Property<int>("ReportGroupId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GroupId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportGroupId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FieldName")
+                    b.Property<string>("Expression")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("ReportId")
                         .HasColumnType("int");
@@ -200,20 +260,20 @@ namespace Report.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("GroupId");
+                    b.HasKey("ReportGroupId");
 
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportGroups", "Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportParameterEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportParameter", b =>
                 {
-                    b.Property<int>("ParameterId")
+                    b.Property<int>("ReportParameterId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ParameterId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportParameterId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -222,7 +282,8 @@ namespace Report.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("DefaultValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("DisplayName")
                         .HasMaxLength(200)
@@ -242,31 +303,33 @@ namespace Report.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("ParameterId");
+                    b.HasKey("ReportParameterId");
 
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportParameters", "Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportSortingEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportSorting", b =>
                 {
-                    b.Property<int>("SortingId")
+                    b.Property<int>("ReportSortingId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SortingId"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportSortingId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("Direction")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
 
-                    b.Property<string>("FieldName")
+                    b.Property<string>("Expression")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("ReportId")
                         .HasColumnType("int");
@@ -277,27 +340,25 @@ namespace Report.Persistence.Migrations
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("SortingId");
+                    b.HasKey("ReportSortingId");
 
                     b.HasIndex("ReportId");
 
                     b.ToTable("ReportSortings", "Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportDataSourceEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.Report", b =>
                 {
-                    b.HasOne("Report.Domain.Entities.ReportEntity", "Report")
-                        .WithMany("DataSources")
-                        .HasForeignKey("ReportId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("Report.Domain.Entities.ReportDataSource", "ReportDataSource")
+                        .WithMany()
+                        .HasForeignKey("ReportDataSourceId");
 
-                    b.Navigation("Report");
+                    b.Navigation("ReportDataSource");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportFieldEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportField", b =>
                 {
-                    b.HasOne("Report.Domain.Entities.ReportEntity", "Report")
+                    b.HasOne("Report.Domain.Entities.Report", "Report")
                         .WithMany("Fields")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -306,9 +367,9 @@ namespace Report.Persistence.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportFilterEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportFilter", b =>
                 {
-                    b.HasOne("Report.Domain.Entities.ReportEntity", "Report")
+                    b.HasOne("Report.Domain.Entities.Report", "Report")
                         .WithMany("Filters")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -317,9 +378,9 @@ namespace Report.Persistence.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportGroupEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportGroup", b =>
                 {
-                    b.HasOne("Report.Domain.Entities.ReportEntity", "Report")
+                    b.HasOne("Report.Domain.Entities.Report", "Report")
                         .WithMany("Groups")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -328,9 +389,9 @@ namespace Report.Persistence.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportParameterEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportParameter", b =>
                 {
-                    b.HasOne("Report.Domain.Entities.ReportEntity", "Report")
+                    b.HasOne("Report.Domain.Entities.Report", "Report")
                         .WithMany("Parameters")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -339,9 +400,9 @@ namespace Report.Persistence.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportSortingEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.ReportSorting", b =>
                 {
-                    b.HasOne("Report.Domain.Entities.ReportEntity", "Report")
+                    b.HasOne("Report.Domain.Entities.Report", "Report")
                         .WithMany("Sortings")
                         .HasForeignKey("ReportId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -350,10 +411,8 @@ namespace Report.Persistence.Migrations
                     b.Navigation("Report");
                 });
 
-            modelBuilder.Entity("Report.Domain.Entities.ReportEntity", b =>
+            modelBuilder.Entity("Report.Domain.Entities.Report", b =>
                 {
-                    b.Navigation("DataSources");
-
                     b.Navigation("Fields");
 
                     b.Navigation("Filters");

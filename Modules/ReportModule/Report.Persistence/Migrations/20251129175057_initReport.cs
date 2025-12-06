@@ -6,13 +6,55 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Report.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class initReport : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.EnsureSchema(
                 name: "Report");
+
+            migrationBuilder.CreateTable(
+                name: "EmployeeReports",
+                schema: "Report",
+                columns: table => new
+                {
+                    EmployeeReportId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DepartmentName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    JobTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Salary = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    ContractType = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ManagerName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HireDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeReports", x => x.EmployeeReportId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReportDataSources",
+                schema: "Report",
+                columns: table => new
+                {
+                    ReportDataSourceId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    ConnectionString = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    SqlTemplate = table.Column<string>(type: "nvarchar(1000)", maxLength: 1000, nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReportDataSources", x => x.ReportDataSourceId);
+                });
 
             migrationBuilder.CreateTable(
                 name: "Reports",
@@ -24,39 +66,20 @@ namespace Report.Persistence.Migrations
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Query = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
+                    ReportDataSourceId = table.Column<int>(type: "int", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Reports", x => x.ReportId);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ReportDataSources",
-                schema: "Report",
-                columns: table => new
-                {
-                    DataSourceId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ReportId = table.Column<int>(type: "int", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    ConnectionString = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ReportDataSources", x => x.DataSourceId);
                     table.ForeignKey(
-                        name: "FK_ReportDataSources_Reports_ReportId",
-                        column: x => x.ReportId,
+                        name: "FK_Reports_ReportDataSources_ReportDataSourceId",
+                        column: x => x.ReportDataSourceId,
                         principalSchema: "Report",
-                        principalTable: "Reports",
-                        principalColumn: "ReportId",
-                        onDelete: ReferentialAction.Cascade);
+                        principalTable: "ReportDataSources",
+                        principalColumn: "ReportDataSourceId");
                 });
 
             migrationBuilder.CreateTable(
@@ -64,11 +87,12 @@ namespace Report.Persistence.Migrations
                 schema: "Report",
                 columns: table => new
                 {
-                    FieldId = table.Column<int>(type: "int", nullable: false)
+                    ReportFieldId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReportId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Expression = table.Column<string>(type: "nvarchar(max)", maxLength: 5000, nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Width = table.Column<int>(type: "int", nullable: true),
                     IsVisible = table.Column<bool>(type: "bit", nullable: false),
@@ -77,7 +101,7 @@ namespace Report.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportFields", x => x.FieldId);
+                    table.PrimaryKey("PK_ReportFields", x => x.ReportFieldId);
                     table.ForeignKey(
                         name: "FK_ReportFields_Reports_ReportId",
                         column: x => x.ReportId,
@@ -92,18 +116,18 @@ namespace Report.Persistence.Migrations
                 schema: "Report",
                 columns: table => new
                 {
-                    FilterId = table.Column<int>(type: "int", nullable: false)
+                    ReportFilterId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReportId = table.Column<int>(type: "int", nullable: false),
                     FieldName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Operator = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ParameterName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportFilters", x => x.FilterId);
+                    table.PrimaryKey("PK_ReportFilters", x => x.ReportFilterId);
                     table.ForeignKey(
                         name: "FK_ReportFilters_Reports_ReportId",
                         column: x => x.ReportId,
@@ -118,17 +142,17 @@ namespace Report.Persistence.Migrations
                 schema: "Report",
                 columns: table => new
                 {
-                    GroupId = table.Column<int>(type: "int", nullable: false)
+                    ReportGroupId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReportId = table.Column<int>(type: "int", nullable: false),
-                    FieldName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Expression = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportGroups", x => x.GroupId);
+                    table.PrimaryKey("PK_ReportGroups", x => x.ReportGroupId);
                     table.ForeignKey(
                         name: "FK_ReportGroups_Reports_ReportId",
                         column: x => x.ReportId,
@@ -143,20 +167,20 @@ namespace Report.Persistence.Migrations
                 schema: "Report",
                 columns: table => new
                 {
-                    ParameterId = table.Column<int>(type: "int", nullable: false)
+                    ReportParameterId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReportId = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     DisplayName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     DataType = table.Column<int>(type: "int", nullable: false),
                     IsRequired = table.Column<bool>(type: "bit", nullable: false),
-                    DefaultValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DefaultValue = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportParameters", x => x.ParameterId);
+                    table.PrimaryKey("PK_ReportParameters", x => x.ReportParameterId);
                     table.ForeignKey(
                         name: "FK_ReportParameters_Reports_ReportId",
                         column: x => x.ReportId,
@@ -171,18 +195,18 @@ namespace Report.Persistence.Migrations
                 schema: "Report",
                 columns: table => new
                 {
-                    SortingId = table.Column<int>(type: "int", nullable: false)
+                    ReportSortingId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ReportId = table.Column<int>(type: "int", nullable: false),
-                    FieldName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Direction = table.Column<int>(type: "int", nullable: false),
+                    Expression = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Direction = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     SortOrder = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReportSortings", x => x.SortingId);
+                    table.PrimaryKey("PK_ReportSortings", x => x.ReportSortingId);
                     table.ForeignKey(
                         name: "FK_ReportSortings_Reports_ReportId",
                         column: x => x.ReportId,
@@ -191,12 +215,6 @@ namespace Report.Persistence.Migrations
                         principalColumn: "ReportId",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ReportDataSources_ReportId",
-                schema: "Report",
-                table: "ReportDataSources",
-                column: "ReportId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReportFields_ReportId",
@@ -223,6 +241,12 @@ namespace Report.Persistence.Migrations
                 column: "ReportId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Reports_ReportDataSourceId",
+                schema: "Report",
+                table: "Reports",
+                column: "ReportDataSourceId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ReportSortings_ReportId",
                 schema: "Report",
                 table: "ReportSortings",
@@ -233,7 +257,7 @@ namespace Report.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "ReportDataSources",
+                name: "EmployeeReports",
                 schema: "Report");
 
             migrationBuilder.DropTable(
@@ -258,6 +282,10 @@ namespace Report.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Reports",
+                schema: "Report");
+
+            migrationBuilder.DropTable(
+                name: "ReportDataSources",
                 schema: "Report");
         }
     }

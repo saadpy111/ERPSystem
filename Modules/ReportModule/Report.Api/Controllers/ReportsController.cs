@@ -1,5 +1,9 @@
+using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Report.Application.Contracts.Persistence.Repositories;
+using Report.Application.DTOs;
+using Report.Application.Features.ReportFeatures.RunReport;
 using Report.Domain.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,14 +12,18 @@ namespace Report.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [ApiExplorerSettings(GroupName = "reports")]
+    [ApiExplorerSettings(GroupName = "Report")]
     public class ReportsController : ControllerBase
     {
         private readonly IReportsRepository _reportRepository;
+        private readonly IMediator _mediator;
+        private readonly IMapper _mapper;
 
-        public ReportsController(IReportsRepository reportRepository)
+        public ReportsController(IReportsRepository reportRepository,IMediator mediator, IMapper mapper)
         {
             _reportRepository = reportRepository;
+            _mediator = mediator;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -23,10 +31,11 @@ namespace Report.Api.Controllers
         /// </summary>
         /// <returns>A list of all reports</returns>
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Report.Domain.Entities.Report>>> GetAllReports()
+        public async Task<ActionResult<IEnumerable<ReportDto>>> GetAllReports()
         {
             var reports = await _reportRepository.GetAllAsync();
-            return Ok(reports);
+            var reportDtos = _mapper.Map<IEnumerable<ReportDto>>(reports);
+            return Ok(reportDtos);
         }
 
         /// <summary>
@@ -35,16 +44,25 @@ namespace Report.Api.Controllers
         /// <param name="id">The ID of the report to retrieve</param>
         /// <returns>The report with the specified ID</returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Report.Domain.Entities.Report>> GetReportById(int id)
+        public async Task<ActionResult<ReportDto>> GetReportById(int id)
         {
-            var report = await _reportRepository.GetByIdAsync(id);
+            var report = await _reportRepository.GetFullReportAsync(id);
             
             if (report == null)
             {
                 return NotFound($"Report with ID {id} not found.");
             }
 
-            return Ok(report);
+            var reportDto = _mapper.Map<ReportDto>(report);
+            return Ok(reportDto);
+        }
+
+        [HttpPost("{id}/execute")]
+        public async Task<IActionResult> Execute(int id, [FromBody] RunReportCommandRequest req)
+        {
+            req.ReportId = id;
+            var result = await _mediator.Send(req);
+            return Ok(result);
         }
     }
 }
