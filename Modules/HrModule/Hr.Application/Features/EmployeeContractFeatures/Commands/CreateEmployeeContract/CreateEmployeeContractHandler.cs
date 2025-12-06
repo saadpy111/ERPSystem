@@ -87,7 +87,7 @@ namespace Hr.Application.Features.EmployeeContractFeatures.Commands.CreateEmploy
                     FullName = employeeContractCreated?.Employee?.FullName??"",
                     DepartmentName = employeeContractCreated?.Job?.Department?.Name??"",
                     JobTitle = employeeContractCreated?.Job?.Title??"",
-                    ManagerName =  "",
+                    ManagerName =  employeeContractCreated?.Employee?.Manager?.FullName??"",
                     HireDate = employeeContractCreated?.StartDate??DateTime.UtcNow,
                     Salary = employeeContractCreated?.Salary??10000m,
                     ContractType = employeeContractCreated?.ContractType.ToString()??""

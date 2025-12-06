@@ -13,8 +13,9 @@ namespace Report.Domain.Entities
         public string Query { get; set; } = string.Empty;
 
         public bool IsActive { get; set; } = true;
-
+        public int? ReportDataSourceId { get; set; }
         // Navigation properties
+        public ReportDataSource   ReportDataSource { get; set; }
         public ICollection<ReportField> Fields { get; set; } = new List<ReportField>();
         public ICollection<ReportParameter> Parameters { get; set; } = new List<ReportParameter>();
         public ICollection<ReportFilter> Filters { get; set; } = new List<ReportFilter>();

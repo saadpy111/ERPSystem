@@ -7,7 +7,6 @@ namespace Report.Domain.Entities
         public int ReportDataSourceId { get; set; }
         public string Name { get; set; } = string.Empty;
         public DataSourceType Type { get; set; }
-        public string ConnectionString { get; set; } = string.Empty;
         public string? SqlTemplate { get; set; }
     }
 
