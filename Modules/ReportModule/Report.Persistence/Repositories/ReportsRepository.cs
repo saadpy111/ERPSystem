@@ -18,11 +18,7 @@ namespace Report.Persistence.Repositories
         public async Task<IEnumerable<Report.Domain.Entities.Report>> GetAllAsync()
         {
             return await _context.Reports
-                .Include(r => r.Fields)
-                .Include(r => r.Parameters)
-                .Include(r => r.Filters)
-                .Include(r => r.Groups)
-                .Include(r => r.Sortings)
+
                 .ToListAsync();
         }
 

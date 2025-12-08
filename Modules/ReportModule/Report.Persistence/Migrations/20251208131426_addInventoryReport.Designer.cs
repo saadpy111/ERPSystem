@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Report.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Report.Persistence.Context;
 namespace Report.Persistence.Migrations
 {
     [DbContext(typeof(ReportDbContext))]
-    partial class ReportDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251208131426_addInventoryReport")]
+    partial class addInventoryReport
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,7 +82,7 @@ namespace Report.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InventoryReportId"));
 
-                    b.Property<decimal?>("AvailableQuantity")
+                    b.Property<decimal>("AvailableQuantity")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Barcode")
@@ -92,21 +95,10 @@ namespace Report.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal?>("CostPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
                         .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsLowStock")
                         .HasColumnType("bit");
@@ -127,11 +119,12 @@ namespace Report.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<string>("MainSupplierName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                    b.Property<string>("ProductCode")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("OrderLimit")
+                    b.Property<int>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<string>("ProductName")
@@ -139,37 +132,26 @@ namespace Report.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<decimal?>("QuarantineQuantity")
+                    b.Property<decimal>("QuarantineQuantity")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("ReservedQuantity")
+                    b.Property<decimal>("ReservedQuantity")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("SalePrice")
+                    b.Property<decimal>("TotalCost")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Sku")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<decimal?>("Tax")
+                    b.Property<decimal>("TotalQuantity")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal?>("TotalCost")
+                    b.Property<decimal>("UnitCost")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("TotalQuantity")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal?>("UnitCost")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("UnitOfMeasure")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("WarehouseId")
+                        .HasColumnType("int");
 
                     b.Property<string>("WarehouseName")
                         .IsRequired()

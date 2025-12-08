@@ -34,8 +34,10 @@ namespace Inventory.Api
             var app = builder.Build();
             using (var scope = app.Services.CreateScope())
             {
-                var seeder = scope.ServiceProvider.GetRequiredService<ReportSeedService>();
-                await seeder.SeedAsync();
+                var employeereportseeder = scope.ServiceProvider.GetRequiredService<EmployeeReportSeedService>();
+                var inventoryreportseeder = scope.ServiceProvider.GetRequiredService<InventoryReportSeedService>();
+                await  employeereportseeder.SeedAsync();
+                await inventoryreportseeder.SeedAsync();
             }
 
             app.UseCors("mypolicy");

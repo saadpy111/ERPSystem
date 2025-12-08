@@ -20,7 +20,7 @@ namespace Report.Api.Controllers
         private readonly IMediator _mediator;
         private readonly IMapper _mapper;
 
-        public ReportsController(IReportsRepository reportRepository,IMediator mediator, IMapper mapper)
+        public ReportsController(IReportsRepository reportRepository, IMediator mediator, IMapper mapper)
         {
             _reportRepository = reportRepository;
             _mediator = mediator;
@@ -48,7 +48,7 @@ namespace Report.Api.Controllers
         public async Task<ActionResult<ReportDto>> GetReportById(int id)
         {
             var report = await _reportRepository.GetFullReportAsync(id);
-            
+
             if (report == null)
             {
                 return NotFound($"Report with ID {id} not found.");

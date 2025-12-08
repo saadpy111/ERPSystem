@@ -37,10 +37,9 @@ namespace Hr.Persistence.Repositories
         public async Task<IEnumerable<Department>> GetAllAsync()
         {
             return await _context.Departments
-                .Include(d => d.Manager)
-                .Include(d => d.ParentDepartment)
-                .Include(d => d.SubDepartments)
-                .Include(d => d.Jobs)
+               .Include(d => d.Manager)
+               .Include(d=>d.ParentDepartment)
+                .AsNoTracking()
                 .ToListAsync();
         }
 
@@ -79,9 +78,9 @@ namespace Hr.Persistence.Repositories
         {
             var query = _context.Departments
                 .Include(d => d.Manager)
-                .Include(d => d.ParentDepartment)
-                .Include(d => d.SubDepartments)
-                .Include(d => d.Jobs)
+               .Include(d => d.ParentDepartment)
+
+                .AsNoTracking()
                 .AsQueryable();
 
             // Apply search filter

@@ -26,7 +26,8 @@ namespace Report.Persistence.DependencyInjection
             #region Register repository implementations
             services.AddScoped<IReportQueryEngine, ReportQueryEngine>();
 
-            services.AddScoped<ReportSeedService>();
+            services.AddScoped<EmployeeReportSeedService>();
+            services.AddScoped<InventoryReportSeedService>();
             services.AddScoped<IReportsRepository, ReportsRepository>();
             services.AddScoped<IReportDataSourcesRepository, ReportDataSourcesRepository>();
             services.AddScoped<IReportFieldsRepository, ReportFieldsRepository>();
@@ -35,6 +36,7 @@ namespace Report.Persistence.DependencyInjection
             services.AddScoped<IReportGroupsRepository, ReportGroupsRepository>();
             services.AddScoped<IReportSortingsRepository, ReportSortingsRepository>();
             services.AddScoped<IEmployeeReportRepository, EmployeeReportRepository>();
+            services.AddScoped<IInventoryReportRepository, InventoryReportRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             #endregion
 

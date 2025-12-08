@@ -4,11 +4,11 @@ using Report.Persistence.Context;
 
 namespace Report.Persistence.Seeders
 {
-    public class ReportSeedService
+    public class EmployeeReportSeedService
     {
         private readonly ReportDbContext _context;
 
-        public ReportSeedService(ReportDbContext context)
+        public EmployeeReportSeedService(ReportDbContext context)
         {
             _context = context;
         }

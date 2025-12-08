@@ -1,3 +1,4 @@
+using Events.InventoryEvents;
 using Inventory.Application.Contracts.Infrastruture.FileService;
 using Inventory.Application.Contracts.Persistence.Repositories;
 using Inventory.Application.Dtos.ProductDtos;
@@ -11,11 +12,13 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommandRequest, CreateProductCommandResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator  _mediator;
         private readonly IFileService _fileService;
 
-        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IFileService fileService)
+        public CreateProductCommandHandler(IUnitOfWork unitOfWork,IMediator mediator, IFileService fileService)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
             _fileService = fileService;
         }
 
@@ -114,7 +117,27 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
 
                 await _unitOfWork.CompleteAsync();
 
+                var product =  await _unitOfWork.Repositories<Product>().GetFirst(p => p.Id == entity.Id, false, p => p.Category);
+                await _mediator.Publish(new NewProductCreatedEvent()
+                {
+                     CategoryName = product?.Category?.Name??"",
+                     Name = product?.Name??"",
+                     CostPrice = product.CostPrice,
+                     Description = product.Description,
+                     IsActive = product.IsActive,
+                     MainSupplierName = product.MainSupplierName,
+                     OrderLimit = product.OrderLimit,
+                     ProductBarcode = product.ProductBarcode,
+                     SalePrice =product.SalePrice,
+                     Sku = product.Sku,
+                     Tax = product.Tax,
+                     UnitOfMeasure = product.UnitOfMeasure,
+                      
+
+                });
+
                 var dto = entity.ToDto();
+                
 
                 return new CreateProductCommandResponse
                 {

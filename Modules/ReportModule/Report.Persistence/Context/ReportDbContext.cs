@@ -17,7 +17,8 @@ namespace Report.Persistence.Context
         public DbSet<Report.Domain.Entities.ReportFilter> ReportFilters { get; set; }
         public DbSet<Report.Domain.Entities.ReportGroup> ReportGroups { get; set; }
         public DbSet<Report.Domain.Entities.ReportSorting> ReportSortings { get; set; }
-        public DbSet<EmployeeReport>  EmployeeReports { get; set; }
+        public DbSet<EmployeeReport> EmployeeReports { get; set; }
+        public DbSet<InventoryReport> InventoryReports { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
