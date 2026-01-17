@@ -10,7 +10,7 @@ namespace Identity.Domain.Entities
 {
     public class ApplicationUserRole : IdentityUserRole<string>
     {
-     
+        public string TenantId { get; set; } = string.Empty;
         public DateTime AssignedAt { get; set; }
         public string? AssignedBy { get; set; }
         public virtual ApplicationUser User { get; set; }

@@ -2,6 +2,7 @@
 using Inventory.Persistence.Context;
 using Inventory.Persistence.Repositories.GenericRepository;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Storage;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ namespace Inventory.Persistence.Repositories.UnitOfWork
         {
             return await _dbContext.SaveChangesAsync();
         }
+
 
         //  Begin transaction
         public async Task BeginTransactionAsync()

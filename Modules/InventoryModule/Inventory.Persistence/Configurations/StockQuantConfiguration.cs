@@ -13,7 +13,7 @@ namespace Inventory.Persistence.Configurations
 
             builder.HasIndex(sq => new { sq.ProductId, sq.LocationId })
                    .IsUnique();
-
+            builder.HasIndex(sq => sq.TenantId);
             builder.Property(sq => sq.Quantity).IsRequired();
             builder.Property(sq => sq.ReservedQuantity).IsRequired();
 

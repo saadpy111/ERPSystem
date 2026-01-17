@@ -12,7 +12,7 @@ namespace Inventory.Persistence.Configurations
             builder.HasKey(sa => sa.Id);
 
             builder.Property(sa => sa.UserId).IsRequired();
-
+            builder.HasIndex(sa => sa.TenantId);
             builder.HasOne(sa => sa.Warehouse)
                    .WithMany(w => w.StockAdjustments)
                    .HasForeignKey(sa => sa.WarehouseId)

@@ -16,6 +16,7 @@ namespace Inventory.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(512);
 
+            builder.HasIndex(pi => pi.TenantId);
             builder.Property(pi => pi.Description)
                 .HasMaxLength(1024);
 

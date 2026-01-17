@@ -10,6 +10,7 @@ namespace Inventory.Persistence.Configurations
         {
             builder.ToTable("Warehouses");
 
+            builder.HasIndex(w => w.TenantId);
             builder.HasKey(w => w.Id);
             builder.Property(w => w.Name).HasMaxLength(100).IsRequired();
             builder.Property(w => w.WarehouseType).HasMaxLength(100);

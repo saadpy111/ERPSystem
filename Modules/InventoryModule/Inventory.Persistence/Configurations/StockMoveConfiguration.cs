@@ -15,6 +15,7 @@ namespace Inventory.Persistence.Configurations
                    .IsRequired()
                    .HasConversion<string>()   
                    .HasMaxLength(50);
+            builder.HasIndex(sm => sm.TenantId);
 
             builder.Property(sm => sm.Reference)
                    .HasMaxLength(100);

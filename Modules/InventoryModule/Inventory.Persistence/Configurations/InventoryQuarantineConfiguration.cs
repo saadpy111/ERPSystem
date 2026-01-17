@@ -11,6 +11,8 @@ namespace Inventory.Persistence.Configurations
             builder.ToTable("InventoryQuarantines");
             builder.HasKey(iq => iq.Id);
 
+            builder.HasIndex(iq => iq.TenantId);
+
             builder.Property(iq => iq.Status)
                    .HasConversion<string>() 
                    .HasMaxLength(50)

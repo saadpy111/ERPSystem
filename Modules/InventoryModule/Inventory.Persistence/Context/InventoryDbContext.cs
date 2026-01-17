@@ -1,15 +1,34 @@
 ﻿using Inventory.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Multitenancy;
 using System;
 using System.Reflection;
 
 namespace Inventory.Persistence.Context
 {
+    /// <summary>
+    /// DbContext for the Inventory module with multi-tenant query filtering.
+    /// All queries are automatically filtered by CurrentTenantId when set.
+    /// Use IgnoreQueryFilters() for admin/system scenarios.
+    /// </summary>
     public class InventoryDbContext : DbContext
     {
-        public InventoryDbContext(DbContextOptions<InventoryDbContext> options) : base(options)
+        private readonly ITenantProvider? _tenantProvider;
+
+        /// <summary>
+        /// Current tenant ID resolved from the request context.
+        /// Used for global query filters.
+        /// </summary>
+        public string? CurrentTenantId { get; }
+
+        public InventoryDbContext(
+            DbContextOptions<InventoryDbContext> options,
+            ITenantProvider? tenantProvider = null) : base(options)
         {
+            _tenantProvider = tenantProvider;
+            CurrentTenantId = tenantProvider?.GetTenantId();
         }
+
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
@@ -32,7 +51,87 @@ namespace Inventory.Persistence.Context
         {
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             modelBuilder.HasDefaultSchema("Inventory");
+
+            ApplyGlobalQueryFilters(modelBuilder);
+
             base.OnModelCreating(modelBuilder);
+        }
+
+        /// <summary>
+        /// Applies global query filters to all tenant-scoped entities.
+        /// Filters only apply when CurrentTenantId is set.
+        /// Use IgnoreQueryFilters() to bypass for admin/system scenarios.
+        /// </summary>
+        private void ApplyGlobalQueryFilters(ModelBuilder modelBuilder)
+        {
+            if (!string.IsNullOrEmpty(CurrentTenantId))
+            {
+                // Core entities
+                modelBuilder.Entity<Product>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<ProductCategory>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<Warehouse>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<Location>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+                // Stock entities
+                modelBuilder.Entity<StockQuant>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<StockMove>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<StockAdjustment>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+                // Product-related entities
+                modelBuilder.Entity<SerialOrBatchNumber>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<ProductCostHistory>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<ProductBarcode>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<InventoryQuarantine>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+                // Attribute entities
+                modelBuilder.Entity<ProductAttribute>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<ProductImage>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+                modelBuilder.Entity<ProductAttributeValue>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+                // Attachments
+                modelBuilder.Entity<Attachment>()
+                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+            }
+        }
+
+        /// <summary>
+        /// Configures indexes on TenantId columns for query performance.
+        /// </summary>
+
+        public override Task<int> SaveChangesAsync(
+                      CancellationToken cancellationToken = default)
+        {
+            EnforceTenantOnInsert();
+            return base.SaveChangesAsync(cancellationToken);
+        }
+        private void EnforceTenantOnInsert()
+        {
+            var tenantId = CurrentTenantId;
+            if (string.IsNullOrEmpty(tenantId))
+                throw new UnauthorizedAccessException("TenantId not resolved");
+
+            var entries = ChangeTracker
+                .Entries<ITenantEntity>()
+                .Where(e => e.State == EntityState.Added);
+
+            foreach (var entry in entries)
+            {
+                entry.Entity.TenantId = tenantId;
+            }
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

@@ -11,6 +11,7 @@ namespace Inventory.Persistence.Configurations
             builder.ToTable("ProductBarcodes");
             builder.HasKey(b => b.Id);
 
+            builder.HasIndex(b => b.TenantId);
             builder.Property(b => b.BarcodeValue).HasMaxLength(150).IsRequired();
             builder.Property(b => b.Type).HasMaxLength(50);
 

@@ -17,6 +17,7 @@ namespace Inventory.Persistence.Configurations
             builder.Property(a => a.Description).HasMaxLength(512);
             builder.Property(a => a.UploadedAt).IsRequired();
             builder.HasIndex(a => new { a.EntityType, a.EntityId }); // For fast lookup
+            builder.HasIndex(a => a.TenantId);
         }
     }
 }

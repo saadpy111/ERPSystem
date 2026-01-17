@@ -12,8 +12,8 @@ namespace Inventory.Persistence.Configurations
 
             builder.HasKey(l => l.Id);
             builder.Property(l => l.Name).HasMaxLength(100).IsRequired();
-            builder.Property(l => l.Type).HasMaxLength(50); 
-
+            builder.Property(l => l.Type).HasMaxLength(50);
+            builder.HasIndex(l => l.TenantId);
             builder.HasOne(l => l.Warehouse)
                    .WithMany(w => w.Locations)
                    .HasForeignKey(l => l.WarehouseId)

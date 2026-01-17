@@ -1,6 +1,6 @@
 ﻿using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.AccountDtos;
-using Identity.Application.Features.AuthFeature.Commands.Register;
+using Identity.Application.Features.AuthFeature.Commands.RegisterUser;
 using Identity.Application.Features.AuthFeature.Queries.Login;
 using Identity.Domain.Entities;
 using MediatR;
@@ -29,23 +29,7 @@ namespace Identity.Api.Controllers
             _mediator = mediator;
         }
 
-        /// <summary>
-        /// Register a new user with optional role
-        /// </summary>
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterDto dto)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
 
-            var request = new RegisterCommandRequest() { RegisterDto = dto };
-            var response = await _mediator.Send(request);
-
-            if (!response.Success)
-                return BadRequest(new { Errors = response.Errors });
-
-            return Ok(new { Message = "Registration successful" });
-        }
 
         /// <summary>
         /// Login user and get JWT token
@@ -63,6 +47,23 @@ namespace Identity.Api.Controllers
                 return Unauthorized(new { Error = response.Error });
 
             return Ok(new { Token = response.Token });
+        }
+
+        /// <summary>
+        /// Register a new user without tenant (Two-Phase Onboarding - Phase 1)
+        /// </summary>
+        [HttpPost("register-client")]
+        public async Task<IActionResult> RegisterUser([FromBody] RegisterUserCommand command)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var response = await _mediator.Send(command);
+
+            if (!response.Success)
+                return BadRequest(new { error = response.Error });
+
+            return Ok(new { message = response.Message, userId = response.UserId });
         }
     }
 

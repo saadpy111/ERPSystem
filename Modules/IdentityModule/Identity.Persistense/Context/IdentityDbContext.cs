@@ -1,9 +1,8 @@
-﻿
-using Identity.Domain.Entities;
+﻿using Identity.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
+using SharedKernel.Multitenancy;
 
 namespace Identity.Persistense.Context
 {
@@ -16,28 +15,57 @@ namespace Identity.Persistense.Context
         IdentityUserLogin<string>,
         IdentityRoleClaim<string>,
         IdentityUserToken<string>>
-    
     {
-        public IdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options) { }
+    
+        public string? CurrentTenantId { get; }
+
+        public IdentityDbContext(
+            DbContextOptions<IdentityDbContext> options,
+            ITenantProvider? tenantProvider = null)
+            : base(options)
+        {
+            CurrentTenantId = tenantProvider?.GetTenantId();
+        }
+
+
+        public DbSet<Tenant> Tenants => Set<Tenant>();
+        public DbSet<Permission> Permissions => Set<Permission>();
+        public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+        public DbSet<UserPermission> UserPermissions => Set<UserPermission>();
+        public DbSet<TenantInvitation> TenantInvitations => Set<TenantInvitation>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.HasDefaultSchema("Identity");
 
+            modelBuilder.HasDefaultSchema("Identity");
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityDbContext).Assembly);
+
+            ApplyGlobalQueryFilters(modelBuilder);
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        private void ApplyGlobalQueryFilters(ModelBuilder modelBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
-            if (!optionsBuilder.IsConfigured)
+            // Only apply tenant filters when CurrentTenantId exists
+            // Pre-tenant users (TenantId = NULL) bypass filters for identity operations
+            if (!string.IsNullOrEmpty(CurrentTenantId))
             {
-                string con = "Server=DESKTOP-VGEBCK1\\SQLEXPRESS;Database=InventoryMicro;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False;TrustServerCertificate=True;";
-                optionsBuilder.UseSqlServer(con);
-            }
+                // Filter tenant-scoped entities
+                modelBuilder.Entity<ApplicationRole>()
+                    .HasQueryFilter(r => r.TenantId == CurrentTenantId);
 
+                modelBuilder.Entity<RolePermission>()
+                    .HasQueryFilter(rp => rp.TenantId == CurrentTenantId);
+
+                modelBuilder.Entity<UserPermission>()
+                    .HasQueryFilter(up => up.TenantId == CurrentTenantId);
+
+                modelBuilder.Entity<TenantInvitation>()
+                    .HasQueryFilter(ti => ti.TenantId == CurrentTenantId);
+                    
+                // Note: ApplicationUser filter removed - handled explicitly in repositories
+                // Note: Permission is global and never filtered
+            }
         }
     }
 }
-

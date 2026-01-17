@@ -15,7 +15,7 @@ namespace Inventory.Persistence.Configurations
             builder.Property(s => s.Quantity).IsRequired();
 
             builder.HasIndex(s => s.Number).IsUnique();
-
+            builder.HasIndex(s => s.TenantId);
             builder.HasOne(s => s.Product)
                    .WithMany(p => p.SerialNumbers)
                    .HasForeignKey(s => s.ProductId)

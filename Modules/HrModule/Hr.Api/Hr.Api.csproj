@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Hr.Domain\Hr.Domain.csproj" />
     <ProjectReference Include="..\Hr.Infrastructure\Hr.Infrastructure.csproj" />
     <ProjectReference Include="..\Hr.Persistence\Hr.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SharedKernel.Core.csproj" />
   </ItemGroup>
 
 </Project>

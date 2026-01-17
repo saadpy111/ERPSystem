@@ -1,0 +1,20 @@
+namespace Website.Application.Features.WebsiteCategoryFeatures.Queries.GetAllCategories
+{
+    public class GetAllCategoriesQueryResponse
+    {
+        public List<CategoryDto> Categories { get; set; } = new();
+    }
+
+    public class CategoryDto
+    {
+        public Guid Id { get; set; }
+        public Guid? InventoryCategoryId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Slug { get; set; } = string.Empty;
+        public Guid? ParentCategoryId { get; set; }
+        public int DisplayOrder { get; set; }
+        public bool IsActive { get; set; }
+        public int ProductCount { get; set; }
+        public List<CategoryDto> Children { get; set; } = new();
+    }
+}

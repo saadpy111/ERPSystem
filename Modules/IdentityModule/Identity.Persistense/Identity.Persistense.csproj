@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Identity.Application\Identity.Application.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SharedKernel.Core.csproj" />
   </ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />

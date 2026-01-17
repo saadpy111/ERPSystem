@@ -30,6 +30,9 @@
     <ProjectReference Include="..\..\Modules\InventoryModule\Inventory.Api\Inventory.Api.csproj" />
     <ProjectReference Include="..\..\Modules\ProcurementModule\Procurement.Api\Procurement.Api.csproj" />
     <ProjectReference Include="..\..\Modules\ReportModule\Report.Api\Report.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\SubscriptionModule\Subscription.Api\Subscription.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\WebsiteModule\Website.Api\Website.Api.csproj" />
+    <ProjectReference Include="..\..\SharedKernel\SharedKernel.Core.csproj" />
   </ItemGroup>
 
 </Project>

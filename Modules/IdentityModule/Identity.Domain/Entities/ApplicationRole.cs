@@ -7,9 +7,13 @@ using System.Threading.Tasks;
 
 namespace Identity.Domain.Entities
 {
-    public class ApplicationRole :IdentityRole
+    public class ApplicationRole : IdentityRole
     {
-        public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
+        public string TenantId { get; set; } = string.Empty;
 
+        // Navigation properties
+        public virtual Tenant Tenant { get; set; } = null!;
+        public virtual ICollection<ApplicationUserRole> UserRoles { get; set; } = new List<ApplicationUserRole>();
+        public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }

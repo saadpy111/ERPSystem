@@ -1,6 +1,7 @@
 ﻿using Inventory.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Reflection.Emit;
 
 namespace Inventory.Persistence.Configurations
 {
@@ -15,6 +16,8 @@ namespace Inventory.Persistence.Configurations
 
             builder.HasIndex(p => p.Sku)
                    .IsUnique();
+            builder
+               .HasIndex(e => e.TenantId);
 
             builder.Property(p => p.Sku).HasMaxLength(50);
             builder.Property(p => p.ProductBarcode).HasMaxLength(250);

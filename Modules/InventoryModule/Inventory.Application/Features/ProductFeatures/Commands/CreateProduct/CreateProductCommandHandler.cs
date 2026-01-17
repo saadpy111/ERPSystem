@@ -34,6 +34,7 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
                     UnitOfMeasure = request.Product.UnitOfMeasure,
                     SalePrice = request.Product.SalePrice,
                     CostPrice = request.Product.CostPrice,
+  
                     IsActive = true,
                     CategoryId = request.Product.CategoryId,
                     ProductBarcode = request.Product.ProductBarcode,

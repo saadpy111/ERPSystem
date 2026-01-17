@@ -31,6 +31,8 @@ namespace Inventory.Application.DependencyInjection
               services.AddScoped<IStockMoveHandlerFactory, StockMoveHandlerFactory>();
             #endregion
 
+            // Cross-module read service
+            services.AddScoped<SharedKernel.Contracts.IInventoryReadService, Inventory.Application.Services.InventoryReadService>();
             
 
             return services;

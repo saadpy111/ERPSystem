@@ -5,15 +5,18 @@ using Inventory.Application.Features.ProCategoryFeatures.Commands.UpdateCategory
 using Inventory.Application.Features.ProCategoryFeatures.Queries.GetAllCategories;
 using Inventory.Application.Features.ProCategoryFeatures.Queries.GetCategoryById;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Inventory.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     [ApiExplorerSettings(GroupName = "inventories")]
-
+    [Authorize]
     public class ProductCategoryController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -25,6 +28,7 @@ namespace Inventory.Api.Controllers
 
 
         [HttpPost("Create")]
+        [HasPermission(InventoryPermissions.CategoriesCreate)]
         public async Task<IActionResult> CreateCategory(CreateCategoryCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -37,6 +41,7 @@ namespace Inventory.Api.Controllers
 
 
         [HttpGet("GetCategory")]
+        [HasPermission(InventoryPermissions.CategoriesView)]
         public async Task<IActionResult> GetCategoryById(Guid CatId)
         {
             if (CatId == null)
@@ -51,7 +56,9 @@ namespace Inventory.Api.Controllers
 
 
         }
+
         [HttpGet("GetAll")]
+        [HasPermission(InventoryPermissions.CategoriesView)]
         public async Task<IActionResult> GetAllCategories()
         {
             GetAllCategoriesQueryRequest request = new GetAllCategoriesQueryRequest();
@@ -64,6 +71,7 @@ namespace Inventory.Api.Controllers
 
 
         [HttpPut]
+        [HasPermission(InventoryPermissions.CategoriesEdit)]
         public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryCommandRequest request)
         {
             if (request == null || request.UpdateCategoryDto == null)
@@ -78,6 +86,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission(InventoryPermissions.CategoriesDelete)]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
             var request = new DeleteCategoryCommandRequest { Id = id };
@@ -90,3 +99,4 @@ namespace Inventory.Api.Controllers
         }
     }
 }
+

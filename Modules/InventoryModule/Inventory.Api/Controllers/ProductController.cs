@@ -8,14 +8,17 @@ using Inventory.Application.Features.ProductFeatures.Queries.GetPagedProducts;
 using Inventory.Application.Features.ProductFeatures.Queries.GetProductById;
 using Inventory.Domain.Enums;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Inventory.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "inventories")]
-
+    [Authorize]
     public class ProductController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -27,6 +30,7 @@ namespace Inventory.Api.Controllers
 
         [HttpPost("create")]
         [Consumes("multipart/form-data")]
+        [HasPermission(InventoryPermissions.ProductsCreate)]
         public async Task<IActionResult> Create([FromForm] CreateProductDto dto)
         {
             var response = await _mediator.Send(new CreateProductCommandRequest { Product = dto });
@@ -35,6 +39,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPost("{id}/attribute-values")]
+        [HasPermission(InventoryPermissions.ProductsManageAttributes)]
         public async Task<IActionResult> AddAttributeValues(Guid id, [FromBody] List<ProductAttributeValueDto> values)
         {
             var response = await _mediator.Send(new AddProductAttributeValuesCommandRequest
@@ -47,6 +52,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission(InventoryPermissions.ProductsView)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var response = await _mediator.Send(new GetProductByIdQueryRequest { Id = id });
@@ -55,6 +61,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission(InventoryPermissions.ProductsDelete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var response = await _mediator.Send(new DeleteProductCommandRequest { Id = id });
@@ -63,6 +70,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPut("{id}/inactive")]
+        [HasPermission(InventoryPermissions.ProductsDeactivate)]
         public async Task<IActionResult> MakeInactive(Guid id)
         {
             var response = await _mediator.Send(new MakeProductInactiveCommandRequest { Id = id });
@@ -72,6 +80,7 @@ namespace Inventory.Api.Controllers
 
 
         [HttpGet("paged")]
+        [HasPermission(InventoryPermissions.ProductsView)]
         public async Task<IActionResult> GetPaged([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var response = await _mediator.Send(new GetPagedProductsQueryRequest
@@ -85,13 +94,16 @@ namespace Inventory.Api.Controllers
 
         [HttpPut("update")]
         [Consumes("multipart/form-data")]
+        [HasPermission(InventoryPermissions.ProductsEdit)]
         public async Task<IActionResult> Update([FromForm] UpdateProductDto dto)
         {
             var response = await _mediator.Send(new UpdateProductCommandRequest { Product = dto });
             if (!response.Success) return BadRequest(response);
             return Ok(response);
         }
+
         [HttpGet("GetProductImageTypes")]
+        [HasPermission(InventoryPermissions.ProductsView)]
         public IActionResult GetProductImageTypes()
         {
             var values = Enum.GetValues(typeof(ProductImageType))

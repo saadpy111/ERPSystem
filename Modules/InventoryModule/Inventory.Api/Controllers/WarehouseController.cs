@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Inventory.Application.Dtos.WarehouseDtos;
 using Inventory.Application.Features.WarehouseFeatures.Commands.CreateWarehouse;
@@ -6,13 +7,15 @@ using Inventory.Application.Features.WarehouseFeatures.Commands.UpdateWarehouse;
 using Inventory.Application.Features.WarehouseFeatures.Commands.DeleteWarehouse;
 using Inventory.Application.Features.WarehouseFeatures.Queries.GetAllWarehouses;
 using Inventory.Application.Features.WarehouseFeatures.Queries.GetWarehouseById;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Inventory.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "inventories")]
-
+    [Authorize]
     public class WarehouseController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,6 +26,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(InventoryPermissions.WarehousesView)]
         public async Task<IActionResult> GetAll()
         {
             var result = await _mediator.Send(new GetAllWarehousesQueryRequest());
@@ -30,6 +34,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission(InventoryPermissions.WarehousesView)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var result = await _mediator.Send(new GetWarehouseByIdQueryRequest { Id = id });
@@ -38,6 +43,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPost]
+        [HasPermission(InventoryPermissions.WarehousesCreate)]
         public async Task<IActionResult> Create([FromForm] CreateWarehouseDto dto)
         {
             var result = await _mediator.Send(new CreateWarehouseCommandRequest { Warehouse = dto });
@@ -48,6 +54,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [HasPermission(InventoryPermissions.WarehousesEdit)]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateWarehouseDto dto)
         {
             if (id != dto.Id) return BadRequest();
@@ -59,6 +66,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission(InventoryPermissions.WarehousesDelete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var result = await _mediator.Send(new DeleteWarehouseCommandRequest { Id = id });

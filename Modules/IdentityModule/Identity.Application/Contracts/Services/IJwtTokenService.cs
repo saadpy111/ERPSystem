@@ -9,7 +9,7 @@ namespace Identity.Application.Contracts.Services
 {
     public interface IJwtTokenService
     {
-        string GenerateToken(ApplicationUser user, IList<string> roles);
+        string GenerateToken(ApplicationUser user, IList<string> roles, IList<string> permissions, string? tenantId);
     }
 
 }

@@ -11,6 +11,7 @@
     <ProjectReference Include="..\Identity.Domain\Identity.Domain.csproj" />
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\Identity.Persistense\Identity.Persistense.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SharedKernel.Core.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

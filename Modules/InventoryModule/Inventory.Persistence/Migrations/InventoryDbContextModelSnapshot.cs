@@ -61,6 +61,10 @@ namespace Inventory.Persistence.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -68,6 +72,8 @@ namespace Inventory.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("EntityType", "EntityId");
 
@@ -105,6 +111,10 @@ namespace Inventory.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -113,6 +123,8 @@ namespace Inventory.Persistence.Migrations
                     b.HasIndex("LocationId");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("InventoryQuarantines", "Inventory");
                 });
@@ -134,6 +146,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -148,6 +164,8 @@ namespace Inventory.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("WarehouseId");
 
@@ -202,6 +220,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<decimal?>("Tax")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("UnitOfMeasure")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -216,6 +238,8 @@ namespace Inventory.Persistence.Migrations
                     b.HasIndex("Sku")
                         .IsUnique()
                         .HasFilter("[Sku] IS NOT NULL");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Products", "Inventory");
                 });
@@ -239,10 +263,16 @@ namespace Inventory.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("ProductAttributes", "Inventory");
                 });
@@ -262,6 +292,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -273,6 +307,8 @@ namespace Inventory.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AttributeId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("ProductId", "AttributeId");
 
@@ -296,6 +332,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Type")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -310,6 +350,8 @@ namespace Inventory.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("ProductBarcodes", "Inventory");
                 });
@@ -331,12 +373,18 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("ProductCategories", "Inventory");
                 });
@@ -365,6 +413,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid?>("StockMoveId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -373,6 +425,8 @@ namespace Inventory.Persistence.Migrations
                     b.HasIndex("ProductId");
 
                     b.HasIndex("StockMoveId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("ProductCostHistories", "Inventory");
                 });
@@ -408,12 +462,18 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("ProductImages", "Inventory");
                 });
@@ -447,6 +507,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -458,6 +522,8 @@ namespace Inventory.Persistence.Migrations
                         .IsUnique();
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("SerialOrBatchNumbers", "Inventory");
                 });
@@ -483,6 +549,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -495,6 +565,8 @@ namespace Inventory.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("WarehouseId");
 
@@ -534,6 +606,10 @@ namespace Inventory.Persistence.Migrations
                     b.Property<Guid?>("SourceLocationId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -544,6 +620,8 @@ namespace Inventory.Persistence.Migrations
                     b.HasIndex("ProductId");
 
                     b.HasIndex("SourceLocationId");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("StockMoves", "Inventory");
                 });
@@ -569,12 +647,18 @@ namespace Inventory.Persistence.Migrations
                     b.Property<int>("ReservedQuantity")
                         .HasColumnType("int");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LocationId");
+
+                    b.HasIndex("TenantId");
 
                     b.HasIndex("ProductId", "LocationId")
                         .IsUnique();
@@ -625,6 +709,10 @@ namespace Inventory.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int?>("TotalStorageCapacity")
                         .HasColumnType("int");
 
@@ -640,6 +728,8 @@ namespace Inventory.Persistence.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
 
                     b.ToTable("Warehouses", "Inventory");
                 });

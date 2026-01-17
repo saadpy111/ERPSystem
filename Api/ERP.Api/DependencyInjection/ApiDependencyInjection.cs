@@ -7,13 +7,20 @@ using Inventory.Api.Controllers;
 using Inventory.Api.DependencyInjection;
 using Inventory.Application.Contracts.Infrastruture.FileService;
 using Inventory.Infrastructure.FileService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Procurement.Api.Controllers;
 using Procurement.Api.DependencyInjection;
 using Procurement.Infrastructure.FileService;
 using Report.Api.Controllers;
 using Report.Api.DependencyInjection;
+using SharedKernel.Authorization;
+using SharedKernel.Multitenancy;
+using Subscription.Api.DependencyInjection;
+using Subscription.Api.Controllers;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Website.Api.Controllers;
+using Website.Api.DependencyInjection;
 
 namespace ERP.Api.DependencyInjection
 {
@@ -33,6 +40,19 @@ namespace ERP.Api.DependencyInjection
         
             services.AddReportApiServices(configuration);
             
+            services.AddSubscriptionApiDependencyInjection(configuration);
+            
+            services.AddWebsiteApiDependencyInjection(configuration);
+            
+            #endregion
+
+            #region Multi-Tenancy & Authorization
+            // Register tenant provider
+            services.AddScoped<ITenantProvider, TenantProvider>();
+
+            // Register authorization infrastructure
+            services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+            services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
             #endregion
 
             #region Cors
@@ -56,6 +76,8 @@ namespace ERP.Api.DependencyInjection
                  options.SwaggerDoc("Identity", new() { Title = "Identity API", Version = "v1" });
                  options.SwaggerDoc("procurement", new() { Title = "Procurement API", Version = "v1" });
                  options.SwaggerDoc("Report", new() { Title = "Report API", Version = "v1" });
+                 options.SwaggerDoc("Subscription", new() { Title = "Subscription API", Version = "v1" });
+                 options.SwaggerDoc("Website", new() { Title = "Website API", Version = "v1" });
                  options.DocInclusionPredicate((docName, apiDesc) =>
                  {
                      if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
@@ -98,6 +120,8 @@ namespace ERP.Api.DependencyInjection
             services.AddControllers().AddApplicationPart(typeof(VendorsController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(EmployeesController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(ReportsController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(PlansController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(ThemesController).Assembly);
             return services;
         }
     }

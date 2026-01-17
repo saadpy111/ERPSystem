@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.9" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.9" />
+	</ItemGroup>
+
+	<ItemGroup>
+    <ProjectReference Include="..\Subscription.Application\Subscription.Application.csproj" />
+    <ProjectReference Include="..\Subscription.Domain\Subscription.Domain.csproj" />
+    <ProjectReference Include="..\Subscription.Infrastructure\Subscription.Infrastructure.csproj" />
+    <ProjectReference Include="..\Subscription.Persistence\Subscription.Persistence.csproj" />
+  </ItemGroup>
+
+</Project>

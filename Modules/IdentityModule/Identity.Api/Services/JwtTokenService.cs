@@ -19,18 +19,29 @@ namespace Identity.Api.Services
         private readonly JwtSettings _settings;
         public JwtTokenService(IOptions<JwtSettings> options) => _settings = options.Value;
 
-        public string GenerateToken(ApplicationUser user, IList<string> roles)
+        public string GenerateToken(ApplicationUser user, IList<string> roles, IList<string> permissions, string? tenantId)
         {
             var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email ?? string.Empty),
             new Claim("fullName", user.FullName ?? string.Empty),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("state", user.State.ToString()) // Add state claim
         };
 
-            // add role claims
-            claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+            // Only add tenant-specific claims if user has a tenant
+            if (!string.IsNullOrEmpty(tenantId))
+            {
+                claims.Add(new Claim("tenant", tenantId)); // Add tenant claim
+                
+                // Add role claims
+                claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
+                
+                // Add permission claims
+                claims.AddRange(permissions.Select(p => new Claim("permission", p)));
+            }
+            // Pre-tenant users (TenantId = NULL) get minimal claims: userId, email, state only
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Key));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

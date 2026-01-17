@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Inventory.Application.Dtos.LocationDtos;
 using Inventory.Application.Features.LocationFeatures.Commands.CreateLocation;
@@ -7,14 +8,15 @@ using Inventory.Application.Features.LocationFeatures.Commands.DeleteLocation;
 using Inventory.Application.Features.LocationFeatures.Queries.GetLocationById;
 using Inventory.Application.Features.LocationFeatures.Queries.GetAllLocations;
 using Inventory.Application.Features.LocationFeatures.Queries.GetLocationsByWarehouseId;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Inventory.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "inventories")]
-
-
+    [Authorize]
     public class LocationController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -25,6 +27,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(InventoryPermissions.LocationsView)]
         public async Task<IActionResult> GetAll([FromQuery] Guid? warehouseId)
         {
             var response = await _mediator.Send(new GetAllLocationsQueryRequest { WarehouseId = warehouseId });
@@ -32,6 +35,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [HasPermission(InventoryPermissions.LocationsView)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var response = await _mediator.Send(new GetLocationByIdQueryRequest { Id = id });
@@ -40,6 +44,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpGet("by-warehouse/{warehouseId}")]
+        [HasPermission(InventoryPermissions.LocationsView)]
         public async Task<IActionResult> GetByWarehouseId(Guid warehouseId)
         {
             var response = await _mediator.Send(new GetLocationsByWarehouseIdQueryRequest { WarehouseId = warehouseId });
@@ -47,6 +52,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPost]
+        [HasPermission(InventoryPermissions.LocationsCreate)]
         public async Task<IActionResult> Create([FromBody] CreateLocationDto dto)
         {
             var response = await _mediator.Send(new CreateLocationCommandRequest { Location = dto });
@@ -55,6 +61,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [HasPermission(InventoryPermissions.LocationsEdit)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateLocationDto dto)
         {
             if (id != dto.Id) return BadRequest();
@@ -64,6 +71,7 @@ namespace Inventory.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [HasPermission(InventoryPermissions.LocationsDelete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var response = await _mediator.Send(new DeleteLocationCommandRequest { Id = id });

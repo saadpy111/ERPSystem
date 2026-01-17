@@ -14,6 +14,7 @@ namespace Inventory.Persistence.Configurations
             builder.Property(c => c.OldCost).HasColumnType("decimal(18, 4)").IsRequired();
             builder.Property(c => c.NewCost).HasColumnType("decimal(18, 4)").IsRequired();
 
+            builder.HasIndex(c => c.TenantId);
             builder.HasOne(c => c.Product)
                    .WithMany(p => p.CostHistories)
                    .HasForeignKey(c => c.ProductId)

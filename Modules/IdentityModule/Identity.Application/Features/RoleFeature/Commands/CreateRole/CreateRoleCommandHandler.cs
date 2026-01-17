@@ -26,7 +26,7 @@ namespace Identity.Application.Features.RoleFeature.Commands.CreateRole
                 return new CreateRoleCommandResponse { Success = false, Errors = new List<string> { "Role already exists." } };
             }
 
-            var role = new ApplicationRole { Name = request.Name.Trim() };
+            var role = new ApplicationRole { Name = request.Name.Trim()  , TenantId = "36324700-44c0-4748-9b12-df7125c0e03a" };
             var result = await _roleManager.CreateAsync(role);
 
             if (!result.Succeeded)

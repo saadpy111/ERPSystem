@@ -19,11 +19,20 @@ namespace Identity.Persistense.Configurations
             builder.Property(u => u.FullName)
                    .HasMaxLength(150);
 
+  
+
             // Relation with UserRoles
             builder.HasMany(u => u.UserRoles)
                    .WithOne(ur => ur.User)
                    .HasForeignKey(ur => ur.UserId)
                    .IsRequired();
+
+
+            builder.HasOne(u => u.Tenant)
+                .WithMany(t => t.Users)
+                .HasForeignKey(u => u.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

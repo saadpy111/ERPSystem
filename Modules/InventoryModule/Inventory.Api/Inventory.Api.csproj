@@ -17,6 +17,7 @@
     <ProjectReference Include="..\Inventory.Domain\Inventory.Domain.csproj" />
     <ProjectReference Include="..\Inventory.Infrastructure\Inventory.Infrastructure.csproj" />
     <ProjectReference Include="..\Inventory.Persistence\Inventory.Persistence.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SharedKernel.Core.csproj" />
   </ItemGroup>
 
 </Project>

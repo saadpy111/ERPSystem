@@ -11,6 +11,7 @@ namespace Inventory.Persistence.Configurations
             builder.ToTable("ProductAttributeValues");
             builder.HasKey(pav => pav.Id);
 
+            builder.HasIndex(pav => pav.TenantId);
             builder.Property(pav => pav.Value).HasMaxLength(500).IsRequired();
 
             builder.HasIndex(pav => new { pav.ProductId, pav.AttributeId });
