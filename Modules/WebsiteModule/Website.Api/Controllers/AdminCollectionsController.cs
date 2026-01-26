@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Authorization;
 using SharedKernel.Constants.Permissions;
-using SharedKernel.Multitenancy;
+using Website.Application.Features.CollectionFeatures.Commands.AddProductToCollection;
 using Website.Application.Features.CollectionFeatures.Commands.CreateCollection;
+using Website.Application.Features.CollectionFeatures.Commands.DeleteCollection;
+using Website.Application.Features.CollectionFeatures.Commands.RemoveProductFromCollection;
+using Website.Application.Features.CollectionFeatures.Commands.UpdateCollection;
 using Website.Application.Features.CollectionFeatures.Queries.GetAllCollections;
-using Website.Application.Contracts.Persistence.Repositories;
-using Website.Domain.Entities;
+using Website.Application.Features.CollectionFeatures.Queries.GetCollectionById;
 
 namespace Website.Api.Controllers
 {
     /// <summary>
     /// Admin endpoints for managing product collections.
+    /// Thin controller using CQRS pattern via MediatR.
     /// </summary>
     [ApiController]
     [Route("api/website/admin/collections")]
@@ -21,14 +24,10 @@ namespace Website.Api.Controllers
     public class AdminCollectionsController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ITenantProvider _tenantProvider;
 
-        public AdminCollectionsController(IMediator mediator, IUnitOfWork unitOfWork, ITenantProvider tenantProvider)
+        public AdminCollectionsController(IMediator mediator)
         {
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
-            _tenantProvider = tenantProvider;
         }
 
         /// <summary>
@@ -49,10 +48,9 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.CollectionsView)]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var repo = _unitOfWork.Repository<ProductCollection>();
-            var collection = await repo.GetByIdAsync(id, c => c.Items);
-            if (collection == null) return NotFound();
-            return Ok(collection);
+            var response = await _mediator.Send(new GetCollectionByIdQueryRequest { Id = id });
+            if (response.Collection == null) return NotFound();
+            return Ok(response.Collection);
         }
 
         /// <summary>
@@ -74,21 +72,20 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.CollectionsManage)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCollectionRequest request)
         {
-            var repo = _unitOfWork.Repository<ProductCollection>();
-            var collection = await repo.GetByIdAsync(id);
-            if (collection == null) return NotFound();
+            var command = new UpdateCollectionCommandRequest
+            {
+                Id = id,
+                Name = request.Name,
+                Slug = request.Slug,
+                Description = request.Description,
+                ImageUrl = request.ImageUrl,
+                IsActive = request.IsActive,
+                DisplayOrder = request.DisplayOrder
+            };
 
-            if (request.Name != null) collection.Name = request.Name;
-            if (request.Slug != null) collection.Slug = request.Slug;
-            if (request.Description != null) collection.Description = request.Description;
-            if (request.ImageUrl != null) collection.ImageUrl = request.ImageUrl;
-            if (request.IsActive.HasValue) collection.IsActive = request.IsActive.Value;
-            if (request.DisplayOrder.HasValue) collection.DisplayOrder = request.DisplayOrder.Value;
-            collection.UpdatedAt = DateTime.UtcNow;
-
-            repo.Update(collection);
-            await _unitOfWork.SaveChangesAsync();
-            return Ok(collection);
+            var response = await _mediator.Send(command);
+            if (!response.Success) return NotFound(response.Message);
+            return Ok();
         }
 
         /// <summary>
@@ -98,12 +95,8 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.CollectionsManage)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var repo = _unitOfWork.Repository<ProductCollection>();
-            var collection = await repo.GetByIdAsync(id);
-            if (collection == null) return NotFound();
-
-            repo.Remove(collection);
-            await _unitOfWork.SaveChangesAsync();
+            var response = await _mediator.Send(new DeleteCollectionCommandRequest { Id = id });
+            if (!response.Success) return NotFound(response.Message);
             return NoContent();
         }
 
@@ -114,30 +107,16 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.CollectionsManage)]
         public async Task<IActionResult> AddProduct(Guid id, [FromBody] AddProductRequest request)
         {
-            var collectionRepo = _unitOfWork.Repository<ProductCollection>();
-            var productRepo = _unitOfWork.Repository<WebsiteProduct>();
-            var itemRepo = _unitOfWork.Repository<ProductCollectionItem>();
-
-            var collection = await collectionRepo.GetByIdAsync(id);
-            if (collection == null) return NotFound("Collection not found.");
-
-            var product = await productRepo.GetByIdAsync(request.ProductId);
-            if (product == null) return NotFound("Product not found.");
-
-            var existing = await itemRepo.GetFirstAsync(i => i.CollectionId == id && i.ProductId == request.ProductId);
-            if (existing != null) return BadRequest("Product is already in this collection.");
-
-            var item = new ProductCollectionItem
+            var command = new AddProductToCollectionCommandRequest
             {
                 CollectionId = id,
                 ProductId = request.ProductId,
-                DisplayOrder = request.DisplayOrder,
-                TenantId = _tenantProvider.GetTenantId() ?? string.Empty
+                DisplayOrder = request.DisplayOrder
             };
 
-            await itemRepo.AddAsync(item);
-            await _unitOfWork.SaveChangesAsync();
-            return Ok(item);
+            var response = await _mediator.Send(command);
+            if (!response.Success) return BadRequest(response.Message);
+            return Ok();
         }
 
         /// <summary>
@@ -147,17 +126,19 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.CollectionsManage)]
         public async Task<IActionResult> RemoveProduct(Guid id, Guid productId)
         {
-            var itemRepo = _unitOfWork.Repository<ProductCollectionItem>();
-            var item = await itemRepo.GetFirstAsync(i => i.CollectionId == id && i.ProductId == productId);
-            if (item == null) return NotFound();
+            var command = new RemoveProductFromCollectionCommandRequest
+            {
+                CollectionId = id,
+                ProductId = productId
+            };
 
-            itemRepo.Remove(item);
-            await _unitOfWork.SaveChangesAsync();
+            var response = await _mediator.Send(command);
+            if (!response.Success) return NotFound(response.Message);
             return NoContent();
         }
     }
 
-    // Request DTOs
+    // Request DTOs (used only for HTTP binding, not domain logic)
     public record UpdateCollectionRequest(
         string? Name,
         string? Slug,

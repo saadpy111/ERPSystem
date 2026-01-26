@@ -3,14 +3,16 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Website.Application.Features.CartFeatures.Commands.AddToCart;
+using Website.Application.Features.CartFeatures.Commands.ClearCart;
+using Website.Application.Features.CartFeatures.Commands.RemoveCartItem;
+using Website.Application.Features.CartFeatures.Commands.UpdateCartItemQuantity;
 using Website.Application.Features.CartFeatures.Queries.GetCart;
-using Website.Application.Contracts.Persistence.Repositories;
-using Website.Domain.Entities;
 
 namespace Website.Api.Controllers
 {
     /// <summary>
     /// Shopping cart endpoints for authenticated users.
+    /// Thin controller using CQRS pattern via MediatR.
     /// </summary>
     [ApiController]
     [Route("api/website/cart")]
@@ -19,12 +21,10 @@ namespace Website.Api.Controllers
     public class CartController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public CartController(IMediator mediator, IUnitOfWork unitOfWork)
+        public CartController(IMediator mediator)
         {
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
         }
 
         private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
@@ -45,14 +45,16 @@ namespace Website.Api.Controllers
         [HttpPost("items")]
         public async Task<IActionResult> AddItem([FromBody] AddToCartRequest request)
         {
-            var response = await _mediator.Send(new AddToCartCommandRequest
+            var command = new AddToCartCommandRequest
             {
                 UserId = GetUserId(),
                 ProductId = request.ProductId,
                 Quantity = request.Quantity
-            });
+            };
 
+            var response = await _mediator.Send(command);
             if (!response.Success) return BadRequest(response.Message);
+            
             return await GetCart();
         }
 
@@ -62,22 +64,15 @@ namespace Website.Api.Controllers
         [HttpPut("items/{itemId}")]
         public async Task<IActionResult> UpdateItem(Guid itemId, [FromBody] UpdateCartItemRequest request)
         {
-            var cartItemRepo = _unitOfWork.Repository<CartItem>();
-            var item = await cartItemRepo.GetByIdAsync(itemId);
-            if (item == null) return NotFound();
-
-            if (request.Quantity <= 0)
+            var command = new UpdateCartItemQuantityCommandRequest
             {
-                cartItemRepo.Remove(item);
-            }
-            else
-            {
-                item.Quantity = request.Quantity;
-                item.UpdatedAt = DateTime.UtcNow;
-                cartItemRepo.Update(item);
-            }
+                ItemId = itemId,
+                Quantity = request.Quantity
+            };
 
-            await _unitOfWork.SaveChangesAsync();
+            var response = await _mediator.Send(command);
+            if (!response.Success) return NotFound(response.Message);
+            
             return await GetCart();
         }
 
@@ -87,13 +82,9 @@ namespace Website.Api.Controllers
         [HttpDelete("items/{itemId}")]
         public async Task<IActionResult> RemoveItem(Guid itemId)
         {
-            var cartItemRepo = _unitOfWork.Repository<CartItem>();
-            var item = await cartItemRepo.GetByIdAsync(itemId);
-            if (item == null) return NotFound();
-
-            cartItemRepo.Remove(item);
-            await _unitOfWork.SaveChangesAsync();
-
+            var response = await _mediator.Send(new RemoveCartItemCommandRequest { ItemId = itemId });
+            if (!response.Success) return NotFound(response.Message);
+            
             return NoContent();
         }
 
@@ -103,22 +94,12 @@ namespace Website.Api.Controllers
         [HttpDelete]
         public async Task<IActionResult> ClearCart()
         {
-            var userId = GetUserId();
-            var cartRepo = _unitOfWork.Repository<Cart>();
-            var cartItemRepo = _unitOfWork.Repository<CartItem>();
-
-            var cart = await cartRepo.GetFirstAsync(c => c.UserId == userId && !c.IsCheckedOut, false, c => c.Items);
-            if (cart != null)
-            {
-                cartItemRepo.RemoveRange(cart.Items);
-                await _unitOfWork.SaveChangesAsync();
-            }
-
+            var response = await _mediator.Send(new ClearCartCommandRequest { UserId = GetUserId() });
             return NoContent();
         }
     }
 
-    // DTOs
+    // Request DTOs (used only for HTTP binding, not domain logic)
     public record AddToCartRequest(Guid ProductId, int Quantity = 1);
     public record UpdateCartItemRequest(int Quantity);
 }

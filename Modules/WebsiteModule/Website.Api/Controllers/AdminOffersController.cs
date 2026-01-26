@@ -3,17 +3,20 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Authorization;
 using SharedKernel.Constants.Permissions;
-using SharedKernel.Multitenancy;
+using Website.Application.Features.OfferFeatures.Commands.AddProductToOffer;
 using Website.Application.Features.OfferFeatures.Commands.CreateOffer;
+using Website.Application.Features.OfferFeatures.Commands.DeleteOffer;
+using Website.Application.Features.OfferFeatures.Commands.RemoveProductFromOffer;
+using Website.Application.Features.OfferFeatures.Commands.UpdateOffer;
 using Website.Application.Features.OfferFeatures.Queries.GetAllOffers;
-using Website.Application.Contracts.Persistence.Repositories;
-using Website.Domain.Entities;
+using Website.Application.Features.OfferFeatures.Queries.GetOfferById;
 using Website.Domain.Enums;
 
 namespace Website.Api.Controllers
 {
     /// <summary>
     /// Admin endpoints for managing offers/discounts.
+    /// Thin controller using CQRS pattern via MediatR.
     /// </summary>
     [ApiController]
     [Route("api/website/admin/offers")]
@@ -22,14 +25,10 @@ namespace Website.Api.Controllers
     public class AdminOffersController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly ITenantProvider _tenantProvider;
 
-        public AdminOffersController(IMediator mediator, IUnitOfWork unitOfWork, ITenantProvider tenantProvider)
+        public AdminOffersController(IMediator mediator)
         {
             _mediator = mediator;
-            _unitOfWork = unitOfWork;
-            _tenantProvider = tenantProvider;
         }
 
         /// <summary>
@@ -50,10 +49,9 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.OffersView)]
         public async Task<IActionResult> GetById(Guid id)
         {
-            var repo = _unitOfWork.Repository<Offer>();
-            var offer = await repo.GetByIdAsync(id, o => o.OfferProducts);
-            if (offer == null) return NotFound();
-            return Ok(offer);
+            var response = await _mediator.Send(new GetOfferByIdQueryRequest { Id = id });
+            if (response.Offer == null) return NotFound();
+            return Ok(response.Offer);
         }
 
         /// <summary>
@@ -75,22 +73,21 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.OffersManage)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateOfferRequest request)
         {
-            var repo = _unitOfWork.Repository<Offer>();
-            var offer = await repo.GetByIdAsync(id);
-            if (offer == null) return NotFound();
+            var command = new UpdateOfferCommandRequest
+            {
+                Id = id,
+                Name = request.Name,
+                Description = request.Description,
+                DiscountType = request.DiscountType,
+                DiscountValue = request.DiscountValue,
+                StartDate = request.StartDate,
+                EndDate = request.EndDate,
+                IsActive = request.IsActive
+            };
 
-            if (request.Name != null) offer.Name = request.Name;
-            if (request.Description != null) offer.Description = request.Description;
-            if (request.DiscountType.HasValue) offer.DiscountType = request.DiscountType.Value;
-            if (request.DiscountValue.HasValue) offer.DiscountValue = request.DiscountValue.Value;
-            if (request.StartDate.HasValue) offer.StartDate = request.StartDate.Value;
-            if (request.EndDate.HasValue) offer.EndDate = request.EndDate.Value;
-            if (request.IsActive.HasValue) offer.IsActive = request.IsActive.Value;
-            offer.UpdatedAt = DateTime.UtcNow;
-
-            repo.Update(offer);
-            await _unitOfWork.SaveChangesAsync();
-            return Ok(offer);
+            var response = await _mediator.Send(command);
+            if (!response.Success) return NotFound(response.Message);
+            return Ok();
         }
 
         /// <summary>
@@ -100,12 +97,8 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.OffersManage)]
         public async Task<IActionResult> Delete(Guid id)
         {
-            var repo = _unitOfWork.Repository<Offer>();
-            var offer = await repo.GetByIdAsync(id);
-            if (offer == null) return NotFound();
-
-            repo.Remove(offer);
-            await _unitOfWork.SaveChangesAsync();
+            var response = await _mediator.Send(new DeleteOfferCommandRequest { Id = id });
+            if (!response.Success) return NotFound(response.Message);
             return NoContent();
         }
 
@@ -116,29 +109,15 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.OffersManage)]
         public async Task<IActionResult> AddProduct(Guid id, [FromBody] AddProductToOfferRequest request)
         {
-            var offerRepo = _unitOfWork.Repository<Offer>();
-            var productRepo = _unitOfWork.Repository<WebsiteProduct>();
-            var offerProductRepo = _unitOfWork.Repository<OfferProduct>();
-
-            var offer = await offerRepo.GetByIdAsync(id);
-            if (offer == null) return NotFound("Offer not found.");
-
-            var product = await productRepo.GetByIdAsync(request.ProductId);
-            if (product == null) return NotFound("Product not found.");
-
-            var existing = await offerProductRepo.GetFirstAsync(op => op.OfferId == id && op.ProductId == request.ProductId);
-            if (existing != null) return BadRequest("Product is already in this offer.");
-
-            var offerProduct = new OfferProduct
+            var command = new AddProductToOfferCommandRequest
             {
                 OfferId = id,
-                ProductId = request.ProductId,
-                TenantId = _tenantProvider.GetTenantId() ?? string.Empty
+                ProductId = request.ProductId
             };
 
-            await offerProductRepo.AddAsync(offerProduct);
-            await _unitOfWork.SaveChangesAsync();
-            return Ok(offerProduct);
+            var response = await _mediator.Send(command);
+            if (!response.Success) return BadRequest(response.Message);
+            return Ok();
         }
 
         /// <summary>
@@ -148,17 +127,19 @@ namespace Website.Api.Controllers
         [HasPermission(WebsitePermissions.OffersManage)]
         public async Task<IActionResult> RemoveProduct(Guid id, Guid productId)
         {
-            var repo = _unitOfWork.Repository<OfferProduct>();
-            var offerProduct = await repo.GetFirstAsync(op => op.OfferId == id && op.ProductId == productId);
-            if (offerProduct == null) return NotFound();
+            var command = new RemoveProductFromOfferCommandRequest
+            {
+                OfferId = id,
+                ProductId = productId
+            };
 
-            repo.Remove(offerProduct);
-            await _unitOfWork.SaveChangesAsync();
+            var response = await _mediator.Send(command);
+            if (!response.Success) return NotFound(response.Message);
             return NoContent();
         }
     }
 
-    // Request DTOs
+    // Request DTOs (used only for HTTP binding, not domain logic)
     public record UpdateOfferRequest(
         string? Name,
         string? Description,
