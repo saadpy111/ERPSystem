@@ -4,7 +4,8 @@ using Website.Domain.Entities;
 
 namespace Website.Application.Features.OrderFeatures.Queries.GetAllOrders
 {
-    public class GetAllOrdersQueryHandler : IRequestHandler<GetAllOrdersQueryRequest, GetAllOrdersQueryResponse>
+    public class GetAllOrdersQueryHandler
+        : IRequestHandler<GetAllOrdersQueryRequest, GetAllOrdersQueryResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -13,30 +14,43 @@ namespace Website.Application.Features.OrderFeatures.Queries.GetAllOrders
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<GetAllOrdersQueryResponse> Handle(GetAllOrdersQueryRequest request, CancellationToken cancellationToken)
+        public async Task<GetAllOrdersQueryResponse> Handle(
+            GetAllOrdersQueryRequest request,
+            CancellationToken cancellationToken)
         {
             var orderRepo = _unitOfWork.Repository<Order>();
-            
-            // Build filter based on status
+
+            // NOTE:
+            // Global Query Filter handles Tenant automatically
+
             var orders = await orderRepo.GetAllAsync(
-                request.Status.HasValue ? o => o.Status == request.Status : null,
+                request.Status.HasValue
+                    ? o => o.Status == request.Status.Value
+                    : null,
                 o => o.Items);
 
-            var ordersDto = orders
+            var result = orders
                 .OrderByDescending(o => o.OrderDate)
                 .Select(o => new AdminOrderDto
                 {
                     Id = o.Id,
                     OrderNumber = o.OrderNumber,
                     Status = o.Status,
+
+                    SubTotal = o.SubTotal,
+                    DiscountTotal = o.DiscountTotal,
                     TotalAmount = o.TotalAmount,
+
                     ItemCount = o.Items.Count,
                     OrderDate = o.OrderDate,
                     UserId = o.UserId
                 })
                 .ToList();
 
-            return new GetAllOrdersQueryResponse { Orders = ordersDto };
+            return new GetAllOrdersQueryResponse
+            {
+                Orders = result
+            };
         }
     }
 }

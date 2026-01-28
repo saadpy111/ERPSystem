@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Website.Domain.Entities
 {
     /// <summary>
@@ -16,19 +18,33 @@ namespace Website.Domain.Entities
         /// </summary>
         public string ProductNameSnapshot { get; set; } = string.Empty;
 
-        /// <summary>
-        /// Number of units ordered.
-        /// </summary>
         public int Quantity { get; set; }
 
         /// <summary>
-        /// Unit price at time of order.
+        /// Unit price before discount.
         /// </summary>
         public decimal UnitPrice { get; set; }
 
         /// <summary>
-        /// Subtotal for this line item.
+        /// Total discount applied to this line item.
         /// </summary>
-        public decimal Subtotal => Quantity * UnitPrice;
+        public decimal DiscountAmount { get; set; }
+
+        /// <summary>
+        /// Final price for this line item after discount.
+        /// </summary>
+        public decimal FinalPrice { get; set; }
+
+        /// <summary>
+        /// Offer name applied at checkout (snapshot).
+        /// </summary>
+        /// 
+        [MaxLength(200)]
+        public string? AppliedOfferName { get; set; }
+
+        /// <summary>
+        /// Subtotal before discount.
+        /// </summary>
+        public decimal SubTotal => Quantity * UnitPrice;
     }
 }

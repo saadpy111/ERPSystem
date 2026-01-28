@@ -18,6 +18,9 @@ namespace Website.Application.DependencyInjection
                 options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
 
+            // Application services
+            services.AddScoped<IPricingService, PricingService>();
+
             // Cross-module services (consumed by IdentityModule)
             services.AddScoped<IWebsiteProvisioningService, WebsiteProvisioningService>();
             services.AddScoped<ITenantDomainResolver, TenantDomainResolver>();

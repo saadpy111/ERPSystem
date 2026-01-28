@@ -40,6 +40,8 @@ namespace Website.Application.Features.OrderFeatures.Queries.GetOrderById
                 PaymentMethod = order.PaymentMethod,
                 Notes = order.Notes,
                 OrderDate = order.OrderDate,
+                 DiscountTotal = order.DiscountTotal,
+                  SubTotal = order.SubTotal,
                 Items = order.Items.Select(i => new OrderItemDto
                 {
                     Id = i.Id,
@@ -47,7 +49,11 @@ namespace Website.Application.Features.OrderFeatures.Queries.GetOrderById
                     ProductName = i.ProductNameSnapshot,
                     UnitPrice = i.UnitPrice,
                     Quantity = i.Quantity,
-                    TotalPrice = i.Subtotal
+                    SubTotal = i.SubTotal,
+                     AppliedOfferName = i.AppliedOfferName,
+                      DiscountAmount = i.DiscountAmount,
+                       FinalPrice = i.FinalPrice
+                     
                 }).ToList()
             };
 
