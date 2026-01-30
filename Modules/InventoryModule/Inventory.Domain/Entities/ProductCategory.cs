@@ -13,5 +13,6 @@ namespace Inventory.Domain.Entities
         public ProductCategory ParentCategory { get; set; }
         public ICollection<ProductCategory> ChildCategories { get; set; }
         public ICollection<Product> Products { get; set; }
+        public string? ImagePath { get; set; }
     }
 }

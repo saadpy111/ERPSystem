@@ -1,4 +1,5 @@
 ﻿using Inventory.Application.Contracts.Persistence.Repositories;
+using Inventory.Application.Dtos.CategoryDtos;
 using Inventory.Application.Features.ProCategoryFeatures.Commands.CreateCategory;
 using Inventory.Application.Features.ProCategoryFeatures.Commands.DeleteCategory;
 using Inventory.Application.Features.ProCategoryFeatures.Commands.UpdateCategory;
@@ -28,9 +29,11 @@ namespace Inventory.Api.Controllers
 
 
         [HttpPost("Create")]
+        [Consumes("multipart/form-data")]
         [HasPermission(InventoryPermissions.CategoriesCreate)]
-        public async Task<IActionResult> CreateCategory(CreateCategoryCommandRequest request)
+        public async Task<IActionResult> CreateCategory([FromForm] CreateCategoryDto requestDto)
         {
+            var request = new CreateCategoryCommandRequest() { categoryDto = requestDto };
             var response = await _mediator.Send(request);
 
             if (!response.Success)
@@ -44,7 +47,7 @@ namespace Inventory.Api.Controllers
         [HasPermission(InventoryPermissions.CategoriesView)]
         public async Task<IActionResult> GetCategoryById(Guid CatId)
         {
-            if (CatId == null)
+            if (CatId == Guid.Empty)
                 return BadRequest("Invalid request data.");
 
             GetCategoryByIdQueryRequest request = new GetCategoryByIdQueryRequest() { CategoryId = CatId };
@@ -70,13 +73,15 @@ namespace Inventory.Api.Controllers
         }
 
 
-        [HttpPut]
+        [HttpPut("Update")]
+        [Consumes("multipart/form-data")]
         [HasPermission(InventoryPermissions.CategoriesEdit)]
-        public async Task<IActionResult> UpdateCategory([FromBody] UpdateCategoryCommandRequest request)
+        public async Task<IActionResult> UpdateCategory([FromForm] UpdateCategoryDto requestDto)
         {
-            if (request == null || request.UpdateCategoryDto == null)
+            if (requestDto == null)
                 return BadRequest("Invalid request data.");
 
+            var request = new UpdateCategoryCommandRequest() { UpdateCategoryDto = requestDto };
             var response = await _mediator.Send(request);
 
             if (!response.Success)

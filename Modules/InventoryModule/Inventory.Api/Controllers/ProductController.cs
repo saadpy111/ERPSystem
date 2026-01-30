@@ -28,6 +28,7 @@ namespace Inventory.Api.Controllers
             _mediator = mediator;
         }
 
+
         [HttpPost("create")]
         [Consumes("multipart/form-data")]
         [HasPermission(InventoryPermissions.ProductsCreate)]

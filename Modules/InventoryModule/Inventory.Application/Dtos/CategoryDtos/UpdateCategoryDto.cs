@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,5 +12,6 @@ namespace Inventory.Application.Dtos.CategoryDtos
         public Guid Id { get; set; }
         public string? Name { get; set; }
         public Guid? ParentId { get; set; }
+        public IFormFile? Image { get; set; }
     }
 }

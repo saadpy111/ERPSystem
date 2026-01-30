@@ -1,4 +1,5 @@
-﻿using Inventory.Application.Contracts.Persistence.Repositories;
+﻿using Inventory.Application.Contracts.Infrastruture.FileService;
+using Inventory.Application.Contracts.Persistence.Repositories;
 using Inventory.Domain.Entities;
 using MediatR;
 using System;
@@ -12,10 +13,12 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Commands.UpdateCate
     public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommandRequest, UpdateCategoryCommandResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileService _fileService;
 
-        public UpdateCategoryCommandHandler(IUnitOfWork unitOfWork)
+        public UpdateCategoryCommandHandler(IUnitOfWork unitOfWork, IFileService fileService)
         {
            _unitOfWork = unitOfWork;
+           _fileService = fileService;
         }
         public async Task<UpdateCategoryCommandResponse> Handle(UpdateCategoryCommandRequest request, CancellationToken cancellationToken)
         {
@@ -33,6 +36,16 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Commands.UpdateCate
 
                 if (dto.Name != null)
                     category.Name = dto.Name;
+
+                if (dto.Image != null)
+                {
+                    if (!string.IsNullOrEmpty(category.ImagePath))
+                    {
+                        await _fileService.DeleteFileAsync(category.ImagePath);
+                    }
+                    var path = await _fileService.SaveFileAsync(dto.Image, "productcategories");
+                    category.ImagePath = path.Replace("\\", "/");
+                }
 
                 category.ParentId = dto.ParentId;
                 _unitOfWork.Repositories<ProductCategory>().Update(category);

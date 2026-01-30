@@ -19,14 +19,13 @@ namespace Inventory.Persistence.Context
         /// Current tenant ID resolved from the request context.
         /// Used for global query filters.
         /// </summary>
-        public string? CurrentTenantId { get; }
+        public string? CurrentTenantId => _tenantProvider?.GetTenantId();
 
         public InventoryDbContext(
             DbContextOptions<InventoryDbContext> options,
             ITenantProvider? tenantProvider = null) : base(options)
         {
             _tenantProvider = tenantProvider;
-            CurrentTenantId = tenantProvider?.GetTenantId();
         }
 
         public DbSet<Product> Products { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Inventory.Domain.Entities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,7 @@ namespace Inventory.Application.Dtos.CategoryDtos
     {
         public string Name { get; set; }
         public Guid? ParentId { get; set; }
+        public IFormFile? Image { get; set; }
     }
     public static class CreateCategoryExtentions
     {

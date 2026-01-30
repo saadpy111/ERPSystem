@@ -1,4 +1,5 @@
-﻿using Inventory.Application.Contracts.Persistence.Repositories;
+﻿using Inventory.Application.Contracts.Infrastruture.FileService;
+using Inventory.Application.Contracts.Persistence.Repositories;
 using Inventory.Application.Features.ProCategoryFeatures.Commands.UpdateCategory;
 using Inventory.Domain.Entities;
 using MediatR;
@@ -13,10 +14,12 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Commands.DeleteCate
     public class DeleteCategoryCommandHandler : IRequestHandler<DeleteCategoryCommandRequest, DeleteCategoryCommandResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileService _fileService;
 
-        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteCategoryCommandHandler(IUnitOfWork unitOfWork, IFileService fileService)
         {
              _unitOfWork = unitOfWork;
+             _fileService = fileService;
         }
         public async Task<DeleteCategoryCommandResponse> Handle(DeleteCategoryCommandRequest request, CancellationToken cancellationToken)
         {
@@ -29,6 +32,12 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Commands.DeleteCate
                           Success = false,
                           Message = "الصنف غير موجود"
                     };
+
+                if (!string.IsNullOrEmpty(category.ImagePath))
+                {
+                    await _fileService.DeleteFileAsync(category.ImagePath);
+                }
+
               _unitOfWork.Repositories<ProductCategory>().Remove(category);
                 await _unitOfWork.CompleteAsync();
                 return new DeleteCategoryCommandResponse()

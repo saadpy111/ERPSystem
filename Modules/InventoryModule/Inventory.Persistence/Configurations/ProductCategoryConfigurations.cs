@@ -17,6 +17,7 @@ namespace Inventory.Persistence.Configurations
                    .WithMany(c => c.ChildCategories)
                    .HasForeignKey(c => c.ParentId)
                    .OnDelete(DeleteBehavior.Restrict);
+            builder.Property(c => c.ImagePath).HasMaxLength(500);
         }
     }
 }

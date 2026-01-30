@@ -7,6 +7,7 @@ namespace Inventory.Application.Dtos.CategoryDtos
     {
         public Guid Id { get; set; }
         public string? Name { get; set; }
+        public string? ImageUrl { get; set; }
         public List<GetChildCategoryDto>? Children { get; set; }
     }
 
@@ -22,11 +23,13 @@ namespace Inventory.Application.Dtos.CategoryDtos
             {
                 Id = category.Id,
                 Name = category.Name,
+                ImageUrl = category.ImagePath,
                 Children = category.ChildCategories?
                                 .Select(c => new GetChildCategoryDto()
                                 {
                                     Id = c.Id,
-                                    Name = c.Name
+                                    Name = c.Name,
+                                    ImageUrl = c.ImagePath
                                 }).ToList()
             };
             
