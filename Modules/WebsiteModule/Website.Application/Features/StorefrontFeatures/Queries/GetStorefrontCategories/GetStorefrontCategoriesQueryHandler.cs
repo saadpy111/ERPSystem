@@ -1,5 +1,6 @@
 using MediatR;
 using Website.Application.Contracts.Persistence.Repositories;
+using Website.Application.Pagination;
 
 namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontCategories
 {
@@ -26,13 +27,38 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontC
             }).ToList();
 
             // Build tree
-            var roots = dtos.Where(c => c.ParentCategoryId == null).ToList();
-            foreach (var root in roots)
+            var allRoots = dtos.Where(c => c.ParentCategoryId == null).ToList();
+
+            // Filter by search term if provided
+            if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+            {
+                allRoots = allRoots
+                    .Where(r => r.Name.Contains(request.SearchTerm, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+            }
+
+            foreach (var root in allRoots)
             {
                 BuildTree(root, dtos);
             }
 
-            return new GetStorefrontCategoriesQueryResponse { Categories = roots };
+            // Paginate Roots
+            var totalCount = allRoots.Count;
+            var pagedRoots = allRoots
+                .Skip((request.PageNumber - 1) * request.PageSize)
+                .Take(request.PageSize)
+                .ToList();
+
+            return new GetStorefrontCategoriesQueryResponse
+            {
+                Result = new PagedResult<StorefrontCategoryDto>
+                {
+                    Items = pagedRoots,
+                    TotalCount = totalCount,
+                    Page = request.PageNumber,
+                    PageSize = request.PageSize
+                }
+            };
         }
 
         private void BuildTree(StorefrontCategoryDto parent, List<StorefrontCategoryDto> all)

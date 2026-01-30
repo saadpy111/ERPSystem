@@ -66,7 +66,7 @@ namespace Website.Persistence.Repositories
             return await query
                 .OrderBy(p => p.DisplayOrder)
                 .ThenBy(p => p.NameSnapshot)
-                .ToListAsync();
+                .ToListAsync() ;
         }
     }
 }

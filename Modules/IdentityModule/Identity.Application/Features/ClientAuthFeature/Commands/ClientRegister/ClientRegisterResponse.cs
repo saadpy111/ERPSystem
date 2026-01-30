@@ -12,7 +12,6 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
         
         // Tenant info
         public string? TenantId { get; set; }
-        public string? StoreName { get; set; }
         
         // Authentication
         public string? Token { get; set; }

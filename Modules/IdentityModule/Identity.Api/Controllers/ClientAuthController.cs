@@ -1,4 +1,3 @@
-using Identity.Application.Features.ClientAuthFeature.Commands.ClientLogin;
 using Identity.Application.Features.ClientAuthFeature.Commands.ClientRegister;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

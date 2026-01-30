@@ -4,6 +4,7 @@ using Identity.Domain.Entities;
 using Identity.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using SharedKernel.Multitenancy;
 using SharedKernel.Website;
 
 namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegister
@@ -20,33 +21,32 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
     public class ClientRegisterCommandHandler : IRequestHandler<ClientRegisterCommand, ClientRegisterResponse>
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly ITenantDomainResolver _tenantDomainResolver;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly ITenantProvider _tenantProvider;
 
         public ClientRegisterCommandHandler(
             UserManager<ApplicationUser> userManager,
             ITenantDomainResolver tenantDomainResolver,
-            IJwtTokenService jwtTokenService)
+            IJwtTokenService jwtTokenService,
+            ITenantProvider tenantProvider)
         {
             _userManager = userManager;
-            _tenantDomainResolver = tenantDomainResolver;
             _jwtTokenService = jwtTokenService;
+            _tenantProvider = tenantProvider;
         }
 
         public async Task<ClientRegisterResponse> Handle(ClientRegisterCommand request, CancellationToken cancellationToken)
         {
             // ===== STEP 1: Resolve tenant by domain =====
-            var tenantResult = await _tenantDomainResolver.GetTenantByDomainAsync(request.Domain);
+            var tenantId =  _tenantProvider.GetTenantId();
             
-            if (tenantResult == null)
+            if (string.IsNullOrEmpty(tenantId))
                 return  Fail("Store not found. Please check the domain.");
 
-            if (!tenantResult.IsPublished)
-                return Fail("Store is not available for registration.");
 
             // ===== STEP 2: Validate email is unique within tenant =====
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
-            if (existingUser != null && existingUser.TenantId == tenantResult.TenantId)
+            if (existingUser != null && existingUser.TenantId == tenantId)
                 return Fail("An account with this email already exists for this store.");
 
             // ===== STEP 3: Create client user =====
@@ -60,7 +60,7 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
                 
                 // Client-specific settings
                 UserType = UserType.Client,
-                TenantId = tenantResult.TenantId,
+                TenantId = tenantId,
                 State = UserTenantState.TenantMember,  // Clients are members of tenant
                 TenantJoinedAt = DateTime.UtcNow,
                 
@@ -80,7 +80,7 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
             var roles = new List<string>();  // Clients typically don't have roles
             var permissions = new List<string>();  // Clients have no admin permissions
             
-            var token = _jwtTokenService.GenerateToken(user, roles, permissions, tenantResult.TenantId);
+            var token = _jwtTokenService.GenerateToken(user, roles, permissions, tenantId);
 
             return new ClientRegisterResponse
             {
@@ -88,8 +88,7 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                TenantId = tenantResult.TenantId,
-                StoreName = tenantResult.StoreName,
+                TenantId = tenantId,
                 Token = token
             };
         }

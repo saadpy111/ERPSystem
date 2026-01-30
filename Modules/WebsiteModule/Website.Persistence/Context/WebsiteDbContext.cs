@@ -16,7 +16,7 @@ namespace Website.Persistence.Context
         /// <summary>
         /// Current tenant ID for query filtering.
         /// </summary>
-        public string? CurrentTenantId { get; }
+        public string? CurrentTenantId => _tenantProvider?.GetTenantId();
 
         public WebsiteDbContext(
             DbContextOptions<WebsiteDbContext> options,
@@ -24,7 +24,6 @@ namespace Website.Persistence.Context
             : base(options)
         {
             _tenantProvider = tenantProvider;
-            CurrentTenantId = tenantProvider?.GetTenantId();
         }
 
         // Existing entities
@@ -64,35 +63,40 @@ namespace Website.Persistence.Context
         /// </summary>
         private void ApplyGlobalQueryFilters(ModelBuilder modelBuilder)
         {
-            if (!string.IsNullOrEmpty(CurrentTenantId))
-            {
-                // Existing entities
-                modelBuilder.Entity<TenantWebsite>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+            modelBuilder.Entity<TenantWebsite>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
-                // E-commerce entities
-                modelBuilder.Entity<WebsiteProduct>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<WebsiteCategory>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<ProductCollection>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<ProductCollectionItem>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<Offer>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<OfferProduct>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<Cart>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<CartItem>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<Order>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-                modelBuilder.Entity<OrderItem>()
-                    .HasQueryFilter(e => e.TenantId == CurrentTenantId);
-            }
+            modelBuilder.Entity<WebsiteProduct>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<WebsiteCategory>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<ProductCollection>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<ProductCollectionItem>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<Offer>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<OfferProduct>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<Cart>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<CartItem>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<Order>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<OrderItem>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
+
 
         /// <summary>
         /// Configures indexes on TenantId for query performance.

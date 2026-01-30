@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Website;
 using Website.Application.Services;
+using Website.Application.Features.StorefrontFeatures.Services;
 using System.Reflection;
 
 namespace Website.Application.DependencyInjection
@@ -20,6 +21,7 @@ namespace Website.Application.DependencyInjection
 
             // Application services
             services.AddScoped<IPricingService, PricingService>();
+            services.AddScoped<IProductPricingService, ProductPricingService>();
 
             // Cross-module services (consumed by IdentityModule)
             services.AddScoped<IWebsiteProvisioningService, WebsiteProvisioningService>();

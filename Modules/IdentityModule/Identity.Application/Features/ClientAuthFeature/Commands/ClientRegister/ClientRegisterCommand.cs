@@ -8,10 +8,6 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
     /// </summary>
     public class ClientRegisterCommand : IRequest<ClientRegisterResponse>
     {
-        /// <summary>
-        /// Tenant's storefront domain (e.g., "mystore.com")
-        /// </summary>
-        public string Domain { get; set; } = string.Empty;
         
         /// <summary>
         /// Customer's email address

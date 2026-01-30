@@ -31,8 +31,9 @@ namespace Website.Persistence.Repositories
         public async Task<TenantWebsite?> GetByDomainAsync(string domain)
         {
             // Search by domain in SiteConfig (JSON column)
-            return await _context.TenantWebsites
-                .FirstOrDefaultAsync(tw => tw.Config.Domain.ToLower() == domain.ToLower());
+            return await _context.TenantWebsites.IgnoreQueryFilters()
+                .FirstOrDefaultAsync
+                (tw =>( tw.Config.Domain.ToLower() == domain.ToLower() && tw.IsPublished ));
         }
 
         public async Task<TenantWebsite> CreateAsync(TenantWebsite tenantWebsite)

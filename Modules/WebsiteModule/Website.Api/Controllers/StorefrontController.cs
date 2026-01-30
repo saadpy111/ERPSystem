@@ -2,13 +2,15 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontCategories;
 using Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontProducts;
-using Website.Application.Features.CollectionFeatures.Queries.GetAllCollections;
-using Website.Application.Contracts.Persistence.Repositories;
+using Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontProductById;
+using Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontCollections;
+using Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontOffers;
+using Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontOfferById;
 
 namespace Website.Api.Controllers
 {
     /// <summary>
-    /// Public storefront endpoints for browsing products and categories.
+    /// Public storefront endpoints for browsing products, categories, collections, and offers.
     /// No authentication required for browsing.
     /// </summary>
     [ApiController]
@@ -17,12 +19,10 @@ namespace Website.Api.Controllers
     public class StorefrontController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IWebsiteProductRepository _productRepository;
 
-        public StorefrontController(IMediator mediator, IWebsiteProductRepository productRepository)
+        public StorefrontController(IMediator mediator)
         {
             _mediator = mediator;
-            _productRepository = productRepository;
         }
 
         /// <summary>
@@ -41,39 +41,60 @@ namespace Website.Api.Controllers
         [HttpGet("products/{id}")]
         public async Task<IActionResult> GetProduct(Guid id)
         {
-            var product = await _productRepository.GetProductWithCategoryAsync(id);
-            if (product == null || !product.IsPublished) return NotFound();
-
-            return Ok(new
+            var response = await _mediator.Send(new GetStorefrontProductByIdQueryRequest { Id = id });
+            
+            if (response.Product == null)
             {
-                product.Id,
-                Name = product.NameSnapshot,
-                ImageUrl = product.ImageUrlSnapshot,
-                product.CategoryId,
-                CategoryName = product.CategoryNameSnapshot,
-                product.Price,
-                product.IsAvailable
-            });
+                return NotFound();
+            }
+
+            return Ok(response.Product);
         }
 
         /// <summary>
-        /// Get all active categories as a tree structure.
+        /// Get all active categories as a paginated tree structure.
         /// </summary>
         [HttpGet("categories")]
-        public async Task<IActionResult> GetCategories()
+        public async Task<IActionResult> GetCategories([FromQuery] GetStorefrontCategoriesQueryRequest request)
         {
-            var response = await _mediator.Send(new GetStorefrontCategoriesQueryRequest());
-            return Ok(response.Categories);
+            var response = await _mediator.Send(request);
+            return Ok(response.Result);
         }
 
         /// <summary>
-        /// Get all active collections.
+        /// Get all active collections (paginated).
         /// </summary>
         [HttpGet("collections")]
-        public async Task<IActionResult> GetCollections()
+        public async Task<IActionResult> GetCollections([FromQuery] GetStorefrontCollectionsQueryRequest request)
         {
-            var response = await _mediator.Send(new GetAllCollectionsQueryRequest { IsActive = true });
-            return Ok(response.Collections);
+            var response = await _mediator.Send(request);
+            return Ok(response.Result);
+        }
+
+        /// <summary>
+        /// Get all active offers (paginated).
+        /// </summary>
+        [HttpGet("offers")]
+        public async Task<IActionResult> GetOffers([FromQuery] GetStorefrontOffersQueryRequest request)
+        {
+            var response = await _mediator.Send(request);
+            return Ok(response.Result);
+        }
+
+        /// <summary>
+        /// Get offer details by ID.
+        /// </summary>
+        [HttpGet("offers/{id}")]
+        public async Task<IActionResult> GetOffer(Guid id)
+        {
+            var response = await _mediator.Send(new GetStorefrontOfferByIdQueryRequest { Id = id });
+
+            if (response.Offer == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(response.Offer);
         }
     }
 }

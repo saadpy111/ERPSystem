@@ -1,8 +1,10 @@
+using Website.Application.Pagination;
+
 namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontCategories
 {
     public class GetStorefrontCategoriesQueryResponse
     {
-        public List<StorefrontCategoryDto> Categories { get; set; } = new();
+        public PagedResult<StorefrontCategoryDto>? Result { get; set; }
     }
 
     public class StorefrontCategoryDto
