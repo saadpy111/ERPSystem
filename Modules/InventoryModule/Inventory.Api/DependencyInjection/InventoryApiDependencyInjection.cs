@@ -23,6 +23,8 @@ namespace Inventory.Api.DependencyInjection
         public static IServiceCollection AddInventoryApiDependencyInjection(this IServiceCollection services , IConfiguration configuration)
         {
             services.AddPreLayersInventoryDependencyInjection(configuration);
+            services.AddHttpContextAccessor();
+            services.AddScoped<SharedKernel.Core.Files.IFileUrlResolver, Inventory.Api.Services.FileUrlResolver>();
             return services;
         }
     }

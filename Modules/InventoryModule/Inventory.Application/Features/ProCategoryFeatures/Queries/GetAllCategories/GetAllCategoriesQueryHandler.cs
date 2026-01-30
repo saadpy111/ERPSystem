@@ -8,10 +8,12 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Queries.GetAllCateg
     public class GetAllCategoriesQueryHandler : IRequestHandler<GetAllCategoriesQueryRequest, GetAllCategoriesQueryResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly SharedKernel.Core.Files.IFileUrlResolver _urlResolver;
 
-        public GetAllCategoriesQueryHandler(IUnitOfWork unitOfWork)
+        public GetAllCategoriesQueryHandler(IUnitOfWork unitOfWork, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
                _unitOfWork = unitOfWork;
+               _urlResolver = urlResolver;
         }
         public async Task<GetAllCategoriesQueryResponse> Handle(GetAllCategoriesQueryRequest request, CancellationToken cancellationToken)
         {
@@ -19,7 +21,7 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Queries.GetAllCateg
             var categories = await _unitOfWork.Repositories<ProductCategory>()
                                   .GetAll(filter , c=>c.ChildCategories);
 
-            var dtos = categories.Select(c => c.ToDto()).ToList();
+            var dtos = categories.Select(c => c.ToDto(_urlResolver)).ToList();
 
             return new GetAllCategoriesQueryResponse()
             {

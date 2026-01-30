@@ -10,10 +10,12 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Queries.GetCategory
     public class GetCategoryByIdQueryHandler : IRequestHandler<GetCategoryByIdQueryRequest, GetCategoryByIdQueryResponse>
     {
         private readonly IUnitOfWork   _unitOfWork;
+        private readonly SharedKernel.Core.Files.IFileUrlResolver _urlResolver;
 
-        public GetCategoryByIdQueryHandler(IUnitOfWork unitOfWork)
+        public GetCategoryByIdQueryHandler(IUnitOfWork unitOfWork, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
               _unitOfWork = unitOfWork;
+              _urlResolver = urlResolver;
         }
         public async Task<GetCategoryByIdQueryResponse> Handle(GetCategoryByIdQueryRequest request, CancellationToken cancellationToken)
         {
@@ -26,7 +28,7 @@ namespace Inventory.Application.Features.ProCategoryFeatures.Queries.GetCategory
                     CategoryDto = null
                 };
 
-            var dto = category.ToDto();
+            var dto = category.ToDto(_urlResolver);
             return new GetCategoryByIdQueryResponse()
             {
                 CategoryDto = dto

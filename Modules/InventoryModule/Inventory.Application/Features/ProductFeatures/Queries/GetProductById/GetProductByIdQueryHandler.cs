@@ -11,11 +11,13 @@ namespace Inventory.Application.Features.ProductFeatures.Queries.GetProductById
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IproductRepo _productRepo;
+        private readonly SharedKernel.Core.Files.IFileUrlResolver _urlResolver;
 
-        public GetProductByIdQueryHandler(IUnitOfWork unitOfWork , IproductRepo productRepo)
+        public GetProductByIdQueryHandler(IUnitOfWork unitOfWork , IproductRepo productRepo, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
             _unitOfWork = unitOfWork;
             _productRepo = productRepo;
+            _urlResolver = urlResolver;
         }
 
         public async Task<GetProductByIdQueryResponse> Handle(GetProductByIdQueryRequest request, CancellationToken cancellationToken)
@@ -29,28 +31,15 @@ namespace Inventory.Application.Features.ProductFeatures.Queries.GetProductById
                 .GetAll(a => a.EntityType == nameof(Product) && a.EntityId == product.Id);
 
             //  Map to DTO
-            var dto = product.ToDto();
+            var dto = product.ToDto(_urlResolver);
 
             if (attachments != null && attachments.Any())
             {
-                dto.Attachments = attachments.Select(a => new AttachmentDto
-                {
-                    Id = a.Id,
-                    FileName = a.FileName,
-                    FileUrl = a.FileUrl,
-                    ContentType = a.ContentType,
-                    Description = a.Description,
-                    UploadedAt = a.UploadedAt
-                }).ToList();
+                dto.Attachments = attachments.ToList().ToDtoList(_urlResolver);
             }
-
             else
             {
                 dto.Attachments = new List<AttachmentDto>();
-            }
-            if (attachments.Any())
-            {
-                dto.Attachments = attachments.ToDtoList();
             }
 
             return new GetProductByIdQueryResponse { Product = dto };

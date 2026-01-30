@@ -60,7 +60,7 @@ namespace Inventory.Application.Dtos.ProductDtos
 
     public static class ProductExtentions
     {
-        public static GetProductDto ToDto(this Product entity)
+        public static GetProductDto ToDto(this Product entity, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
             return new GetProductDto()
             {
@@ -102,7 +102,7 @@ namespace Inventory.Application.Dtos.ProductDtos
                 Images = entity.Images?.Select(i => new GetProductImageDto()
                 {
                     Id = i.Id,
-                    ImageUrl = i.ImageUrl,
+                    ImageUrl = urlResolver.Resolve(i.ImageUrl),
                     IsPrimary = i.IsPrimary,
                     Description = i.Description,
                     DisplayOrder = i.DisplayOrder,

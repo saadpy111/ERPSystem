@@ -12,11 +12,13 @@ namespace Inventory.Application.Features.ProductFeatures.Queries.GetPagedProduct
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IproductRepo _productRepo;
+        private readonly SharedKernel.Core.Files.IFileUrlResolver _urlResolver;
 
-        public GetPagedProductsQueryHandler(IUnitOfWork unitOfWork , IproductRepo productRepo)
+        public GetPagedProductsQueryHandler(IUnitOfWork unitOfWork , IproductRepo productRepo, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
             _unitOfWork = unitOfWork;
             _productRepo = productRepo;
+            _urlResolver = urlResolver;
         }
 
         public async Task<GetPagedProductsQueryResponse> Handle(GetPagedProductsQueryRequest request, CancellationToken cancellationToken)
@@ -38,7 +40,7 @@ namespace Inventory.Application.Features.ProductFeatures.Queries.GetPagedProduct
 
             var dtoResult = new PagedResult<GetProductDto>
             {
-                Items = products.Select(p => p.ToDto()),
+                Items = products.Select(p => p.ToDto(_urlResolver)),
                 TotalCount = pagedResult.TotalCount
             };
 

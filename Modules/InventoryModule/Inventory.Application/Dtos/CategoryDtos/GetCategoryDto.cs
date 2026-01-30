@@ -1,5 +1,5 @@
 ﻿using Inventory.Domain.Entities;
-
+using SharedKernel.Core.Files;
 
 namespace Inventory.Application.Dtos.CategoryDtos
 {
@@ -13,7 +13,7 @@ namespace Inventory.Application.Dtos.CategoryDtos
 
     public static class GetCategoryExtentions
     {
-        public static GetCategoryDto ToDto(this ProductCategory category)
+        public static GetCategoryDto ToDto(this ProductCategory category, IFileUrlResolver urlResolver)
         {
             if (category == null)
                 return new GetCategoryDto();
@@ -23,13 +23,13 @@ namespace Inventory.Application.Dtos.CategoryDtos
             {
                 Id = category.Id,
                 Name = category.Name,
-                ImageUrl = category.ImagePath,
+                ImageUrl = urlResolver.Resolve(category.ImagePath),
                 Children = category.ChildCategories?
                                 .Select(c => new GetChildCategoryDto()
                                 {
                                     Id = c.Id,
                                     Name = c.Name,
-                                    ImageUrl = c.ImagePath
+                                    ImageUrl = urlResolver.Resolve(c.ImagePath)
                                 }).ToList()
             };
             

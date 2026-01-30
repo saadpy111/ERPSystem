@@ -14,12 +14,14 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMediator  _mediator;
         private readonly IFileService _fileService;
+        private readonly SharedKernel.Core.Files.IFileUrlResolver _urlResolver;
 
-        public CreateProductCommandHandler(IUnitOfWork unitOfWork,IMediator mediator, IFileService fileService)
+        public CreateProductCommandHandler(IUnitOfWork unitOfWork, IMediator mediator, IFileService fileService, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
             _unitOfWork = unitOfWork;
             _mediator = mediator;
             _fileService = fileService;
+            _urlResolver = urlResolver;
         }
 
         public async Task<CreateProductCommandResponse> Handle(CreateProductCommandRequest request, CancellationToken cancellationToken)
@@ -137,7 +139,7 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
 
                 });
 
-                var dto = entity.ToDto();
+                var dto = entity.ToDto(_urlResolver);
                 
 
                 return new CreateProductCommandResponse

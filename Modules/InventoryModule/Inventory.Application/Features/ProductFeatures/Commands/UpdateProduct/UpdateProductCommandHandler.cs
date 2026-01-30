@@ -11,11 +11,13 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IFileService _fileService;
+        private readonly SharedKernel.Core.Files.IFileUrlResolver _urlResolver;
 
-        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IFileService fileService)
+        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IFileService fileService, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
             _unitOfWork = unitOfWork;
             _fileService = fileService;
+            _urlResolver = urlResolver;
         }
 
         public async Task<UpdateProductCommandResponse> Handle(UpdateProductCommandRequest request, CancellationToken cancellationToken)
@@ -182,7 +184,7 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                 repo.Update(product);
                 await _unitOfWork.CompleteAsync();
 
-                var dto = product.ToDto();
+                var dto = product.ToDto(_urlResolver);
 
                 return new UpdateProductCommandResponse { Success = true, Product = dto };
             }

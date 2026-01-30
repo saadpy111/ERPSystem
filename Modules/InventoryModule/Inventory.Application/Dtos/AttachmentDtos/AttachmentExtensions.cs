@@ -7,13 +7,13 @@ namespace Inventory.Application.Dtos.AttachmentDtos
 {
     public static class AttachmentExtensions
     {
-        public static AttachmentDto ToDto(this Attachment entity)
+        public static AttachmentDto ToDto(this Attachment entity, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
             return new AttachmentDto
             {
                 Id = entity.Id,
                 FileName = entity.FileName,
-                FileUrl = entity.FileUrl,
+                FileUrl = urlResolver.Resolve(entity.FileUrl),
                 ContentType = entity.ContentType,
                 FileSize = entity.FileSize,
                 Description = entity.Description,
@@ -21,9 +21,9 @@ namespace Inventory.Application.Dtos.AttachmentDtos
             };
         }
 
-        public static List<AttachmentDto> ToDtoList(this List<Attachment> entities)
+        public static List<AttachmentDto> ToDtoList(this List<Attachment> entities, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
-            return entities?.Select(e => e.ToDto()).ToList() ?? new List<AttachmentDto>();
+            return entities?.Select(e => e.ToDto(urlResolver)).ToList() ?? new List<AttachmentDto>();
         }
     }
 }
