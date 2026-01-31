@@ -190,8 +190,20 @@ namespace Inventory.Application.Services
                 OrderLimit = product.OrderLimit,
                 CategoryId = product.CategoryId,
                 CategoryName = product.Category?.Name,
-                MainImageUrl = product.Images?.FirstOrDefault()?.ImageUrl,
-                CreatedAt = product.CreatedAt ?? DateTime.UtcNow,
+                Images = product.Images?
+                .OrderBy(i => i.DisplayOrder)
+                .Select(i => new ProductImageDto
+                {
+                    Id = i.Id,
+                    ImageUrl = i.ImageUrl,
+                    IsPrimary = i.IsPrimary,
+                    DisplayOrder = i.DisplayOrder
+                }).ToList() ?? new(),
+               
+                 MainImageUrl = product.Images?
+                .FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                ?? product.Images?.FirstOrDefault()?.ImageUrl,
+                            CreatedAt = product.CreatedAt ?? DateTime.UtcNow,
                 UpdatedAt = product.UpdatedAt ?? DateTime.UtcNow
             };
         }
@@ -202,6 +214,7 @@ namespace Inventory.Application.Services
             {
                 Id = category.Id,
                 Name = category.Name,
+                ImagePath = category.ImagePath,
                 Description = null, // ProductCategory has no Description
                 ParentCategoryId = category.ParentId,
                 ParentCategoryName = category.ParentCategory?.Name,

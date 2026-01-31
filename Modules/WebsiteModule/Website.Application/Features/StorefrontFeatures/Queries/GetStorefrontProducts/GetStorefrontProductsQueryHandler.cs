@@ -3,6 +3,8 @@ using Website.Application.Contracts.Persistence.Repositories;
 using Website.Application.Pagination;
 using Website.Application.Features.StorefrontFeatures.Services;
 using Website.Domain.Entities;
+using SharedKernel.Core.Files;
+using System.Linq.Expressions;
 
 namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontProducts
 {
@@ -11,15 +13,18 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
         private readonly IWebsiteProductRepository _productRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProductPricingService _pricingService;
+        private readonly IFileUrlResolver _urlResolver;
 
         public GetStorefrontProductsQueryHandler(
             IWebsiteProductRepository productRepository, 
             IUnitOfWork unitOfWork,
-            IProductPricingService pricingService)
+            IProductPricingService pricingService,
+            IFileUrlResolver urlResolver)
         {
             _productRepository = productRepository;
             _unitOfWork = unitOfWork;
             _pricingService = pricingService;
+            _urlResolver = urlResolver;
         }
 
         public async Task<GetStorefrontProductsQueryResponse> Handle(GetStorefrontProductsQueryRequest request, CancellationToken cancellationToken)
@@ -34,7 +39,8 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
                     (string.IsNullOrEmpty(request.Search) || p.NameSnapshot.Contains(request.Search)),
                 page: request.Page,
                 pageSize: request.PageSize,
-                orderBy: q => q.OrderBy(p => p.DisplayOrder).ThenBy(p => p.NameSnapshot)
+                orderBy: q => q.OrderBy(p => p.DisplayOrder).ThenBy(p => p.NameSnapshot),
+                includes: new Expression<Func<WebsiteProduct, object>>[] { p => p.Images }
             );
 
             // 2. Build Product-to-Offers Lookup
@@ -50,14 +56,15 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
                     ? productOffersLookup[product.Id] 
                     : new List<Offer>();
 
-                // Calculate best offer
                 var pricingResult = _pricingService.CalculateBestPrice(product.Price, applicableOffers);
+
+                var primaryImage = product.Images.FirstOrDefault(i => i.IsPrimary) ?? product.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault();
 
                 productDtos.Add(new StorefrontProductDto
                 {
                     Id = product.Id,
                     Name = product.NameSnapshot,
-                    ImageUrl = product.ImageUrlSnapshot,
+                    ImageUrl = _urlResolver.Resolve(primaryImage?.ImagePath),
                     CategoryName = product.CategoryNameSnapshot,
                     OriginalPrice = pricingResult.OriginalPrice,
                     FinalPrice = pricingResult.FinalPrice,

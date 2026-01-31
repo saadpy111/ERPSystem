@@ -1,5 +1,6 @@
 using MediatR;
 using SharedKernel.Contracts;
+using SharedKernel.Core.Files;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Domain.Entities;
 
@@ -9,13 +10,17 @@ namespace Website.Application.Features.WebsiteCategoryFeatures.Queries.GetInvent
     {
         private readonly IInventoryReadService _inventoryReadService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileUrlResolver _fileUrlResolver;
 
         public GetInventoryCategoriesQueryHandler(
             IInventoryReadService inventoryReadService,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork , 
+            IFileUrlResolver fileUrlResolver)
+            
         {
             _inventoryReadService = inventoryReadService;
             _unitOfWork = unitOfWork;
+            _fileUrlResolver = fileUrlResolver;
         }
 
         public async Task<GetInventoryCategoriesQueryResponse> Handle(GetInventoryCategoriesQueryRequest request, CancellationToken cancellationToken)
@@ -53,6 +58,7 @@ namespace Website.Application.Features.WebsiteCategoryFeatures.Queries.GetInvent
                 ParentCategoryName = c.ParentCategoryName,
                 IsActive = c.IsActive,
                 ProductCount = c.ProductCount,
+                ImagePath = _fileUrlResolver.Resolve(c.ImagePath),
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt,
                 IsAlreadyPublished = publishedMap.ContainsKey(c.Id),

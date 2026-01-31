@@ -21,9 +21,23 @@ namespace Website.Persistence.Repositories
                 .FirstOrDefaultAsync(p => p.Id == id);
         }
 
+        public async Task<WebsiteProduct?> GetProductWithImagesAsync(Guid id)
+        {
+            return await _dbSet
+                .Include(p => p.Images)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+
         public async Task<WebsiteProduct?> GetByInventoryProductIdAsync(Guid inventoryProductId)
         {
             return await _dbSet
+                .FirstOrDefaultAsync(p => p.InventoryProductId == inventoryProductId);
+        }
+
+        public async Task<WebsiteProduct?> GetByInventoryProductIdWithImagesAsync(Guid inventoryProductId)
+        {
+            return await _dbSet
+                .Include(p => p.Images)
                 .FirstOrDefaultAsync(p => p.InventoryProductId == inventoryProductId);
         }
 

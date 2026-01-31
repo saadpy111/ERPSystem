@@ -10,7 +10,7 @@ namespace Website.Application.Features.WebsiteProductFeatures.Queries.GetProduct
         public Guid Id { get; set; }
         public Guid InventoryProductId { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string? ImageUrl { get; set; }
+        public List<WebsiteProductImageDto> Images { get; set; } = new();
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public decimal Price { get; set; }
@@ -19,5 +19,14 @@ namespace Website.Application.Features.WebsiteProductFeatures.Queries.GetProduct
         public int DisplayOrder { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+    }
+
+    public class WebsiteProductImageDto
+    {
+        public Guid Id { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
+        public string? AltText { get; set; }
+        public bool IsPrimary { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

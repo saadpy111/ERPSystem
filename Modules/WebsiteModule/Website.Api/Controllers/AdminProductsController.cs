@@ -6,6 +6,7 @@ using SharedKernel.Constants.Permissions;
 using Website.Application.Features.WebsiteProductFeatures.Commands.PublishProduct;
 using Website.Application.Features.WebsiteProductFeatures.Commands.UnpublishProduct;
 using Website.Application.Features.WebsiteProductFeatures.Commands.UpdateProductPrice;
+using Website.Application.Features.WebsiteProductFeatures.Commands.UpdateProductImages;
 using Website.Application.Features.WebsiteProductFeatures.Queries.GetAllProducts;
 using Website.Application.Features.WebsiteProductFeatures.Queries.GetInventoryProducts;
 using Website.Application.Features.WebsiteProductFeatures.Queries.GetProductById;
@@ -110,6 +111,20 @@ namespace Website.Api.Controllers
             });
             if (!response.Success) return NotFound(response.Message);
             return Ok();
+        }
+
+        /// <summary>
+        /// Update product images.
+        /// </summary>
+        [HttpPut("products/{id}/images")]
+        [Consumes("multipart/form-data")]
+        [HasPermission(WebsitePermissions.ProductsEdit)]
+        public async Task<IActionResult> UpdateImages(Guid id, [FromForm] UpdateWebsiteProductImagesCommandRequest request)
+        {
+            request.ProductId = id;
+            var response = await _mediator.Send(request);
+            if (!response.Success) return BadRequest(response.Message);
+            return Ok(response);
         }
 
         #endregion

@@ -41,6 +41,7 @@ namespace Website.Persistence.Context
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+        public DbSet<WebsiteProductImage> WebsiteProductImages => Set<WebsiteProductImage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -95,6 +96,9 @@ namespace Website.Persistence.Context
 
             modelBuilder.Entity<OrderItem>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<WebsiteProductImage>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
 
@@ -114,6 +118,7 @@ namespace Website.Persistence.Context
             modelBuilder.Entity<CartItem>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<Order>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<OrderItem>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<WebsiteProductImage>().HasIndex(e => e.TenantId);
         }
 
         /// <summary>

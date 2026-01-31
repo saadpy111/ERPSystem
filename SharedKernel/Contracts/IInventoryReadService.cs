@@ -74,6 +74,8 @@ namespace SharedKernel.Contracts
         public string? ProductBarcode { get; set; }
         public string? MainSupplierName { get; set; }
         public decimal? Tax { get; set; }
+        public List<ProductImageDto> Images { get; set; } = new();
+
         public int? OrderLimit { get; set; }
         public Guid CategoryId { get; set; }
         public string? CategoryName { get; set; }
@@ -122,9 +124,18 @@ namespace SharedKernel.Contracts
         public Guid? ParentCategoryId { get; set; }
         public string? ParentCategoryName { get; set; }
         public bool IsActive { get; set; }
+        public string? ImagePath { get; set; }
+
         public int ProductCount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+    }
+    public class ProductImageDto
+    {
+        public Guid Id { get; set; }
+        public string ImageUrl { get; set; } = null!;
+        public bool IsPrimary { get; set; }
+        public int DisplayOrder { get; set; }
     }
 
     #endregion

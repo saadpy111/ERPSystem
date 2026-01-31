@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Website.Application.DependencyInjection;
 using Website.Persistence.DependencyInjection;
+using Website.Infrastructure.DependencyInjection;
 
 namespace Website.Api.DependencyInjection
 {
@@ -14,6 +15,7 @@ namespace Website.Api.DependencyInjection
             // Register lower layers
             services.AddWebsitePersistenceDependencyInjection(configuration);
             services.AddWebsiteApplicationDependencyInjection(configuration);
+            services.AddWebsiteInfrastructureDependencyInjection();
 
             return services;
         }

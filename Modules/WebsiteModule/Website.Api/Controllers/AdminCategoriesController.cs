@@ -7,6 +7,7 @@ using Website.Application.Features.WebsiteCategoryFeatures.Commands.PublishCateg
 using Website.Application.Features.WebsiteCategoryFeatures.Commands.UnpublishCategory;
 using Website.Application.Features.WebsiteCategoryFeatures.Queries.GetAllCategories;
 using Website.Application.Features.WebsiteCategoryFeatures.Queries.GetInventoryCategories;
+using Website.Application.Features.WebsiteCategoryFeatures.Commands.UpdateCategoryImage;
 using Website.Application.Contracts.Persistence.Repositories;
 
 namespace Website.Api.Controllers
@@ -140,6 +141,20 @@ namespace Website.Api.Controllers
             _categoryRepository.Remove(category);
             await _unitOfWork.SaveChangesAsync();
             return NoContent();
+        }
+
+        /// <summary>
+        /// Update category image.
+        /// </summary>
+        [HttpPut("{id}/image")]
+        [Consumes("multipart/form-data")]
+        [HasPermission(WebsitePermissions.CategoriesEdit)]
+        public async Task<IActionResult> UpdateImage(Guid id, [FromForm] UpdateWebsiteCategoryImageCommandRequest request)
+        {
+            request.CategoryId = id;
+            var response = await _mediator.Send(request);
+            if (!response.Success) return BadRequest(response.Message);
+            return Ok(response);
         }
 
         #endregion

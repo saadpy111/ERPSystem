@@ -2,6 +2,7 @@ using MediatR;
 using SharedKernel.Multitenancy;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Domain.Entities;
+using SharedKernel.Core.Files;
 
 namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontProductById
 {
@@ -9,11 +10,13 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITenantProvider _tenantProvider;
+        private readonly IFileUrlResolver _urlResolver;
 
-        public GetStorefrontProductByIdQueryHandler(IUnitOfWork unitOfWork, ITenantProvider tenantProvider)
+        public GetStorefrontProductByIdQueryHandler(IUnitOfWork unitOfWork, ITenantProvider tenantProvider, IFileUrlResolver urlResolver)
         {
             _unitOfWork = unitOfWork;
             _tenantProvider = tenantProvider;
+            _urlResolver = urlResolver;
         }
 
         public async Task<GetStorefrontProductByIdQueryResponse> Handle(GetStorefrontProductByIdQueryRequest request, CancellationToken cancellationToken)
@@ -23,7 +26,8 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
             // Ensure IsPublished
             var product = await repo.GetFirstAsync(
                 p => p.Id == request.Id && p.IsPublished,
-                asNoTracking: true);
+                asNoTracking: true,
+                p => p.Images);
 
             if (product == null)
             {
@@ -36,7 +40,14 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
                 {
                     Id = product.Id,
                     Name = product.NameSnapshot,
-                    ImageUrl = product.ImageUrlSnapshot,
+                    Images = product.Images.Select(img => new StorefrontProductImageDto
+                    {
+                        Id = img.Id,
+                        ImageUrl = _urlResolver.Resolve(img.ImagePath) ?? string.Empty,
+                        AltText = img.AltText,
+                        IsPrimary = img.IsPrimary,
+                        DisplayOrder = img.DisplayOrder
+                    }).OrderBy(i => i.DisplayOrder).ToList(),
                     CategoryId = product.CategoryId,
                     CategoryName = product.CategoryNameSnapshot,
                     Price = product.Price, 

@@ -17,11 +17,6 @@ namespace Website.Domain.Entities
         public string NameSnapshot { get; set; } = string.Empty;
 
         /// <summary>
-        /// Snapshot of product image URL.
-        /// </summary>
-        public string? ImageUrlSnapshot { get; set; }
-
-        /// <summary>
         /// Website category this product belongs to.
         /// </summary>
         public Guid CategoryId { get; set; }
@@ -53,6 +48,7 @@ namespace Website.Domain.Entities
         public int DisplayOrder { get; set; } = 0;
 
         // Navigation properties
+        public ICollection<WebsiteProductImage> Images { get; set; } = new List<WebsiteProductImage>();
         public ICollection<ProductCollectionItem> CollectionItems { get; set; } = new List<ProductCollectionItem>();
         public ICollection<OfferProduct> OfferProducts { get; set; } = new List<OfferProduct>();
         public ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();

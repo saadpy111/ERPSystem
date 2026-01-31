@@ -21,6 +21,7 @@ using Subscription.Api.Controllers;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Website.Api.Controllers;
 using Website.Api.DependencyInjection;
+using Website.Infrastructure.FileService;
 
 namespace ERP.Api.DependencyInjection
 {
@@ -103,10 +104,16 @@ namespace ERP.Api.DependencyInjection
                 var env = sp.GetRequiredService<IWebHostEnvironment>();
                 return new LocalFileService(env.WebRootPath);
             });
+
             services.AddScoped<Hr.Application.Contracts.Infrastructure.FileService.IFileService>(sp =>
             {
                 var env = sp.GetRequiredService<IWebHostEnvironment>();
                 return new HrLocalFileService(env.WebRootPath);
+            });
+            services.AddScoped<Website.Application.Contracts.Infrastruture.FileService.IFileService>(sp =>
+            {
+                var env = sp.GetRequiredService<IWebHostEnvironment>();
+                return new WebsiteLocalFileService(env);
             });
             services.AddScoped<Procurement.Application.Contracts.Infrastructure.FileService.IProcurementFileService>(sp =>
             {

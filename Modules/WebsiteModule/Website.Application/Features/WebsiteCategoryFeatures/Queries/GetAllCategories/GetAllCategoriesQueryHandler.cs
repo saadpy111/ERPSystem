@@ -1,5 +1,6 @@
 using MediatR;
 using Website.Application.Contracts.Persistence.Repositories;
+using SharedKernel.Core.Files;
 
 namespace Website.Application.Features.WebsiteCategoryFeatures.Queries.GetAllCategories
 {
@@ -7,13 +8,16 @@ namespace Website.Application.Features.WebsiteCategoryFeatures.Queries.GetAllCat
     {
         private readonly IWebsiteCategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileUrlResolver _urlResolver;
 
         public GetAllCategoriesQueryHandler(
             IWebsiteCategoryRepository categoryRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            IFileUrlResolver urlResolver)
         {
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
+            _urlResolver = urlResolver;
         }
 
         public async Task<GetAllCategoriesQueryResponse> Handle(GetAllCategoriesQueryRequest request, CancellationToken cancellationToken)
@@ -30,6 +34,7 @@ namespace Website.Application.Features.WebsiteCategoryFeatures.Queries.GetAllCat
                 Name = c.Name,
                 Slug = c.Slug,
                 ParentCategoryId = c.ParentCategoryId,
+                ImageUrl = _urlResolver.Resolve(c.ImagePath),
                 DisplayOrder = c.DisplayOrder,
                 IsActive = c.IsActive,
                 ProductCount = c.Products?.Count ?? 0

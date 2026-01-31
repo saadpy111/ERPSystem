@@ -1,16 +1,19 @@
 using MediatR;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Application.Pagination;
+using SharedKernel.Core.Files;
 
 namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontCategories
 {
     public class GetStorefrontCategoriesQueryHandler : IRequestHandler<GetStorefrontCategoriesQueryRequest, GetStorefrontCategoriesQueryResponse>
     {
         private readonly IWebsiteCategoryRepository _categoryRepository;
+        private readonly IFileUrlResolver _urlResolver;
 
-        public GetStorefrontCategoriesQueryHandler(IWebsiteCategoryRepository categoryRepository)
+        public GetStorefrontCategoriesQueryHandler(IWebsiteCategoryRepository categoryRepository, IFileUrlResolver urlResolver)
         {
             _categoryRepository = categoryRepository;
+            _urlResolver = urlResolver;
         }
 
         public async Task<GetStorefrontCategoriesQueryResponse> Handle(GetStorefrontCategoriesQueryRequest request, CancellationToken cancellationToken)
@@ -23,6 +26,7 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontC
                 Name = c.Name,
                 Slug = c.Slug,
                 ParentCategoryId = c.ParentCategoryId,
+                ImageUrl = _urlResolver.Resolve(c.ImagePath),
                 ProductCount = c.Products?.Count(p => p.IsPublished && p.IsAvailable) ?? 0
             }).ToList();
 

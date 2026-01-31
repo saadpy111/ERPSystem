@@ -21,7 +21,9 @@ namespace Website.Application.Features.WebsiteCategoryFeatures.Queries.GetInvent
         public int ProductCount { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        
+        public string? ImagePath { get; set; }
+
+
         // Website-specific
         public bool IsAlreadyPublished { get; set; }
         public Guid? WebsiteCategoryId { get; set; }

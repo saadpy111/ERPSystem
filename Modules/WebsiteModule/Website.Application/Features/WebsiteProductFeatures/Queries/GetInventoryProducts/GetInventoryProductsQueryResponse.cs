@@ -8,12 +8,14 @@ namespace Website.Application.Features.WebsiteProductFeatures.Queries.GetInvento
         public int TotalCount { get; set; }
         public int Page { get; set; }
         public int PageSize { get; set; }
-        public int TotalPages => PageSize > 0 ? (int)Math.Ceiling(TotalCount / (double)PageSize) : 0;
+
+        public int TotalPages =>
+            PageSize > 0 ? (int)Math.Ceiling(TotalCount / (double)PageSize) : 0;
     }
 
     public class InventoryProductListItem
     {
-        // All Inventory product data
+        // ===== Inventory Product =====
         public Guid Id { get; set; }
         public string? Sku { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -28,12 +30,24 @@ namespace Website.Application.Features.WebsiteProductFeatures.Queries.GetInvento
         public int? OrderLimit { get; set; }
         public Guid CategoryId { get; set; }
         public string? CategoryName { get; set; }
+
+        // Images
         public string? MainImageUrl { get; set; }
+        public List<InventoryProductImageDto> Images { get; set; } = new();
+
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
-        
-        // Website-specific
+
+        // ===== Website =====
         public bool IsAlreadyPublished { get; set; }
         public Guid? WebsiteProductId { get; set; }
+    }
+
+    public class InventoryProductImageDto
+    {
+        public Guid Id { get; set; }
+        public string ImageUrl { get; set; } = null!;
+        public bool IsPrimary { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }

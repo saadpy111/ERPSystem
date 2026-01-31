@@ -2,6 +2,7 @@ using MediatR;
 using SharedKernel.Contracts;
 using SharedKernel.Multitenancy;
 using Website.Application.Contracts.Persistence.Repositories;
+using Website.Application.Contracts.Infrastruture.FileService;
 using Website.Domain.Entities;
 
 namespace Website.Application.Features.WebsiteProductFeatures.Commands.PublishProduct
@@ -13,19 +14,22 @@ namespace Website.Application.Features.WebsiteProductFeatures.Commands.PublishPr
         private readonly IWebsiteCategoryRepository _categoryRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITenantProvider _tenantProvider;
+        private readonly IFileService _fileService;
 
         public PublishProductCommandHandler(
             IInventoryReadService inventoryReadService,
             IWebsiteProductRepository productRepository,
             IWebsiteCategoryRepository categoryRepository,
             IUnitOfWork unitOfWork,
-            ITenantProvider tenantProvider)
+            ITenantProvider tenantProvider,
+            IFileService fileService)
         {
             _inventoryReadService = inventoryReadService;
             _productRepository = productRepository;
             _categoryRepository = categoryRepository;
             _unitOfWork = unitOfWork;
             _tenantProvider = tenantProvider;
+            _fileService = fileService;
         }
 
         public async Task<PublishProductCommandResponse> Handle(PublishProductCommandRequest request, CancellationToken cancellationToken)
@@ -53,12 +57,11 @@ namespace Website.Application.Features.WebsiteProductFeatures.Commands.PublishPr
             }
 
             // Check if already published
-            var existing = await _productRepository.GetByInventoryProductIdAsync(request.InventoryProductId);
+            var existing = await _productRepository.GetByInventoryProductIdWithImagesAsync(request.InventoryProductId);
             if (existing != null)
             {
                 // Re-publish: update snapshot from Inventory and set IsPublished = true
                 existing.NameSnapshot = inventoryProduct.Name;
-                existing.ImageUrlSnapshot = inventoryProduct.MainImageUrl;
                 existing.CategoryId = request.WebsiteCategoryId;
                 existing.CategoryNameSnapshot = category.Name;
                 existing.Price = inventoryProduct.SalePrice;
@@ -66,6 +69,29 @@ namespace Website.Application.Features.WebsiteProductFeatures.Commands.PublishPr
                 existing.IsPublished = true;
                 existing.DisplayOrder = request.DisplayOrder;
                 existing.UpdatedAt = DateTime.UtcNow;
+
+                // Sync images ONLY if the website product has no images yet (initial publish)
+                if (!existing.Images.Any() && inventoryProduct.Images.Any())
+                {
+                    foreach (var invImg in inventoryProduct.Images)
+                    {
+                        try
+                        {
+                            var newPath = await _fileService.CopyFileAsync(invImg.ImageUrl, "websiteproducts");
+                            existing.Images.Add(new WebsiteProductImage
+                            {
+                                ImagePath = newPath,
+                                IsPrimary = invImg.IsPrimary,
+                                DisplayOrder = invImg.DisplayOrder,
+                                TenantId = existing.TenantId
+                            });
+                        }
+                        catch (Exception)
+                        {
+                            // Skip if file copy fails
+                        }
+                    }
+                }
 
                 _productRepository.Update(existing);
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -83,7 +109,6 @@ namespace Website.Application.Features.WebsiteProductFeatures.Commands.PublishPr
             {
                 InventoryProductId = request.InventoryProductId,
                 NameSnapshot = inventoryProduct.Name,
-                ImageUrlSnapshot = inventoryProduct.MainImageUrl,
                 CategoryId = request.WebsiteCategoryId,
                 CategoryNameSnapshot = category.Name,
                 Price = inventoryProduct.SalePrice,
@@ -92,6 +117,29 @@ namespace Website.Application.Features.WebsiteProductFeatures.Commands.PublishPr
                 DisplayOrder = request.DisplayOrder,
                 TenantId = _tenantProvider.GetTenantId() ?? string.Empty
             };
+
+            // Copy images for initial publish
+            if (inventoryProduct.Images.Any())
+            {
+                foreach (var invImg in inventoryProduct.Images)
+                {
+                    try
+                    {
+                        var newPath = await _fileService.CopyFileAsync(invImg.ImageUrl, "websiteproducts");
+                        product.Images.Add(new WebsiteProductImage
+                        {
+                            ImagePath = newPath,
+                            IsPrimary = invImg.IsPrimary,
+                            DisplayOrder = invImg.DisplayOrder,
+                            TenantId = product.TenantId
+                        });
+                    }
+                    catch (Exception)
+                    {
+                        // Skip if file copy fails
+                    }
+                }
+            }
 
             await _productRepository.AddAsync(product);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

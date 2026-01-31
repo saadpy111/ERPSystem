@@ -13,9 +13,19 @@ namespace Website.Application.Contracts.Persistence.Repositories
         Task<WebsiteProduct?> GetProductWithCategoryAsync(Guid id);
 
         /// <summary>
+        /// Get product with images loaded.
+        /// </summary>
+        Task<WebsiteProduct?> GetProductWithImagesAsync(Guid id);
+
+        /// <summary>
         /// Get product by inventory product ID.
         /// </summary>
         Task<WebsiteProduct?> GetByInventoryProductIdAsync(Guid inventoryProductId);
+
+        /// <summary>
+        /// Get product by inventory product ID with images loaded.
+        /// </summary>
+        Task<WebsiteProduct?> GetByInventoryProductIdWithImagesAsync(Guid inventoryProductId);
 
         /// <summary>
         /// Get published products with filters.

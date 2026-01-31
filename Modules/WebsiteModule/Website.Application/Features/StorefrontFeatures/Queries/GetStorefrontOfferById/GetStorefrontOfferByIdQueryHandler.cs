@@ -2,6 +2,8 @@ using MediatR;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Domain.Entities;
 using SharedKernel.Multitenancy;
+using SharedKernel.Core.Files;
+using System.Linq.Expressions;
 
 namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontOfferById
 {
@@ -9,11 +11,13 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontO
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITenantProvider _tenantProvider;
+        private readonly IFileUrlResolver _urlResolver;
 
-        public GetStorefrontOfferByIdQueryHandler(IUnitOfWork unitOfWork, ITenantProvider tenantProvider)
+        public GetStorefrontOfferByIdQueryHandler(IUnitOfWork unitOfWork, ITenantProvider tenantProvider, IFileUrlResolver urlResolver)
         {
             _unitOfWork = unitOfWork;
             _tenantProvider = tenantProvider;
+            _urlResolver = urlResolver;
         }
 
         public async Task<GetStorefrontOfferByIdQueryResponse> Handle(GetStorefrontOfferByIdQueryRequest request, CancellationToken cancellationToken)
@@ -37,16 +41,20 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontO
             var productIds = offer.OfferProducts.Select(op => op.ProductId).ToList();
             var productRepo = _unitOfWork.Repository<WebsiteProduct>();
             
-            // Fetch published active products
+            // Fetch published active products with images
             var products = await productRepo.GetAllAsync(
-                p => productIds.Contains(p.Id) && p.IsPublished && p.IsAvailable);
+                p => productIds.Contains(p.Id) && p.IsPublished && p.IsAvailable,
+                p => p.Images);
 
-            var productDtos = products.Select(p => new StorefrontOfferProductDto
-                {
-                    Id = p.Id,
-                    Name = p.NameSnapshot,
-                    ImageUrl = p.ImageUrlSnapshot,
-                    OriginalPrice = p.Price // Or SalePrice logic if applicable
+            var productDtos = products.Select(p => {
+                    var primaryImage = p.Images.FirstOrDefault(i => i.IsPrimary) ?? p.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault();
+                    return new StorefrontOfferProductDto
+                    {
+                        Id = p.Id,
+                        Name = p.NameSnapshot,
+                        ImageUrl = _urlResolver.Resolve(primaryImage?.ImagePath),
+                        OriginalPrice = p.Price 
+                    };
                 })
                 .ToList();
 

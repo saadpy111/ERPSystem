@@ -81,7 +81,7 @@ namespace Website.Application.Features.CartFeatures.Queries.GetCart
                     Id = item.Id,
                     ProductId = item.ProductId,
                     ProductName = product?.NameSnapshot ?? "Unknown",
-                    ProductImageUrl = product?.ImageUrlSnapshot,
+                    ProductImageUrl = product?.Images?.FirstOrDefault()?.ImagePath,
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
                     Subtotal = itemSubtotal,

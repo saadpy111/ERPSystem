@@ -37,6 +37,11 @@ namespace Website.Domain.Entities
         /// </summary>
         public bool IsActive { get; set; } = true;
 
+        /// <summary>
+        /// Relative path to category image.
+        /// </summary>
+        public string? ImagePath { get; set; }
+
         // Navigation properties
         public ICollection<WebsiteCategory> ChildCategories { get; set; } = new List<WebsiteCategory>();
         public ICollection<WebsiteProduct> Products { get; set; } = new List<WebsiteProduct>();
