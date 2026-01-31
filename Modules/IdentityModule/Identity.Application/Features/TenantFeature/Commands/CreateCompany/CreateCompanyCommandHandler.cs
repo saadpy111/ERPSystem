@@ -34,6 +34,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         private readonly IUnitOfWork _unitOfWork;
         private readonly ISubscriptionService _subscriptionService;
         private readonly IWebsiteProvisioningService _websiteProvisioningService;
+        private readonly IWebsiteImageService _websiteImageService;
 
         public CreateCompanyCommandHandler(
             IAuthRepository authRepository,
@@ -44,7 +45,8 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
             IJwtTokenService jwtTokenService,
             IUnitOfWork unitOfWork,
             ISubscriptionService subscriptionService,
-            IWebsiteProvisioningService websiteProvisioningService)
+            IWebsiteProvisioningService websiteProvisioningService,
+            IWebsiteImageService websiteImageService)
         {
             _authRepository = authRepository;
             _tenantRepository = tenantRepository;
@@ -55,6 +57,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
             _unitOfWork = unitOfWork;
             _subscriptionService = subscriptionService;
             _websiteProvisioningService = websiteProvisioningService;
+            _websiteImageService = websiteImageService;
         }
 
         public async Task<CreateCompanyResponse> Handle(CreateCompanyCommand request, CancellationToken cancellationToken)
@@ -178,13 +181,24 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
             // ===== COMMIT IDENTITY CHANGES =====
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // ===== STEP 7: INITIALIZE WEBSITE (via WebsiteModule) =====
-            // This is done AFTER tenant is committed to ensure consistency
-            // WebsiteModule handles: Theme loading, validation, SiteConfig creation
-            // 
-            // BUSINESS RULES (enforced by WebsiteModule):
-            // - Theme mode: Presentation data (Colors, Hero, Sections) is IGNORED
-            // - Custom mode: Presentation data is REQUIRED
+            // ===== STEP 7: PROCESS WEBSITE IMAGES (via WebsiteModule) =====
+            // Delegate file handling to WebsiteModule before initializing website
+            
+            string logoUrl = string.Empty;
+            string heroBackgroundImageUrl = string.Empty;
+
+            if (request.Logo != null)
+            {
+                logoUrl = await _websiteImageService.ProcessWebsiteLogoAsync(tenant.Id, request.Logo);
+            }
+
+            if (string.IsNullOrEmpty(request.ThemeCode) && request.HeroBackgroundImage != null)
+            {
+                heroBackgroundImageUrl = await _websiteImageService.ProcessWebsiteHeroImageAsync(tenant.Id, request.HeroBackgroundImage);
+            }
+
+            // ===== STEP 8: INITIALIZE WEBSITE (via WebsiteModule) =====
+            // This is done AFTER tenant is committed and images are processed
             
             var websiteRequest = new WebsiteInitializationRequest
             {
@@ -195,11 +209,24 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 SiteName = request.SiteName,
                 Domain = request.Domain,
                 BusinessType = request.BusinessType,
-                LogoUrl = request.LogoUrl,
+                LogoUrl = logoUrl,
                 
                 // Presentation data (used ONLY in Custom mode, IGNORED in Theme mode)
-                Colors = request.Colors,
-                Hero = request.Hero,
+                // Map from flattened command properties
+                Colors = string.IsNullOrEmpty(request.PrimaryColor) ? null : new WebsiteColors
+                {
+                    Primary = request.PrimaryColor,
+                    Secondary = request.SecondaryColor ?? string.Empty,
+                    Background = request.BackgroundColor ?? string.Empty,
+                    Text = request.TextColor ?? string.Empty
+                },
+                Hero = string.IsNullOrEmpty(request.HeroTitle) ? null : new WebsiteHero
+                {
+                    Title = request.HeroTitle,
+                    Subtitle = request.HeroSubtitle ?? string.Empty,
+                    ButtonText = request.HeroButtonText ?? string.Empty,
+                    BackgroundImage = heroBackgroundImageUrl // Use generated path
+                },
                 Sections = request.Sections
             };
 
@@ -219,7 +246,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 };
             }
 
-            // ===== STEP 8: GENERATE NEW JWT TOKEN =====
+            // ===== STEP 9: GENERATE NEW JWT TOKEN =====
             
             var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id);
             var roles = new List<string> { $"{Roles.SuperAdmin}_{tenant.Code}" };

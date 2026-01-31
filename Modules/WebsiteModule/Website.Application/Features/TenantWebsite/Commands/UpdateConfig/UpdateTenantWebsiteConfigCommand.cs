@@ -1,5 +1,7 @@
 using MediatR;
 using Website.Domain.ValueObjects;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
 
 namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
 {
@@ -16,11 +18,25 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         public string? SiteName { get; set; }
         public string? Domain { get; set; }
         public string? BusinessType { get; set; }
-        public string? LogoUrl { get; set; }
+        
+        // Uploaded Images
+        public IFormFile? Logo { get; set; }
+        public IFormFile? HeroBackgroundImage { get; set; }
         
         // Presentation data (if provided, mode becomes Custom)
-        public ThemeColors? Colors { get; set; }
-        public HeroSection? Hero { get; set; }
+        // Flattened for multipart/form-data support
+        
+        // Colors
+        public string? PrimaryColor { get; set; }
+        public string? SecondaryColor { get; set; }
+        public string? BackgroundColor { get; set; }
+        public string? TextColor { get; set; }
+        
+        // Hero Text
+        public string? HeroTitle { get; set; }
+        public string? HeroSubtitle { get; set; }
+        public string? HeroButtonText { get; set; }
+        
         public List<SectionItem>? Sections { get; set; }
         
         public bool? IsPublished { get; set; }

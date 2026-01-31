@@ -25,6 +25,7 @@ namespace Website.Application.DependencyInjection
 
             // Cross-module services (consumed by IdentityModule)
             services.AddScoped<IWebsiteProvisioningService, WebsiteProvisioningService>();
+            services.AddScoped<IWebsiteImageService, WebsiteImageService>();
             services.AddScoped<ITenantDomainResolver, TenantDomainResolver>();
 
             return services;

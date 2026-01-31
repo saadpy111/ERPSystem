@@ -28,7 +28,8 @@ namespace Identity.Api.Controllers
         /// 
         [HttpPost("create")]
         [Authorize]
-        public async Task<IActionResult> CreateCompany([FromBody] CreateCompanyCommand command)
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> CreateCompany([FromForm] CreateCompanyCommand command)
         {
             command.UserId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
             var result = await _mediator.Send(command);

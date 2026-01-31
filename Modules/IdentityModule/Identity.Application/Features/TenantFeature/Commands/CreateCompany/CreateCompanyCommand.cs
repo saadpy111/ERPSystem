@@ -2,6 +2,7 @@ using MediatR;
 using SharedKernel.Enums;
 using SharedKernel.Website;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 {
@@ -42,11 +43,25 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         public string SiteName { get; set; } = string.Empty;
         public string Domain { get; set; } = string.Empty;
         public string BusinessType { get; set; } = string.Empty;
-        public string LogoUrl { get; set; } = string.Empty;
+        
+        // Uploaded Images
+        public IFormFile? Logo { get; set; }
+        public IFormFile? HeroBackgroundImage { get; set; }
         
         // Presentation data (required ONLY for Custom mode, ignored for Theme mode)
-        public WebsiteColors? Colors { get; set; }
-        public WebsiteHero? Hero { get; set; }
+        // Flattened to keep request flat for multipart/form-data support
+        
+        // Colors
+        public string? PrimaryColor { get; set; }
+        public string? SecondaryColor { get; set; }
+        public string? BackgroundColor { get; set; }
+        public string? TextColor { get; set; }
+        
+        // Hero Text
+        public string? HeroTitle { get; set; }
+        public string? HeroSubtitle { get; set; }
+        public string? HeroButtonText { get; set; }
+        
         public List<WebsiteSection>? Sections { get; set; }
     }
 }

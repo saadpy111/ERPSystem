@@ -2,6 +2,7 @@ using MediatR;
 using Website.Application.Contracts.Persistence;
 using Website.Domain.Enums;
 using Website.Domain.ValueObjects;
+using SharedKernel.Website;
 
 namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
 {
@@ -9,13 +10,16 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
     {
         private readonly ITenantWebsiteRepository _tenantWebsiteRepository;
         private readonly IWebsiteUnitOfWork _unitOfWork;
+        private readonly IWebsiteImageService _websiteImageService;
 
         public UpdateTenantWebsiteConfigCommandHandler(
             ITenantWebsiteRepository tenantWebsiteRepository,
-            IWebsiteUnitOfWork unitOfWork)
+            IWebsiteUnitOfWork unitOfWork,
+            IWebsiteImageService websiteImageService)
         {
             _tenantWebsiteRepository = tenantWebsiteRepository;
             _unitOfWork = unitOfWork;
+            _websiteImageService = websiteImageService;
         }
 
         public async Task<UpdateTenantWebsiteConfigResponse> Handle(UpdateTenantWebsiteConfigCommand request, CancellationToken cancellationToken)
@@ -45,22 +49,42 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                 tenantWebsite.Config.Domain = request.Domain;
             if (request.BusinessType != null)
                 tenantWebsite.Config.BusinessType = request.BusinessType;
-            if (request.LogoUrl != null)
-                tenantWebsite.Config.LogoUrl = request.LogoUrl;
+            
+            // Handle Logo Upload
+            if (request.Logo != null)
+            {
+                tenantWebsite.Config.LogoUrl = await _websiteImageService.ProcessWebsiteLogoAsync(request.TenantId, request.Logo);
+            }
 
             // Update presentation data (if provided, switch to Custom mode)
             bool presentationUpdated = false;
             
-            if (request.Colors != null)
+            // Handle Hero Image Upload
+            if (request.HeroBackgroundImage != null)
             {
-                tenantWebsite.Config.Colors = request.Colors;
+                tenantWebsite.Config.Hero.BackgroundImage = await _websiteImageService.ProcessWebsiteHeroImageAsync(request.TenantId, request.HeroBackgroundImage);
                 presentationUpdated = true;
             }
-            if (request.Hero != null)
+
+            // Map flattened Colors
+            if (request.PrimaryColor != null)
             {
-                tenantWebsite.Config.Hero = request.Hero;
+                tenantWebsite.Config.Colors.Primary = request.PrimaryColor;
+                tenantWebsite.Config.Colors.Secondary = request.SecondaryColor ?? tenantWebsite.Config.Colors.Secondary;
+                tenantWebsite.Config.Colors.Background = request.BackgroundColor ?? tenantWebsite.Config.Colors.Background;
+                tenantWebsite.Config.Colors.Text = request.TextColor ?? tenantWebsite.Config.Colors.Text;
                 presentationUpdated = true;
             }
+
+            // Map flattened Hero Text
+            if (request.HeroTitle != null)
+            {
+                tenantWebsite.Config.Hero.Title = request.HeroTitle;
+                tenantWebsite.Config.Hero.Subtitle = request.HeroSubtitle ?? tenantWebsite.Config.Hero.Subtitle;
+                tenantWebsite.Config.Hero.ButtonText = request.HeroButtonText ?? tenantWebsite.Config.Hero.ButtonText;
+                presentationUpdated = true;
+            }
+
             if (request.Sections != null)
             {
                 tenantWebsite.Config.Sections = request.Sections;

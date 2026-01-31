@@ -165,6 +165,8 @@ namespace Website.Application.Services
                     return Fail("Hero.Title is required");
                 if (string.IsNullOrWhiteSpace(request.Hero.ButtonText))
                     return Fail("Hero.ButtonText is required");
+                if (string.IsNullOrWhiteSpace(request.Hero.BackgroundImage))
+                    return Fail("Hero.BackgroundImage is required for custom website mode");
 
                 // Create TenantWebsite with Custom mode
                 // ALL presentation data comes from user - NO defaults

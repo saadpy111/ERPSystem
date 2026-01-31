@@ -12,6 +12,8 @@ namespace Website.Api.DependencyInjection
             this IServiceCollection services, 
             IConfiguration configuration)
         {
+      
+          
             // Register lower layers
             services.AddWebsitePersistenceDependencyInjection(configuration);
             services.AddWebsiteApplicationDependencyInjection(configuration);

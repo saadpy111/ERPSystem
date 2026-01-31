@@ -5,6 +5,8 @@ using Website.Application.Features.TenantWebsite.Commands.ApplyTheme;
 using Website.Application.Features.TenantWebsite.Commands.UpdateConfig;
 using Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteConfig;
 using System.Security.Claims;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Website.Api.Controllers
 {
@@ -35,6 +37,7 @@ namespace Website.Api.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(GetTenantWebsiteConfigResponse), 200)]
         [ProducesResponseType(404)]
+        [HasPermission(WebsitePermissions.ConfigView)]
         public async Task<IActionResult> GetConfig()
         {
             var tenantId = GetTenantId();
@@ -54,9 +57,12 @@ namespace Website.Api.Controllers
         /// Update tenant website configuration
         /// </summary>
         [HttpPut]
+        [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(UpdateTenantWebsiteConfigResponse), 200)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> UpdateConfig([FromBody] UpdateTenantWebsiteConfigCommand command)
+        [HasPermission(WebsitePermissions.ConfigEdit)]
+
+        public async Task<IActionResult> UpdateConfig([FromForm] UpdateTenantWebsiteConfigCommand command)
         {
             var tenantId = GetTenantId();
             
@@ -78,6 +84,7 @@ namespace Website.Api.Controllers
         [HttpPost("apply-theme")]
         [ProducesResponseType(typeof(ApplyThemeResponse), 200)]
         [ProducesResponseType(400)]
+        [HasPermission(WebsitePermissions.ConfigApplyTheme)]
         public async Task<IActionResult> ApplyTheme([FromBody] ApplyThemeRequest request)
         {
             var tenantId = GetTenantId();

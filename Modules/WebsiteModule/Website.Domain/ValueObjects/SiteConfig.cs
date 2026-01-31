@@ -19,4 +19,5 @@ namespace Website.Domain.ValueObjects
         public HeroSection Hero { get; set; } = new();
         public List<SectionItem> Sections { get; set; } = new();
     }
+
 }

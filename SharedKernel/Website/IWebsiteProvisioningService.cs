@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+using System.Threading.Tasks;
+
 
 namespace SharedKernel.Website
 {
@@ -97,5 +100,36 @@ namespace SharedKernel.Website
         Task<WebsiteProvisioningResult> InitializeTenantWebsiteAsync(
             string tenantId,
             WebsiteInitializationRequest request);
+    }
+
+    /// <summary>
+    /// Service to handle website-related image uploads.
+    /// Implemented by WebsiteModule, consumed by IdentityModule.
+    /// </summary>
+    public interface IWebsiteImageService
+    {
+        /// <summary>
+        /// Processes and saves the website logo for a tenant.
+        /// Returns the relative path to the saved logo.
+        /// </summary>
+        Task<string> ProcessWebsiteLogoAsync(string tenantId, IFormFile logoFile);
+
+        /// <summary>
+        /// Processes and saves the website hero background image for a tenant.
+        /// Returns the relative path to the saved image.
+        /// </summary>
+        Task<string> ProcessWebsiteHeroImageAsync(string tenantId, IFormFile heroFile);
+
+        /// <summary>
+        /// Processes and saves the preview image for a theme.
+        /// Returns the relative path to the saved image.
+        /// </summary>
+        Task<string> ProcessThemePreviewImageAsync(string themeCode, IFormFile previewFile);
+
+        /// <summary>
+        /// Processes and saves the hero background image for a theme.
+        /// Returns the relative path to the saved image.
+        /// </summary>
+        Task<string> ProcessThemeHeroImageAsync(string themeCode, IFormFile heroFile);
     }
 }
