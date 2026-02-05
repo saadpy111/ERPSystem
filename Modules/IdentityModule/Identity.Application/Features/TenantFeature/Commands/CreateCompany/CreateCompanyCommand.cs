@@ -43,6 +43,10 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         public string SiteName { get; set; } = string.Empty;
         public string Domain { get; set; } = string.Empty;
         public string BusinessType { get; set; } = string.Empty;
+        public string about_the_site { get; set; } = string.Empty;
+        public string location { get; set; } = string.Empty;
+        public string phone { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
         
         // Uploaded Images
         public IFormFile? Logo { get; set; }

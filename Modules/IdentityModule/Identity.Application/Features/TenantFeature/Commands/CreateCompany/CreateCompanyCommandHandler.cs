@@ -210,6 +210,10 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 Domain = request.Domain,
                 BusinessType = request.BusinessType,
                 LogoUrl = logoUrl,
+                about_the_site = request.about_the_site,
+                location = request.location,
+                phone = request.phone,
+                email = request.email,
                 
                 // Presentation data (used ONLY in Custom mode, IGNORED in Theme mode)
                 // Map from flattened command properties

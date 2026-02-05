@@ -27,6 +27,10 @@ namespace SharedKernel.Website
         public string Domain { get; set; } = string.Empty;
         public string BusinessType { get; set; } = string.Empty;
         public string LogoUrl { get; set; } = string.Empty;
+        public string about_the_site { get; set; } = string.Empty;
+        public string location { get; set; } = string.Empty;
+        public string phone { get; set; } = string.Empty;
+        public string email { get; set; } = string.Empty;
         
         // ===== PRESENTATION DATA (for Custom mode ONLY) =====
         // These are IGNORED when ThemeCode is provided.

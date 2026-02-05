@@ -56,6 +56,10 @@ namespace Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteCon
                 SiteName = config.SiteName,
                 Domain = config.Domain,
                 BusinessType = config.BusinessType,
+                about_the_site = config.about_the_site,
+                location = config.location,
+                phone = config.phone,
+                email = config.email,
 
                 LogoUrl = _fileUrlResolver.Resolve(config.LogoUrl) ?? string.Empty,
 

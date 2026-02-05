@@ -52,7 +52,11 @@ namespace Website.Persistence.Configurations
                 config.Property(c => c.Domain).HasMaxLength(200);
                 config.Property(c => c.BusinessType).HasMaxLength(100);
                 config.Property(c => c.LogoUrl).HasMaxLength(500);
-                
+                config.Property(c => c.about_the_site).HasMaxLength(1000);
+                config.Property(c => c.location).HasMaxLength(300);
+                config.Property(c => c.phone).HasMaxLength(50);
+                config.Property(c => c.email).HasMaxLength(200);
+
                 // Presentation data
                 config.OwnsOne(c => c.Colors);
                 config.OwnsOne(c => c.Hero);

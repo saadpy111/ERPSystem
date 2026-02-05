@@ -49,6 +49,14 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                 tenantWebsite.Config.Domain = request.Domain;
             if (request.BusinessType != null)
                 tenantWebsite.Config.BusinessType = request.BusinessType;
+            if (request.about_the_site != null)
+                tenantWebsite.Config.about_the_site = request.about_the_site;
+            if (request.location != null)
+                tenantWebsite.Config.location = request.location;
+            if (request.phone != null)
+                tenantWebsite.Config.phone = request.phone;
+            if (request.email != null)
+                tenantWebsite.Config.email = request.email;
             
             // Handle Logo Upload
             if (request.Logo != null)

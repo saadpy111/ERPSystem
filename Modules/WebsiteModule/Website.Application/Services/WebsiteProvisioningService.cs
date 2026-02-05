@@ -105,6 +105,10 @@ namespace Website.Application.Services
                         Domain = request.Domain,
                         BusinessType = request.BusinessType,
                         LogoUrl = request.LogoUrl,
+                        about_the_site = request.about_the_site,
+                        location = request.location,
+                        phone = request.phone,
+                        email = request.email,
                         
                         // Presentation data: FROM THEME (snapshot copy)
                         // User presentation input is IGNORED - theme always wins
@@ -184,6 +188,10 @@ namespace Website.Application.Services
                         Domain = request.Domain,
                         BusinessType = request.BusinessType,
                         LogoUrl = request.LogoUrl,
+                        about_the_site = request.about_the_site,
+                        location = request.location,
+                        phone = request.phone,
+                        email = request.email,
                         
                         // Presentation data: FROM USER (no defaults)
                         Colors = new ThemeColors

@@ -68,6 +68,10 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                         Domain = string.Empty,
                         BusinessType = string.Empty,
                         LogoUrl = string.Empty,
+                        about_the_site = string.Empty,
+                        location = string.Empty,
+                        phone = string.Empty,
+                        email = string.Empty,
                         
                         // Presentation data COPIED from theme (SNAPSHOT)
                         Colors = new ThemeColors
@@ -126,7 +130,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                     Order = s.Order
                 }).ToList();
 
-                // Business data (SiteName, Domain, BusinessType, LogoUrl) PRESERVED
+                // Business data (SiteName, Domain, BusinessType, LogoUrl, about_the_site, location, phone, email) PRESERVED
                 // They were NOT touched above
 
                 await _tenantWebsiteRepository.UpdateAsync(tenantWebsite);

@@ -18,6 +18,10 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         public string? SiteName { get; set; }
         public string? Domain { get; set; }
         public string? BusinessType { get; set; }
+        public string? about_the_site { get; set; }
+        public string? location { get; set; }
+        public string? phone { get; set; }
+        public string? email { get; set; }
         
         // Uploaded Images
         public IFormFile? Logo { get; set; }
