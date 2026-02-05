@@ -2,6 +2,7 @@
 using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Services;
 using MediatR;
+using SharedKernel.Multitenancy;
 
 namespace Identity.Application.Features.AuthFeature.Queries.Login
 {
@@ -10,44 +11,41 @@ namespace Identity.Application.Features.AuthFeature.Queries.Login
         private readonly IAuthRepository _authService;
         private readonly IJwtTokenService _jwt;
         private readonly IPermissionRepository _permissionRepository;
+        private readonly ITenantProvider _tenantProvider;
 
         public LoginQueryHandler(
             IAuthRepository authService, 
             IJwtTokenService jwt, 
-            IPermissionRepository permissionRepository)
+            IPermissionRepository permissionRepository,
+            ITenantProvider tenantProvider)
         {
             _authService = authService;
             _jwt = jwt;
             _permissionRepository = permissionRepository;
+            _tenantProvider = tenantProvider;
         }
 
         public async Task<LoginQueryResponse> Handle(LoginQueryRequest request, CancellationToken cancellationToken)
         {
-            // Find user by email (uses IgnoreQueryFilters internally in repository)
             var user = await _authService.FindByEmailAsync(request.LoginDto.Email);
-            
             if (user == null)
                 return new LoginQueryResponse { Success = false, Error = "Invalid credentials" };
 
-            // Verify password
             var passwordValid = await _authService.CheckPasswordAsync(user, request.LoginDto.Password);
             if (!passwordValid)
                 return new LoginQueryResponse { Success = false, Error = "Invalid credentials" };
 
-            // Get user roles
+            var resolvedTenant = _tenantProvider.GetTenantId();
+
+            //if (string.IsNullOrEmpty(resolvedTenant))
+            //    return new LoginQueryResponse { Success = false, Error = "Tenant context is missing. Please use your company-specific URL." };
+
+            if (user.TenantId != resolvedTenant)
+                return new LoginQueryResponse { Success = false, Error = "User does not belong to this company." };
+
             var roles = await _authService.GetUserRolesAsync(user);
-
-            // Get user effective permissions (from roles + direct assignments)
             var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id);
-
-            // Get user's tenant
-            var tenantId = user.TenantId;
-
-            //if (string.IsNullOrEmpty(tenantId))
-            //    return new LoginQueryResponse { Success = false, Error = "User is not associated with any tenant" };
-
-            // Generate JWT with roles, permissions, and tenant
-            var token = _jwt.GenerateToken(user, roles, permissions, tenantId);
+            var token = _jwt.GenerateToken(user, roles, permissions, user.TenantId);
 
             return new LoginQueryResponse { Success = true, Token = token };
         }

@@ -7,6 +7,7 @@ using Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteConfig;
 using System.Security.Claims;
 using SharedKernel.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Multitenancy;
 
 namespace Website.Api.Controllers
 {
@@ -16,19 +17,21 @@ namespace Website.Api.Controllers
     [ApiController]
     [Route("api/website/config")]
     [ApiExplorerSettings(GroupName = "Website")]
-    [Authorize]
+   // [Authorize]
     public class WebsiteConfigController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ITenantProvider _tenantProvider;
 
-        public WebsiteConfigController(IMediator mediator)
+        public WebsiteConfigController(IMediator mediator , ITenantProvider tenantProvider)
         {
             _mediator = mediator;
+            _tenantProvider = tenantProvider;
         }
 
-        private string GetTenantId()
+        private string? GetTenantId()
         {
-            return User.FindFirst("tenant")?.Value ?? string.Empty;
+            return _tenantProvider.GetTenantId();
         }
 
         /// <summary>
@@ -37,7 +40,7 @@ namespace Website.Api.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(GetTenantWebsiteConfigResponse), 200)]
         [ProducesResponseType(404)]
-        [HasPermission(WebsitePermissions.ConfigView)]
+         //[HasPermission(WebsitePermissions.ConfigView)]
         public async Task<IActionResult> GetConfig()
         {
             var tenantId = GetTenantId();
@@ -57,6 +60,7 @@ namespace Website.Api.Controllers
         /// Update tenant website configuration
         /// </summary>
         [HttpPut]
+        [Authorize]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(UpdateTenantWebsiteConfigResponse), 200)]
         [ProducesResponseType(400)]
@@ -82,6 +86,7 @@ namespace Website.Api.Controllers
         /// Apply a theme to tenant website
         /// </summary>
         [HttpPost("apply-theme")]
+        [Authorize]
         [ProducesResponseType(typeof(ApplyThemeResponse), 200)]
         [ProducesResponseType(400)]
         [HasPermission(WebsitePermissions.ConfigApplyTheme)]

@@ -86,7 +86,7 @@ namespace Inventory.Api
             // CRITICAL: Middleware order for multi-tenancy + authorization
             app.UseAuthentication();                         // 1. Authenticate user (JWT validation)
             app.UseMiddleware<TenantResolutionMiddleware>(); // 2. Extract tenant from JWT
-            app.UseMiddleware<TenantRequiredMiddleware>(); 
+            //app.UseMiddleware<TenantRequiredMiddleware>();
             app.UseAuthorization();                          // 3. Check permissions (with tenant context)
 
             app.MapControllers();
