@@ -35,6 +35,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         private readonly ISubscriptionService _subscriptionService;
         private readonly IWebsiteProvisioningService _websiteProvisioningService;
         private readonly IWebsiteImageService _websiteImageService;
+        private readonly ITenantDomainResolver _tenantDomainResolver;
 
         public CreateCompanyCommandHandler(
             IAuthRepository authRepository,
@@ -46,7 +47,8 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
             IUnitOfWork unitOfWork,
             ISubscriptionService subscriptionService,
             IWebsiteProvisioningService websiteProvisioningService,
-            IWebsiteImageService websiteImageService)
+            IWebsiteImageService websiteImageService,
+            ITenantDomainResolver tenantDomainResolver)
         {
             _authRepository = authRepository;
             _tenantRepository = tenantRepository;
@@ -58,12 +60,30 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
             _subscriptionService = subscriptionService;
             _websiteProvisioningService = websiteProvisioningService;
             _websiteImageService = websiteImageService;
+            _tenantDomainResolver = tenantDomainResolver;
         }
 
         public async Task<CreateCompanyResponse> Handle(CreateCompanyCommand request, CancellationToken cancellationToken)
         {
             // ===== VALIDATION =====
-            
+            var createdTenant =  await _tenantDomainResolver.GetTenantByDomainAsync(request.Domain);
+            if(createdTenant!=null)
+                return new CreateCompanyResponse { Error = "Domain is occupied", Success = false };
+
+
+            if (string.IsNullOrWhiteSpace(request.SiteName))
+                return new CreateCompanyResponse { Error = "SiteName is required" , Success = false };
+
+            if (string.IsNullOrWhiteSpace(request.Domain))
+                return new CreateCompanyResponse { Error = "Domain is required", Success = false };
+
+            if (string.IsNullOrWhiteSpace(request.BusinessType))
+                return new CreateCompanyResponse { Error = "BusinessType is required", Success = false };
+
+            if (request.Logo == null)
+                return new CreateCompanyResponse { Error = "Logo is required", Success = false };
+
+
             var user = await _authRepository.FindByIdAsync(request.UserId);
             if (user == null)
                 return new CreateCompanyResponse { Success = false, Error = "User not found." };
@@ -114,6 +134,8 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 Roles.ReportViewer ,
                 Roles.WebsiteAdmin
             };
+
+
             var createdRoles = new List<ApplicationRole>();
 
             foreach (var roleName in defaultRoles)

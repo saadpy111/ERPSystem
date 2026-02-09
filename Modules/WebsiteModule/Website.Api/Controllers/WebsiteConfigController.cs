@@ -1,13 +1,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Website.Application.Features.TenantWebsite.Commands.ApplyTheme;
-using Website.Application.Features.TenantWebsite.Commands.UpdateConfig;
-using Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteConfig;
-using System.Security.Claims;
 using SharedKernel.Authorization;
 using SharedKernel.Constants.Permissions;
 using SharedKernel.Multitenancy;
+using SharedKernel.Website;
+using System.Security.Claims;
+using Website.Application.Features.TenantWebsite.Commands.ApplyTheme;
+using Website.Application.Features.TenantWebsite.Commands.UpdateConfig;
+using Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteConfig;
 
 namespace Website.Api.Controllers
 {
@@ -40,19 +41,32 @@ namespace Website.Api.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(GetTenantWebsiteConfigResponse), 200)]
         [ProducesResponseType(404)]
-         //[HasPermission(WebsitePermissions.ConfigView)]
-        public async Task<IActionResult> GetConfig()
+        public async Task<IActionResult> GetConfig(
+            [FromServices] ITenantProvider tenantProvider,
+            [FromServices] ITenantDomainResolver tenantDomainResolver)
         {
-            var tenantId = GetTenantId();
-            
-            if (string.IsNullOrEmpty(tenantId))
-                return BadRequest(new { error = "Tenant context required" });
+            if (!Request.Headers.TryGetValue("X-Tenant-Key", out var tenantKey))
+            {
+                return BadRequest(new { error = "X-Tenant-Key header is required" });
+            }
 
-            var result = await _mediator.Send(new GetTenantWebsiteConfigQuery { TenantId = tenantId });
-            
+            var tenantResult = await tenantDomainResolver.GetTenantByDomainAsync(tenantKey!);
+
+            if (tenantResult == null)
+            {
+                return NotFound(new { error = "Tenant not found for provided domain" });
+            }
+
+            tenantProvider.SetTenantId(tenantResult.TenantId);
+
+            var tenantId = tenantResult.TenantId;
+
+            var result = await _mediator.Send(
+                new GetTenantWebsiteConfigQuery { TenantId = tenantId });
+
             if (!result.Success)
                 return NotFound(new { error = result.Error });
-            
+
             return Ok(result);
         }
 

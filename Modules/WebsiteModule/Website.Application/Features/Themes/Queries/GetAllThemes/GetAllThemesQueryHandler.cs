@@ -18,7 +18,7 @@ namespace Website.Application.Features.Themes.Queries.GetAllThemes
 
         public async Task<GetAllThemesResponse> Handle(GetAllThemesQuery request, CancellationToken cancellationToken)
         {
-            var themes = await _themeRepository.GetAllAsync(request.ActiveOnly);
+            var themes = await _themeRepository.GetAllAsync();
 
             var themeDtos = themes.Select(t => {
                 var dto = new ThemeDto

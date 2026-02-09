@@ -10,14 +10,17 @@ namespace Website.Application.Services
     /// Implementation of IWebsiteProvisioningService.
     /// 
     /// STRICT BUSINESS RULES (NON-NEGOTIABLE):
-    /// 
     /// ═══════════════════════════════════════════════════════════════
-    /// CASE 1: THEME MODE (ThemeCode is provided)
+    /// CASE 1: THEME MODE
     /// ═══════════════════════════════════════════════════════════════
-    /// - Business data (SiteName, Domain, BusinessType, LogoUrl): FROM USER
-    /// - Presentation data (Colors, Hero, Sections): FROM THEME ONLY
-    /// - User presentation input is COMPLETELY IGNORED
-    /// - Theme data ALWAYS wins - NO merging, NO fallback
+
+    /// - Business data: FROM USER
+    /// - Colors & Hero: FROM THEME ONLY
+    /// - Sections:
+    ///   - From USER if provided
+    ///   - Otherwise fallback to THEME
+    /// - NO merging of Colors or Hero
+
     /// 
     /// ═══════════════════════════════════════════════════════════════
     /// CASE 2: CUSTOM MODE (ThemeCode is NULL)
@@ -54,18 +57,7 @@ namespace Website.Application.Services
             string tenantId,
             WebsiteInitializationRequest request)
         {
-            // ===== VALIDATION: Business data is ALWAYS required =====
-            if (string.IsNullOrWhiteSpace(request.SiteName))
-                return Fail("SiteName is required");
-            
-            if (string.IsNullOrWhiteSpace(request.Domain))
-                return Fail("Domain is required");
-            
-            if (string.IsNullOrWhiteSpace(request.BusinessType))
-                return Fail("BusinessType is required");
-            
-            if (string.IsNullOrWhiteSpace(request.LogoUrl))
-                return Fail("LogoUrl is required");
+       
 
             // Check if tenant already has a website
             if (await _tenantWebsiteRepository.ExistsAsync(tenantId))
@@ -76,28 +68,54 @@ namespace Website.Application.Services
             // ═══════════════════════════════════════════════════════════════
             // CASE 1: THEME MODE
             // Theme is provided → Presentation comes from THEME ONLY
-            // User's Colors, Hero, Sections are COMPLETELY IGNORED
+            // User's Colors, Hero, Sections from request if not then from theme
             // ═══════════════════════════════════════════════════════════════
-            if (!string.IsNullOrWhiteSpace(request.ThemeCode))
-            {
-                var theme = await _themeRepository.GetByCodeAsync(request.ThemeCode);
-                
-                if (theme == null)
-                    return Fail($"Theme '{request.ThemeCode}' not found");
 
-                if (!theme.IsActive)
-                    return Fail($"Theme '{request.ThemeCode}' is not active");
+            Theme? theme = null;
+            var hasThemeCode = !string.IsNullOrWhiteSpace(request.ThemeCode);
+
+            if (hasThemeCode)
+            {
+                theme = await _themeRepository.GetByCodeAsync(request.ThemeCode);
+            }
+
+            var isValidActiveTheme =
+                hasThemeCode &&
+                theme != null &&
+                theme.IsActive;
+
+            if (isValidActiveTheme)
+            {     
+             
+                // Prepare Sections => first from request , second from theme. 
+                var sections = request.Sections != null && request.Sections.Any()
+                ? request.Sections.Select(s => new SectionItem
+                {
+                    Id = s.Id,
+                    Enabled = s.Enabled,
+                    Order = s.Order
+                }).ToList()
+                : theme.Config.Sections.Select(s => new SectionItem
+                {
+                    Id = s.Id,
+                    Enabled = s.Enabled,
+                    Order = s.Order
+                }).ToList();
+
+
 
                 // Create TenantWebsite with Theme mode
-                // NOTE: User's presentation input (Colors, Hero, Sections) is IGNORED
-                // Theme is the ONLY source of truth for presentation
+                // NOTE: User's presentation input:
+                // - Colors & Hero: IGNORED
+                // - Sections: used if provided, otherwise fallback to theme
+
                 tenantWebsite = new TenantWebsite
                 {
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
                     Mode = WebsiteMode.Theme,
                     ThemeId = theme.Id,
-                    IsPublished = false,
+                    IsPublished = true,
                     Config = new SiteConfig
                     {
                         // Business data: FROM USER
@@ -109,7 +127,7 @@ namespace Website.Application.Services
                         location = request.location,
                         phone = request.phone,
                         email = request.email,
-                        
+
                         // Presentation data: FROM THEME (snapshot copy)
                         // User presentation input is IGNORED - theme always wins
                         Colors = new ThemeColors
@@ -126,52 +144,26 @@ namespace Website.Application.Services
                             ButtonText = theme.Config.Hero.ButtonText,
                             BackgroundImage = theme.Config.Hero.BackgroundImage
                         },
-                        Sections = theme.Config.Sections.Select(s => new SectionItem
-                        {
-                            Id = s.Id,
-                            Enabled = s.Enabled,
-                            Order = s.Order
-                        }).ToList()
+                        Sections = sections
+
+                
                     }
                 };
+
+
             }
+
+
+
             // ═══════════════════════════════════════════════════════════════
             // CASE 2: CUSTOM MODE
             // No theme → Presentation MUST come from USER
             // NO backend defaults - validation error if missing
             // ═══════════════════════════════════════════════════════════════
+          
+            
             else
             {
-                // STRICT VALIDATION: All presentation data is REQUIRED
-                // We do NOT create default UI values - that's the frontend/user's job
-                
-                if (request.Colors == null)
-                    return Fail("Colors configuration is required for custom website mode");
-                
-                if (request.Hero == null)
-                    return Fail("Hero configuration is required for custom website mode");
-                
-                if (request.Sections == null || request.Sections.Count == 0)
-                    return Fail("At least one section is required for custom website mode");
-
-                // Validate Colors has actual values
-                if (string.IsNullOrWhiteSpace(request.Colors.Primary))
-                    return Fail("Colors.Primary is required");
-                if (string.IsNullOrWhiteSpace(request.Colors.Secondary))
-                    return Fail("Colors.Secondary is required");
-                if (string.IsNullOrWhiteSpace(request.Colors.Background))
-                    return Fail("Colors.Background is required");
-                if (string.IsNullOrWhiteSpace(request.Colors.Text))
-                    return Fail("Colors.Text is required");
-
-                // Validate Hero has actual values
-                if (string.IsNullOrWhiteSpace(request.Hero.Title))
-                    return Fail("Hero.Title is required");
-                if (string.IsNullOrWhiteSpace(request.Hero.ButtonText))
-                    return Fail("Hero.ButtonText is required");
-                if (string.IsNullOrWhiteSpace(request.Hero.BackgroundImage))
-                    return Fail("Hero.BackgroundImage is required for custom website mode");
-
                 // Create TenantWebsite with Custom mode
                 // ALL presentation data comes from user - NO defaults
                 tenantWebsite = new TenantWebsite
@@ -180,7 +172,7 @@ namespace Website.Application.Services
                     TenantId = tenantId,
                     Mode = WebsiteMode.Custom,
                     ThemeId = null,
-                    IsPublished = false,
+                    IsPublished = true,
                     Config = new SiteConfig
                     {
                         // Business data: FROM USER
