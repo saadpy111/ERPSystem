@@ -199,11 +199,19 @@ namespace Inventory.Application.Services
                     IsPrimary = i.IsPrimary,
                     DisplayOrder = i.DisplayOrder
                 }).ToList() ?? new(),
-               
-                 MainImageUrl = product.Images?
+
+                Attributes = product.AttributeValues?
+                .Where(av => av.Attribute != null)
+                .Select(av => new ProductAttributeDto
+                {
+                    AttributeName  = av.Attribute.Name,
+                    AttributeValue = av.Value
+                }).ToList() ?? new(),
+
+                MainImageUrl = product.Images?
                 .FirstOrDefault(i => i.IsPrimary)?.ImageUrl
                 ?? product.Images?.FirstOrDefault()?.ImageUrl,
-                            CreatedAt = product.CreatedAt ?? DateTime.UtcNow,
+                CreatedAt = product.CreatedAt ?? DateTime.UtcNow,
                 UpdatedAt = product.UpdatedAt ?? DateTime.UtcNow
             };
         }

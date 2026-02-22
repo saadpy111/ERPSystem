@@ -5,6 +5,10 @@ namespace Website.Application.Features.WebsiteProductFeatures.Queries.GetProduct
         public ProductDetailDto? Product { get; set; }
     }
 
+    /// <summary>
+    /// Detailed product data returned by the Website module storefront.
+    /// Attributes are sourced read-only from the Inventory module via IInventoryReadService.
+    /// </summary>
     public class ProductDetailDto
     {
         public Guid Id { get; set; }
@@ -19,6 +23,21 @@ namespace Website.Application.Features.WebsiteProductFeatures.Queries.GetProduct
         public int DisplayOrder { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
+
+        /// <summary>
+        /// Flat list of product attributes fetched read-only from the Inventory module.
+        /// </summary>
+        public List<ProductAttributeDto> Attributes { get; set; } = new();
+    }
+
+    /// <summary>
+    /// A single product attribute key-value pair as displayed on the storefront.
+    /// Mapped from Inventory.ProductAttributeValue via the SharedKernel contract.
+    /// </summary>
+    public class ProductAttributeDto
+    {
+        public string AttributeName { get; set; } = string.Empty;
+        public string AttributeValue { get; set; } = string.Empty;
     }
 
     public class WebsiteProductImageDto

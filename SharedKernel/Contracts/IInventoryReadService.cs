@@ -75,6 +75,7 @@ namespace SharedKernel.Contracts
         public string? MainSupplierName { get; set; }
         public decimal? Tax { get; set; }
         public List<ProductImageDto> Images { get; set; } = new();
+        public List<ProductAttributeDto> Attributes { get; set; } = new();
 
         public int? OrderLimit { get; set; }
         public Guid CategoryId { get; set; }
@@ -136,6 +137,16 @@ namespace SharedKernel.Contracts
         public string ImageUrl { get; set; } = null!;
         public bool IsPrimary { get; set; }
         public int DisplayOrder { get; set; }
+    }
+
+    /// <summary>
+    /// Represents a single product attribute key-value pair
+    /// shared via the cross-module contract.
+    /// </summary>
+    public class ProductAttributeDto
+    {
+        public string AttributeName { get; set; } = string.Empty;
+        public string AttributeValue { get; set; } = string.Empty;
     }
 
     #endregion

@@ -35,7 +35,6 @@ namespace Inventory.Domain.Entities
         public ICollection<ProductAttributeValue> AttributeValues { get; set; } 
         public ICollection<ProductImage> Images { get; set; }
         
-        // Attachment IDs stored as comma-separated string (no FK relationship)
-        //public string AttachmentIds { get; set; } = string.Empty;
+
     }
 }
