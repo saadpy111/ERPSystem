@@ -16,6 +16,8 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
         private readonly IWebsiteProductRepository _productRepository;
         private readonly ITenantProvider _tenantProvider;
         private readonly IPricingService _pricingService;
+        private readonly IOfferEligibilityService _offerEligibilityService;
+        private readonly ICouponService _couponService;
         private readonly IMediator _mediator;
 
         public CreateOrderCommandHandler(
@@ -23,12 +25,16 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
             IWebsiteProductRepository productRepository,
             ITenantProvider tenantProvider,
             IPricingService pricingService,
+            IOfferEligibilityService offerEligibilityService,
+            ICouponService couponService,
             IMediator mediator)
         {
             _unitOfWork = unitOfWork;
             _productRepository = productRepository;
             _tenantProvider = tenantProvider;
             _pricingService = pricingService;
+            _offerEligibilityService = offerEligibilityService;
+            _couponService = couponService;
             _mediator = mediator;
         }
 
@@ -36,10 +42,10 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
             CreateOrderCommandRequest request,
             CancellationToken cancellationToken)
         {
+            var tenantId = _tenantProvider.GetTenantId()!;
             var cartRepo = _unitOfWork.Repository<Cart>();
             var orderRepo = _unitOfWork.Repository<Order>();
             var orderItemRepo = _unitOfWork.Repository<OrderItem>();
-            var offerRepo = _unitOfWork.Repository<Offer>();
 
             // 1?? Load cart
             var cart = await cartRepo.GetFirstAsync(
@@ -70,42 +76,85 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
                 };
             }
 
-            // 3?? Load active offers
-            var now = DateTime.UtcNow;
-            var activeOffers = await offerRepo.GetAllAsync(
-                o => o.IsActive && o.StartDate <= now && o.EndDate >= now,
-                o => o.OfferProducts);
-
-            // 4?? Build offers lookup
-            var offersLookup = new Dictionary<Guid, List<Offer>>();
-
-            foreach (var offer in activeOffers)
+            // 3?? Handle Coupon Validation
+            Coupon? appliedCoupon = null;
+            if (!string.IsNullOrWhiteSpace(request.CouponCode))
             {
-                foreach (var op in offer.OfferProducts)
+                var cartSubtotal = cart.Items.Sum(i => i.Quantity * i.UnitPrice);
+                var validationResult = await _couponService.ValidateCouponAsync(
+                    request.CouponCode,
+                    request.UserId,
+                    cartSubtotal,
+                    cancellationToken);
+
+                if (!validationResult.IsValid)
                 {
-                    if (!productIds.Contains(op.ProductId))
-                        continue;
-
-                    if (!offersLookup.TryGetValue(op.ProductId, out var list))
+                    return new CreateOrderCommandResponse
                     {
-                        list = new List<Offer>();
-                        offersLookup[op.ProductId] = list;
-                    }
-
-                    list.Add(offer);
+                        Success = false,
+                        Message = validationResult.Message
+                    };
                 }
+
+                appliedCoupon = validationResult.Coupon;
             }
 
-            var tenantId = _tenantProvider.GetTenantId()!;
-            decimal subTotal = 0;
-            decimal discountTotal = 0;
+            // 4?? Build offers lookup (Skip if coupon is exclusive)
+            var skipOffers = appliedCoupon != null && !appliedCoupon.CanBeCombinedWithOffers;
+            var offersLookup = skipOffers 
+                ? new Dictionary<Guid, List<Offer>>()
+                : await _offerEligibilityService.BuildProductOffersLookup(products, tenantId, cancellationToken);
 
-            // 5?? Create order
+            decimal totalOriginalPrice = 0;
+            decimal totalOfferDiscount = 0;
+            var orderItemsToCreate = new List<OrderItem>();
+
+            // 5?? Calculate line-level pricing
+            foreach (var cartItem in cart.Items)
+            {
+                var product = products.First(p => p.Id == cartItem.ProductId);
+                var applicableOffers = offersLookup.TryGetValue(cartItem.ProductId, out var list) ? list : new List<Offer>();
+
+                var pricing = _pricingService.CalculateBestOffer(
+                    cartItem.UnitPrice,
+                    cartItem.Quantity,
+                    applicableOffers);
+
+                totalOriginalPrice += pricing.OriginalPrice;
+                totalOfferDiscount += pricing.DiscountAmount;
+
+                orderItemsToCreate.Add(new OrderItem
+                {
+                    ProductId = cartItem.ProductId,
+                    ProductNameSnapshot = product.NameSnapshot,
+                    Quantity = cartItem.Quantity,
+                    UnitPrice = cartItem.UnitPrice,
+                    DiscountAmount = pricing.DiscountAmount,
+                    FinalPrice = pricing.FinalPrice,
+                    AppliedOfferName = pricing.AppliedOfferName,
+                    TenantId = tenantId
+                });
+            }
+
+            // 6?? Calculate Order-level Coupon Discount
+            decimal couponDiscount = 0;
+            if (appliedCoupon != null)
+            {
+                var amountToDiscount = totalOriginalPrice - totalOfferDiscount;
+                couponDiscount = _couponService.CalculateCouponDiscount(appliedCoupon, amountToDiscount);
+            }
+
+            // 7?? Create order
             var order = new Order
             {
                 OrderNumber = GenerateOrderNumber(),
                 UserId = request.UserId,
                 Status = OrderStatus.Pending,
+                SubTotal = totalOriginalPrice,
+                DiscountTotal = totalOfferDiscount + couponDiscount,
+                AppliedCouponCode = appliedCoupon?.Code,
+                CouponDiscountAmount = couponDiscount,
+                TotalAmount = totalOriginalPrice - (totalOfferDiscount + couponDiscount),
                 PaymentMethod = request.PaymentMethod,
                 ShippingAddress = new ShippingAddress(
                     request.Street,
@@ -120,51 +169,33 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
             await orderRepo.AddAsync(order);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 6?? Create order items with FINAL pricing
-            foreach (var cartItem in cart.Items)
+            // 8?? Save items and usage
+            foreach (var item in orderItemsToCreate)
             {
-                var product = products.First(p => p.Id == cartItem.ProductId);
+                item.OrderId = order.Id;
+                await orderItemRepo.AddAsync(item);
+            }
 
-                var applicableOffers = offersLookup.TryGetValue(
-                    cartItem.ProductId, out var list)
-                    ? list
-                    : new List<Offer>();
-
-                var pricing = _pricingService.CalculateBestOffer(
-                    cartItem.UnitPrice,
-                    cartItem.Quantity,
-                    applicableOffers);
-
-                subTotal += pricing.OriginalPrice;
-                discountTotal += pricing.DiscountAmount;
-
-                await orderItemRepo.AddAsync(new OrderItem
+            if (appliedCoupon != null)
+            {
+                await _unitOfWork.Repository<CouponUsage>().AddAsync(new CouponUsage
                 {
+                    CouponId = appliedCoupon.Id,
+                    UserId = request.UserId,
                     OrderId = order.Id,
-                    ProductId = cartItem.ProductId,
-                    ProductNameSnapshot = product.NameSnapshot,
-                    Quantity = cartItem.Quantity,
-                    UnitPrice = cartItem.UnitPrice,
-                    DiscountAmount = pricing.DiscountAmount,
-                    FinalPrice = pricing.FinalPrice,
-                    AppliedOfferName = pricing.AppliedOfferName,
+                    UsedAt = DateTime.UtcNow,
                     TenantId = tenantId
                 });
             }
 
-            // 7?? Final totals
-            order.SubTotal = subTotal;
-            order.DiscountTotal = discountTotal;
-            order.TotalAmount = subTotal - discountTotal;
-
-            // 8?? Checkout cart
+            // 9?? Checkout cart
             cart.IsCheckedOut = true;
             cart.UpdatedAt = DateTime.UtcNow;
             cartRepo.Update(cart);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // 9?? Publish inventory event
+            // 10?? Publish event
             await _mediator.Publish(new OrderCreatedEvent
             {
                 OrderId = order.Id,

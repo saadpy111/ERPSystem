@@ -21,9 +21,19 @@ namespace Website.Domain.Entities
         public decimal SubTotal { get; set; }
 
         /// <summary>
-        /// Total discount applied to the order.
+        /// Total discount applied to the order (includes offers and coupons).
         /// </summary>
         public decimal DiscountTotal { get; set; }
+
+        /// <summary>
+        /// The coupon code applied to this order, if any.
+        /// </summary>
+        public string? AppliedCouponCode { get; set; }
+
+        /// <summary>
+        /// Portion of the DiscountTotal contributed by the coupon.
+        /// </summary>
+        public decimal CouponDiscountAmount { get; set; }
 
         /// <summary>
         /// Final amount after discounts.

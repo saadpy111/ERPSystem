@@ -4,7 +4,8 @@ namespace Website.Domain.Entities
 {
     /// <summary>
     /// Discount campaign or promotional offer.
-    /// Can apply to specific products via OfferProduct join table.
+    /// Can apply to specific products via OfferProduct join table
+    /// and/or to all products in a category via OfferCategory join table.
     /// </summary>
     public class Offer : BaseEntity
     {
@@ -43,7 +44,20 @@ namespace Website.Domain.Entities
         /// </summary>
         public bool IsActive { get; set; } = true;
 
+        /// <summary>
+        /// Defines the scope of the offer (All, Specific Product, or Category).
+        /// </summary>
+        public OfferScopeType ScopeType { get; set; } = OfferScopeType.AllProducts;
+
+        /// <summary>
+        /// Conflict-resolution priority. Lower value = higher priority.
+        /// When multiple offers apply, the one with the lowest Priority wins.
+        /// Ties are broken by the highest discount amount.
+        /// </summary>
+        public int Priority { get; set; } = 0;
+
         // Navigation properties
         public ICollection<OfferProduct> OfferProducts { get; set; } = new List<OfferProduct>();
+        public ICollection<OfferCategory> OfferCategories { get; set; } = new List<OfferCategory>();
     }
 }

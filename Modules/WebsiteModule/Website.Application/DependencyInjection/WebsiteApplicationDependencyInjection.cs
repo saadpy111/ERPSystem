@@ -21,6 +21,8 @@ namespace Website.Application.DependencyInjection
 
             // Application services
             services.AddScoped<IPricingService, PricingService>();
+            services.AddScoped<IOfferEligibilityService, OfferEligibilityService>();
+            services.AddScoped<ICouponService, CouponService>();
             services.AddScoped<IProductPricingService, ProductPricingService>();
 
             // Cross-module services (consumed by IdentityModule)

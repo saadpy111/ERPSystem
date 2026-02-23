@@ -32,10 +32,10 @@ namespace Website.Api.Controllers
         /// <summary>
         /// Get the current user's cart.
         /// </summary>
-        [HttpGet]
-        public async Task<IActionResult> GetCart()
+        [HttpGet("{CouponCode}")]
+        public async Task<IActionResult> GetCart(string? CouponCode)
         {
-            var response = await _mediator.Send(new GetCartQueryRequest { UserId = GetUserId() });
+            var response = await _mediator.Send(new GetCartQueryRequest { UserId = GetUserId() , CouponCode = CouponCode });
             return Ok(response.Cart);
         }
 
@@ -55,7 +55,7 @@ namespace Website.Api.Controllers
             var response = await _mediator.Send(command);
             if (!response.Success) return BadRequest(response.Message);
             
-            return await GetCart();
+            return await GetCart(null);
         }
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Website.Api.Controllers
             var response = await _mediator.Send(command);
             if (!response.Success) return NotFound(response.Message);
             
-            return await GetCart();
+            return await GetCart(null);
         }
 
         /// <summary>

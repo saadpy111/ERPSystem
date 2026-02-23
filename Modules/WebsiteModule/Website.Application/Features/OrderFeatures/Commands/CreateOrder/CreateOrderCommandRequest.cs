@@ -13,5 +13,6 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
         public string Country { get; set; } = string.Empty;
         public string ZipCode { get; set; } = string.Empty;
         public string? Notes { get; set; }
+        public string? CouponCode { get; set; }
     }
 }

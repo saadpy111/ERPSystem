@@ -44,6 +44,10 @@ namespace SharedKernel.Constants.Permissions
         // ===== ORDERS (E-Commerce) =====
         public const string OrdersView = "Website.Orders.View";
         public const string OrdersManage = "Website.Orders.Manage";
+
+        // ===== COUPONS (E-Commerce) =====
+        public const string CouponsView = "Website.Coupons.View";
+        public const string CouponsManage = "Website.Coupons.Manage";
     }
 }
 

@@ -3,6 +3,7 @@ using SharedKernel.Multitenancy;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Application.Services;
 using Website.Domain.Entities;
+using Website.Domain.Enums;
 
 namespace Website.Application.Features.CartFeatures.Queries.GetCart
 {
@@ -11,19 +12,29 @@ namespace Website.Application.Features.CartFeatures.Queries.GetCart
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITenantProvider _tenantProvider;
         private readonly IPricingService _pricingService;
+        private readonly IOfferEligibilityService _offerEligibilityService;
+        private readonly ICouponService _couponService;
 
         public GetCartQueryHandler(
-            IUnitOfWork unitOfWork, 
+            IUnitOfWork unitOfWork,
             ITenantProvider tenantProvider,
-            IPricingService pricingService)
+            IPricingService pricingService,
+            IOfferEligibilityService offerEligibilityService,
+            ICouponService couponService)
         {
             _unitOfWork = unitOfWork;
             _tenantProvider = tenantProvider;
             _pricingService = pricingService;
+            _offerEligibilityService = offerEligibilityService;
+            _couponService = couponService;
         }
 
-        public async Task<GetCartQueryResponse> Handle(GetCartQueryRequest request, CancellationToken cancellationToken)
+        public async Task<GetCartQueryResponse> Handle(
+            GetCartQueryRequest request,
+            CancellationToken cancellationToken)
         {
+            var tenantId = _tenantProvider.GetTenantId() ?? string.Empty;
+
             var cartRepo = _unitOfWork.Repository<Cart>();
             var cart = await cartRepo.GetFirstAsync(
                 c => c.UserId == request.UserId && !c.IsCheckedOut,
@@ -32,7 +43,6 @@ namespace Website.Application.Features.CartFeatures.Queries.GetCart
 
             if (cart == null)
             {
-                // Return empty cart
                 return new GetCartQueryResponse
                 {
                     Cart = new CartDto
@@ -46,35 +56,58 @@ namespace Website.Application.Features.CartFeatures.Queries.GetCart
                 };
             }
 
-            // Load products for items
+            // Load products
             var productRepo = _unitOfWork.Repository<WebsiteProduct>();
             var productIds = cart.Items.Select(i => i.ProductId).ToList();
-            var products = await productRepo.GetAllAsync(p => productIds.Contains(p.Id));
 
-            // OPTIMIZATION: Build product-to-offers lookup dictionary once
-            var productOffersLookup = await BuildProductOffersLookup(productIds);
+            var products = await productRepo.GetAllAsync(
+                p => productIds.Contains(p.Id),
+                p => p.Images);
 
-            // Calculate estimated pricing with offers
+            var productsDict = products.ToDictionary(p => p.Id);
+
+            // 1. Handle Coupon Preview
+            Coupon? couponToPreview = null;
+            if (!string.IsNullOrWhiteSpace(request.CouponCode))
+            {
+                var cartSubtotal = cart.Items.Sum(i => i.Quantity * i.UnitPrice);
+                var validationResult = await _couponService.ValidateCouponAsync(
+                    request.CouponCode,
+                    request.UserId,
+                    cartSubtotal,
+                    cancellationToken);
+
+                if (validationResult.IsValid)
+                {
+                    couponToPreview = validationResult.Coupon;
+                }
+            }
+
+            // 2. Build Offers Lookup (Skip if exclusive coupon)
+            var skipOffers = couponToPreview != null && !couponToPreview.CanBeCombinedWithOffers;
+            var offersLookup = skipOffers
+                ? new Dictionary<Guid, List<Offer>>()
+                : await _offerEligibilityService.BuildProductOffersLookup(products, tenantId, cancellationToken);
+
             var cartItems = new List<CartItemDto>();
-            decimal totalDiscount = 0;
+            decimal subtotal = 0;
+            decimal totalOfferDiscount = 0;
 
             foreach (var item in cart.Items)
             {
-                var product = products.FirstOrDefault(p => p.Id == item.ProductId);
-                var itemSubtotal = item.Quantity * item.UnitPrice;
+                var product = productsDict.ContainsKey(item.ProductId) ? productsDict[item.ProductId] : null;
 
-                // Get pre-filtered offers for this specific product (O(1) lookup)
-                var applicableOffers = productOffersLookup.ContainsKey(item.ProductId)
-                    ? productOffersLookup[item.ProductId]
-                    : new List<Offer>();
+                var lineSubtotal = item.Quantity * item.UnitPrice;
+                subtotal += lineSubtotal;
 
-                // Calculate best offer using only relevant offers
-                var offerResult = _pricingService.CalculateBestOffer(
-                    item.UnitPrice, 
-                    item.Quantity, 
+                var applicableOffers = offersLookup.TryGetValue(item.ProductId, out var list) ? list : new List<Offer>();
+
+                var pricing = _pricingService.CalculateBestOffer(
+                    item.UnitPrice,
+                    item.Quantity,
                     applicableOffers);
 
-                totalDiscount += offerResult.DiscountAmount;
+                totalOfferDiscount += pricing.DiscountAmount;
 
                 cartItems.Add(new CartItemDto
                 {
@@ -84,64 +117,36 @@ namespace Website.Application.Features.CartFeatures.Queries.GetCart
                     ProductImageUrl = product?.Images?.FirstOrDefault()?.ImagePath,
                     Quantity = item.Quantity,
                     UnitPrice = item.UnitPrice,
-                    Subtotal = itemSubtotal,
-                    IsAvailable = product?.IsAvailable ?? false,
-                    EstimatedDiscount = offerResult.DiscountAmount,
-                    EstimatedFinalPrice = offerResult.FinalPrice,
-                    AppliedOfferName = offerResult.AppliedOfferName
+                    Subtotal = lineSubtotal,
+                    EstimatedDiscount = pricing.DiscountAmount,
+                    EstimatedFinalPrice = pricing.FinalPrice,
+                    AppliedOfferName = pricing.AppliedOfferName,
+                    IsAvailable = product?.IsAvailable ?? false
                 });
             }
 
-            var subtotal = cart.Items.Sum(i => i.Quantity * i.UnitPrice);
-
-            var cartDto = new CartDto
+            // 3. Calculate Estimated Coupon Discount
+            decimal couponDiscountAmount = 0;
+            if (couponToPreview != null)
             {
-                Id = cart.Id,
-                UserId = cart.UserId,
-                Items = cartItems,
-                Subtotal = subtotal,
-                EstimatedDiscountTotal = totalDiscount,
-                EstimatedTotal = subtotal - totalDiscount
-            };
-
-            return new GetCartQueryResponse { Cart = cartDto };
-        }
-
-        /// <summary>
-        /// Build a lookup dictionary mapping ProductId to applicable active offers.
-        /// This eliminates nested loops by pre-processing offers once.
-        /// </summary>
-        /// <param name="productIds">Products in the cart</param>
-        /// <returns>Dictionary mapping ProductId to List of applicable Offers</returns>
-        private async Task<Dictionary<Guid, List<Offer>>> BuildProductOffersLookup(List<Guid> productIds)
-        {
-            var offerRepo = _unitOfWork.Repository<Offer>();
-            var now = DateTime.UtcNow;
-
-            var activeOffers = await offerRepo.GetAllAsync(
-                o => o.IsActive && o.StartDate <= now && o.EndDate >= now,
-                o => o.OfferProducts);
-
-            var lookup = new Dictionary<Guid, List<Offer>>();
-
-            foreach (var offer in activeOffers)
-            {
-                foreach (var op in offer.OfferProducts)
-                {
-                    if (!productIds.Contains(op.ProductId))
-                        continue;
-
-                    if (!lookup.TryGetValue(op.ProductId, out var list))
-                    {
-                        list = new List<Offer>();
-                        lookup[op.ProductId] = list;
-                    }
-
-                    list.Add(offer);
-                }
+                var amountAfterOffers = subtotal - totalOfferDiscount;
+                couponDiscountAmount = _couponService.CalculateCouponDiscount(couponToPreview, amountAfterOffers);
             }
 
-            return lookup;
+            return new GetCartQueryResponse
+            {
+                Cart = new CartDto
+                {
+                    Id = cart.Id,
+                    UserId = cart.UserId,
+                    Items = cartItems,
+                    Subtotal = subtotal,
+                    EstimatedDiscountTotal = totalOfferDiscount,
+                    EstimatedCouponDiscount = couponDiscountAmount,
+                    AppliedCouponCode = couponToPreview?.Code,
+                    EstimatedTotal = subtotal - (totalOfferDiscount + couponDiscountAmount)
+                }
+            };
         }
     }
 }

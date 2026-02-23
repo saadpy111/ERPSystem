@@ -37,10 +37,13 @@ namespace Website.Persistence.Context
         public DbSet<ProductCollectionItem> ProductCollectionItems => Set<ProductCollectionItem>();
         public DbSet<Offer> Offers => Set<Offer>();
         public DbSet<OfferProduct> OfferProducts => Set<OfferProduct>();
+        public DbSet<OfferCategory> OfferCategories => Set<OfferCategory>();
         public DbSet<Cart> Carts => Set<Cart>();
         public DbSet<CartItem> CartItems => Set<CartItem>();
         public DbSet<Order> Orders => Set<Order>();
         public DbSet<OrderItem> OrderItems => Set<OrderItem>();
+        public DbSet<Coupon> Coupons => Set<Coupon>();
+        public DbSet<CouponUsage> CouponUsages => Set<CouponUsage>();
         public DbSet<WebsiteProductImage> WebsiteProductImages => Set<WebsiteProductImage>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -85,6 +88,9 @@ namespace Website.Persistence.Context
             modelBuilder.Entity<OfferProduct>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
+            modelBuilder.Entity<OfferCategory>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
             modelBuilder.Entity<Cart>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
@@ -95,6 +101,12 @@ namespace Website.Persistence.Context
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
             modelBuilder.Entity<OrderItem>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<Coupon>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<CouponUsage>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
             modelBuilder.Entity<WebsiteProductImage>()
@@ -114,10 +126,13 @@ namespace Website.Persistence.Context
             modelBuilder.Entity<ProductCollectionItem>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<Offer>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<OfferProduct>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<OfferCategory>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<Cart>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<CartItem>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<Order>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<OrderItem>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<Coupon>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<CouponUsage>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<WebsiteProductImage>().HasIndex(e => e.TenantId);
         }
 

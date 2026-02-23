@@ -17,12 +17,22 @@ namespace Website.Application.Features.CartFeatures.Queries.GetCart
         public decimal Subtotal { get; set; }
         
         /// <summary>
-        /// Estimated total discount from active offers (preview only).
+        /// Estimated total discount from active offers (line-level).
         /// </summary>
         public decimal EstimatedDiscountTotal { get; set; }
+
+        /// <summary>
+        /// Estimated discount from applied coupon (order-level).
+        /// </summary>
+        public decimal EstimatedCouponDiscount { get; set; }
+
+        /// <summary>
+        /// The coupon code currently being previewed.
+        /// </summary>
+        public string? AppliedCouponCode { get; set; }
         
         /// <summary>
-        /// Estimated final total after discounts (preview only).
+        /// Estimated final total after all discounts (preview only).
         /// </summary>
         public decimal EstimatedTotal { get; set; }
     }
