@@ -9,6 +9,8 @@ namespace Website.Domain.Enums
         Paid = 1,
         Shipped = 2,
         Delivered = 3,
-        Cancelled = 4
+        Cancelled = 4,
+        Processing = 5,
+        Completed = 6
     }
 }
