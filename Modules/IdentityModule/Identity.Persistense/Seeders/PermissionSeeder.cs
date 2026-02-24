@@ -17,13 +17,12 @@ namespace Identity.Persistense.Seeders
 
         public async Task SeedAsync()
         {
-            // Check if ANY permissions exist globally
-            if (await _context.Permissions.AnyAsync())
-            {
-                return; // Already seeded
-            }
+            // Get existing permission names from DB
+            var existingPermissionNames = await _context.Permissions
+                .Select(p => p.Name)
+                .ToListAsync();
 
-            // Get all permissions from SharedKernel using reflection
+            // Get all permissions from SharedKernel
             var permissionsByModule = Permissions.GetPermissionsByModule();
             var permissionEntities = new List<Permission>();
 
@@ -31,19 +30,27 @@ namespace Identity.Persistense.Seeders
             {
                 foreach (var permissionName in module.Value)
                 {
-                    permissionEntities.Add(new Permission
+                    // Only add if not already in DB
+                    if (!existingPermissionNames.Contains(permissionName))
                     {
-                        Id = Guid.NewGuid().ToString(),
-                        Name = permissionName,
-                        Module = module.Key,
-                        Description = GenerateDescription(permissionName),
-                        CreatedAt = DateTime.UtcNow
-                    });
+                        permissionEntities.Add(new Permission
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Name = permissionName,
+                            Module = module.Key,
+                            Description = GenerateDescription(permissionName),
+                            CreatedAt = DateTime.UtcNow
+                        });
+                    }
                 }
             }
 
-            await _context.Permissions.AddRangeAsync(permissionEntities);
-            await _context.SaveChangesAsync();
+            // Add only new ones
+            if (permissionEntities.Any())
+            {
+                await _context.Permissions.AddRangeAsync(permissionEntities);
+                await _context.SaveChangesAsync();
+            }
         }
 
         private string GenerateDescription(string permissionName)
