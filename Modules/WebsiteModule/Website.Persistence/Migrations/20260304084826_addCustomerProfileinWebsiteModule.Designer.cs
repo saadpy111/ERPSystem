@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Website.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Website.Persistence.Context;
 namespace Website.Persistence.Migrations
 {
     [DbContext(typeof(WebsiteDbContext))]
-    partial class WebsiteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260304084826_addCustomerProfileinWebsiteModule")]
+    partial class addCustomerProfileinWebsiteModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,76 +201,6 @@ namespace Website.Persistence.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("CouponUsages", "Website");
-                });
-
-            modelBuilder.Entity("Website.Domain.Entities.CustomerAnalytics", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<double>("AverageDaysBetweenOrders")
-                        .HasColumnType("float");
-
-                    b.Property<decimal>("AverageOrderValue")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("FavoritePurchaseDay")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime?>("FirstOrderDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LastOrderDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("MostPurchasedCategory")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<int>("OrdersCount")
-                        .HasColumnType("int");
-
-                    b.Property<double>("ReturnRate")
-                        .HasColumnType("float");
-
-                    b.Property<int>("ReturnedItems")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TenantId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("TotalItemsPurchased")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("TotalSpent")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TenantId");
-
-                    b.HasIndex("TenantId", "UserId")
-                        .IsUnique();
-
-                    b.ToTable("CustomerAnalytics", "Website");
                 });
 
             modelBuilder.Entity("Website.Domain.Entities.CustomerProfile", b =>

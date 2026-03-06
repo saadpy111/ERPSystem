@@ -222,7 +222,10 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
 
         private static string GenerateOrderNumber()
         {
-            return $"ORD-{DateTime.UtcNow:yyyyMMdd}-{Guid.NewGuid():N}"[..8].ToUpper();
+            var time = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+            var unique = Guid.NewGuid().ToString("N")[..6].ToUpper();
+
+            return $"ORD-{time}-{unique}";
         }
     }
 }

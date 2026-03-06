@@ -8,7 +8,7 @@ using Website.Persistence.Context;
 
 namespace Website.Persistence.Repositories
 {
-    public class OrderRepository : GenericRepository<Order>, IOrderRepository
+    public class OrderRepository : GenericRepository<Order>, Application.Contracts.Persistence.Repositories.IOrderRepository
     {
         public OrderRepository(WebsiteDbContext context) : base(context)
         {
@@ -20,12 +20,6 @@ namespace Website.Persistence.Repositories
             CancellationToken cancellationToken)
         {
             var query = _dbSet.AsNoTracking();
-
-            // Tenant filtering is handled by Global Query Filter usually, 
-            // but the requirement asks for tenantId in the method. 
-            // In this architecture, it's likely handled by the context, 
-            // but I'll add explicitly if needed or rely on base.
-            // Assuming tenantId is for safety or multi-tenant scope validation.
 
             if (filter.Status.HasValue)
             {
@@ -198,6 +192,42 @@ namespace Website.Persistence.Repositories
                 .FirstOrDefaultAsync(cancellationToken);
 
             return stats ?? new AdminDashboardStatsDto();
+        }
+
+        public async Task<Order?> GetOrderForAnalyticsAsync(Guid orderId, CancellationToken cancellationToken = default)
+        {
+            return await _dbSet
+                .Include(o => o.Items)
+                .FirstOrDefaultAsync(o => o.Id == orderId, cancellationToken);
+        }
+
+        public async Task<string?> GetFavoritePurchaseDayAsync(string userId, CancellationToken cancellationToken)
+        {
+            var dates = await _context.Orders
+                .AsNoTracking()
+                .Where(o => o.UserId == userId)
+                .Select(o => o.OrderDate)
+                .ToListAsync(cancellationToken);
+
+            if (!dates.Any())
+                return null;
+
+            var favoriteDay = dates
+                .GroupBy(d => d.DayOfWeek)
+                .OrderByDescending(g => g.Count())
+                .Select(g => g.Key)
+                .FirstOrDefault();
+
+            return favoriteDay.ToString();
+        }
+        public async Task<string?> GetMostPurchasedCategoryAsync(string userId, CancellationToken cancellationToken = default)
+        {
+            return await _context.OrderItems.AsNoTracking()
+                .Where(i => i.Order.UserId == userId)
+                .GroupBy(i => i.Product.Category != null ? i.Product.Category.Name : "Uncategorized")
+                .OrderByDescending(g => g.Sum(i => i.Quantity))
+                .Select(g => g.Key)
+                .FirstOrDefaultAsync(cancellationToken);
         }
     }
 }

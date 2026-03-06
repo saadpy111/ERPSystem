@@ -4,6 +4,7 @@ using SharedKernel.Website;
 using Website.Application.Services;
 using Website.Application.Features.StorefrontFeatures.Services;
 using System.Reflection;
+using SharedKernel.Contracts;
 
 namespace Website.Application.DependencyInjection
 {

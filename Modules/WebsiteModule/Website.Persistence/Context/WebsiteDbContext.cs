@@ -45,6 +45,8 @@ namespace Website.Persistence.Context
         public DbSet<Coupon> Coupons => Set<Coupon>();
         public DbSet<CouponUsage> CouponUsages => Set<CouponUsage>();
         public DbSet<WebsiteProductImage> WebsiteProductImages => Set<WebsiteProductImage>();
+        public DbSet<CustomerProfile> CustomerProfiles => Set<CustomerProfile>();
+        public DbSet<CustomerAnalytics> CustomerAnalytics => Set<CustomerAnalytics>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -111,6 +113,12 @@ namespace Website.Persistence.Context
 
             modelBuilder.Entity<WebsiteProductImage>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<CustomerProfile>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<CustomerAnalytics>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
 
@@ -134,6 +142,8 @@ namespace Website.Persistence.Context
             modelBuilder.Entity<Coupon>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<CouponUsage>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<WebsiteProductImage>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<CustomerProfile>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<CustomerAnalytics>().HasIndex(e => e.TenantId);
         }
 
         /// <summary>

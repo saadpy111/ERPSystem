@@ -1,5 +1,7 @@
 ﻿using Identity.Application.Contracts.Persistence;
 using Identity.Application.Features.AccountFeature.Queries.GetAllAcounts;
+using Identity.Application.Services;
+using SharedKernel.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -23,6 +25,7 @@ namespace Identity.Application.DependencyInjection
                 options.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());
             });
 
+            services.AddScoped<IUserLookupService, UserLookupService>();
 
             return services;
         }

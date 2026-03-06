@@ -1,5 +1,6 @@
 using Website.Application.DTOs;
 using Website.Application.Pagination;
+using Website.Domain.Entities;
 
 namespace Website.Application.Contracts.Persistence.Repositories
 {
@@ -28,5 +29,9 @@ namespace Website.Application.Contracts.Persistence.Repositories
 
         Task<AdminDashboardStatsDto> GetAdminDashboardStatsAsync(
             CancellationToken cancellationToken);
+
+        Task<Order?> GetOrderForAnalyticsAsync(Guid orderId, CancellationToken cancellationToken = default);
+        Task<string?> GetFavoritePurchaseDayAsync(string userId, CancellationToken cancellationToken = default);
+        Task<string?> GetMostPurchasedCategoryAsync(string userId, CancellationToken cancellationToken = default);
     }
 }

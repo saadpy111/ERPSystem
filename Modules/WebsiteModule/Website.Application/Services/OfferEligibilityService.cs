@@ -51,7 +51,7 @@ namespace Website.Application.Services
 
             var lookup = new Dictionary<Guid, List<Offer>>();
 
-            // 2. Pre-group offers by scope for performance
+            // 2. Pre-group offers by scope 
             var globalOffers = activeOffers
                 .Where(o => o.ScopeType == OfferScopeType.AllProducts)
                 .ToList();
