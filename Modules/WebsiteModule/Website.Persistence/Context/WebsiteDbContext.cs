@@ -47,6 +47,8 @@ namespace Website.Persistence.Context
         public DbSet<WebsiteProductImage> WebsiteProductImages => Set<WebsiteProductImage>();
         public DbSet<CustomerProfile> CustomerProfiles => Set<CustomerProfile>();
         public DbSet<CustomerAnalytics> CustomerAnalytics => Set<CustomerAnalytics>();
+        public DbSet<WebsiteVisitorSession> WebsiteVisitorSessions => Set<WebsiteVisitorSession>();
+        public DbSet<WebsiteAnalyticsDaily> WebsiteAnalyticsDaily => Set<WebsiteAnalyticsDaily>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -119,6 +121,12 @@ namespace Website.Persistence.Context
 
             modelBuilder.Entity<CustomerAnalytics>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<WebsiteVisitorSession>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<WebsiteAnalyticsDaily>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
 
@@ -144,6 +152,8 @@ namespace Website.Persistence.Context
             modelBuilder.Entity<WebsiteProductImage>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<CustomerProfile>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<CustomerAnalytics>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<WebsiteVisitorSession>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<WebsiteAnalyticsDaily>().HasIndex(e => e.TenantId);
         }
 
         /// <summary>

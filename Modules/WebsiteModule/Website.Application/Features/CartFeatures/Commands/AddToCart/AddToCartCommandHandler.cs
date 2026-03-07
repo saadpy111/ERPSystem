@@ -1,3 +1,4 @@
+using Events.WebsiteEvents;
 using MediatR;
 using SharedKernel.Multitenancy;
 using Website.Application.Contracts.Persistence.Repositories;
@@ -10,15 +11,18 @@ namespace Website.Application.Features.CartFeatures.Commands.AddToCart
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebsiteProductRepository _productRepository;
         private readonly ITenantProvider _tenantProvider;
+        private readonly IMediator _mediator;
 
         public AddToCartCommandHandler(
             IUnitOfWork unitOfWork,
             IWebsiteProductRepository productRepository,
-            ITenantProvider tenantProvider)
+            ITenantProvider tenantProvider,
+            IMediator mediator)
         {
             _unitOfWork = unitOfWork;
             _productRepository = productRepository;
             _tenantProvider = tenantProvider;
+            _mediator = mediator;
         }
 
         public async Task<AddToCartCommandResponse> Handle(AddToCartCommandRequest request, CancellationToken cancellationToken)
@@ -76,7 +80,12 @@ namespace Website.Application.Features.CartFeatures.Commands.AddToCart
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+            await _mediator.Publish(new AddToCartEvent()
+            {
+                  CartId = cart.Id,
+                  ProductId = request.ProductId,
+                  TenantId = _tenantProvider.GetTenantId()??""  
+            });
             return new AddToCartCommandResponse
             {
                 Success = true,

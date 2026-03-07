@@ -9,79 +9,104 @@ namespace Website.Application.Consumers
     {
         private readonly IOrderRepository _orderRepository;
         private readonly ICustomerAnalyticsRepository _analyticsRepository;
+        private readonly IWebsiteAnalyticsRepository _websiteAnalyticsRepository;
 
         public OrderCreatedAnalyticsConsumer(
             IOrderRepository orderRepository,
-            ICustomerAnalyticsRepository analyticsRepository)
+            ICustomerAnalyticsRepository analyticsRepository,
+            IWebsiteAnalyticsRepository websiteAnalyticsRepository)
         {
             _orderRepository = orderRepository;
             _analyticsRepository = analyticsRepository;
+            _websiteAnalyticsRepository = websiteAnalyticsRepository;
         }
 
         public async Task Handle(OrderCreatedEvent notification, CancellationToken cancellationToken)
         {
-            // Use repository to fetch order with items
-            var order = await _orderRepository.GetOrderForAnalyticsAsync(notification.OrderId, cancellationToken);
+            //  Load order with items
+            var order = await _orderRepository.GetOrderForAnalyticsAsync(
+                notification.OrderId,
+                cancellationToken);
 
-            if (order == null) return;
+            if (order == null)
+                return;
 
-            // Use repository to fetch analytics record
-            var analytics = await _analyticsRepository.GetByUserIdAsync(order.UserId, cancellationToken);
+            //  Load customer analytics
+            var analytics = await _analyticsRepository.GetByUserIdAsync(
+                order.UserId,
+                cancellationToken);
 
-            bool isNew = false;
+            var isNew = analytics == null;
+
             if (analytics == null)
             {
                 analytics = new CustomerAnalytics
                 {
                     UserId = order.UserId,
                     TenantId = order.TenantId,
-                    FirstOrderDate = order.OrderDate
+                    FirstOrderDate = order.OrderDate,
+                    OrdersCount = 0,
+                    TotalSpent = 0,
+                    TotalItemsPurchased = 0,
+                    ReturnedItems = 0
                 };
-                isNew = true;
-            }
-            else
-            {
-                // Ensure we are working with a fresh tracked entity for updates
-                // (Though GetByUserIdAsync used AsNoTracking, we'll update via repository)
             }
 
-            // Update basic stats
+            //  Update purchase metrics
             analytics.OrdersCount += 1;
             analytics.TotalSpent += order.TotalAmount;
-            analytics.AverageOrderValue = analytics.TotalSpent / analytics.OrdersCount;
-            
-            // Average Days Between Orders
+
+            analytics.AverageOrderValue =
+                analytics.OrdersCount > 0
+                    ? analytics.TotalSpent / analytics.OrdersCount
+                    : 0;
+
+            //  Average days between orders
             if (analytics.LastOrderDate.HasValue)
             {
-                var daysSinceLast = (order.OrderDate - analytics.LastOrderDate.Value).TotalDays;
+                var daysSinceLast =
+                    (order.OrderDate - analytics.LastOrderDate.Value).TotalDays;
+
                 if (analytics.OrdersCount > 1)
                 {
-                    int intervals = analytics.OrdersCount - 1;
-                    analytics.AverageDaysBetweenOrders = ((analytics.AverageDaysBetweenOrders * (intervals - 1)) + daysSinceLast) / intervals;
+                    var intervals = analytics.OrdersCount - 1;
+
+                    analytics.AverageDaysBetweenOrders =
+                        ((analytics.AverageDaysBetweenOrders * (intervals - 1))
+                        + daysSinceLast) / intervals;
                 }
                 else
                 {
                     analytics.AverageDaysBetweenOrders = daysSinceLast;
                 }
             }
-            
+
             analytics.LastOrderDate = order.OrderDate;
 
-            // Total items purchased
+            //  Total items purchased
             var orderItemsCount = order.Items.Sum(i => i.Quantity);
             analytics.TotalItemsPurchased += orderItemsCount;
 
-            // Return stats
-            analytics.ReturnRate = analytics.TotalItemsPurchased > 0 
-                ? (double)analytics.ReturnedItems / analytics.TotalItemsPurchased * 100 
-                : 0;
+            // Return rate
+            analytics.ReturnRate =
+                analytics.TotalItemsPurchased > 0
+                    ? (double)analytics.ReturnedItems / analytics.TotalItemsPurchased * 100
+                    : 0;
 
             analytics.UpdatedAt = DateTime.UtcNow;
 
-            // Use repository for complex behavior stats
-            analytics.FavoritePurchaseDay = await _orderRepository.GetFavoritePurchaseDayAsync(order.UserId, cancellationToken);
-            analytics.MostPurchasedCategory = await _orderRepository.GetMostPurchasedCategoryAsync(order.UserId, cancellationToken);
+            //  Behavior metrics
+            analytics.FavoritePurchaseDay =
+                await _orderRepository.GetFavoritePurchaseDayAsync(
+                    order.UserId,
+                    cancellationToken);
 
+            analytics.MostPurchasedCategory =
+                await _orderRepository.GetMostPurchasedCategoryAsync(
+                    order.UserId,
+                    cancellationToken);
+
+            // Persist analytics
             if (isNew)
             {
                 await _analyticsRepository.CreateAsync(analytics, cancellationToken);
@@ -90,6 +115,13 @@ namespace Website.Application.Consumers
             {
                 await _analyticsRepository.UpdateAsync(analytics, cancellationToken);
             }
+
+            // Update website funnel analytics
+            await _websiteAnalyticsRepository.IncrementOrdersAsync(cancellationToken);
+
+            await _websiteAnalyticsRepository.AddRevenueAsync(
+                order.TotalAmount,
+                cancellationToken);
         }
     }
 }

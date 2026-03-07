@@ -8,6 +8,7 @@ using Report.Persistence.Seeders;
 using SharedKernel.Middleware;
 using Subscription.Persistence.Context;
 using Subscription.Persistence.Seeders;
+using Website.Api.Middleware;
 using Website.Persistence.Context;
 using Website.Persistence.Seeders;
 
@@ -86,6 +87,7 @@ namespace Inventory.Api
             // CRITICAL: Middleware order for multi-tenancy + authorization
             app.UseAuthentication();                         // 1. Authenticate user (JWT validation)
             app.UseMiddleware<TenantResolutionMiddleware>(); // 2. Extract tenant from JWT
+            app.UseMiddleware<VisitorTrackingMiddleware>(); // 3. Track visitor session
             //app.UseMiddleware<TenantRequiredMiddleware>();
             app.UseAuthorization();                          // 3. Check permissions (with tenant context)
 
