@@ -11,6 +11,8 @@ namespace Website.Domain.Enums
         Delivered = 3,
         Cancelled = 4,
         Processing = 5,
-        Completed = 6
+        Completed = 6,
+        Returned = 7,
+        Failed = 8
     }
 }

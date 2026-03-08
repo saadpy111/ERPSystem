@@ -34,6 +34,7 @@ namespace Website.Persistence.DependencyInjection
             services.AddScoped<ICustomerAnalyticsRepository, CustomerAnalyticsRepository>();
             services.AddScoped<IWebsiteAnalyticsRepository, WebsiteAnalyticsRepository>();
             services.AddScoped<IVisitorSessionRepository,VisitorSessionRepository > ();
+            services.AddScoped<IAnalyticsRepository, AnalyticsRepository>();
 
             // Legacy Repositories (existing)
             services.AddScoped<IThemeRepository, ThemeRepository>();
