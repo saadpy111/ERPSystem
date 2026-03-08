@@ -1,14 +1,11 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatR;
-using System.Threading.Tasks;
-using Website.Application.Features.AnalyticsFeatures;
 using Website.Application.DTOs;
 using Website.Application.Features.AnalyticsFeatures.Queries.GetAnalyticsDashboard;
 using Website.Application.Features.AnalyticsFeatures.Queries.GetProductRevenue;
 using Website.Application.Features.AnalyticsFeatures.Queries.GetCategoryRevenue;
 using Website.Application.Pagination;
-using System;
+using Website.Application.Features.AnalyticsFeatures.Queries.GetDashboardKpis;
 
 namespace Website.Api.Controllers
 {

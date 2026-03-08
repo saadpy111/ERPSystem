@@ -4,7 +4,7 @@ using MediatR;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Application.DTOs;
 
-namespace Website.Application.Features.AnalyticsFeatures
+namespace Website.Application.Features.AnalyticsFeatures.Queries.GetDashboardKpis
 {
     public class GetDashboardKpisQueryHandler : IRequestHandler<GetDashboardKpisQuery, DashboardKpiDto>
     {

@@ -2,7 +2,7 @@ using System;
 using MediatR;
 using Website.Application.DTOs;
 
-namespace Website.Application.Features.AnalyticsFeatures
+namespace Website.Application.Features.AnalyticsFeatures.Queries.GetDashboardKpis
 {
     public class GetDashboardKpisQuery : IRequest<DashboardKpiDto>
     {

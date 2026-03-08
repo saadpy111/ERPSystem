@@ -63,7 +63,7 @@ namespace Website.Api.Middleware
                         HttpOnly = true,
                         Secure = true,
                         SameSite = SameSiteMode.Lax,
-                        Expires = DateTime.UtcNow.AddDays(30)
+                        Expires = DateTime.UtcNow.AddDays(1)
                     });
             }
 
