@@ -46,8 +46,28 @@ namespace Website.Persistence.Configurations
                 config.ToJson();
                 
                 config.OwnsOne(c => c.Colors);
-                config.OwnsOne(c => c.Hero);
-                config.OwnsMany(c => c.Sections);
+                config.OwnsOne(c => c.Hero, hero =>
+                {
+                    hero.OwnsOne(h => h.Title, title =>
+                    {
+                        title.OwnsOne(t => t.Style);
+                    });
+
+                    hero.OwnsOne(h => h.Subtitle, subtitle =>
+                    {
+                        subtitle.OwnsOne(s => s.Style);
+                    });
+
+                    hero.OwnsOne(h => h.ButtonText, button =>
+                    {
+                        button.OwnsOne(b => b.Style);
+                    });
+
+                    hero.OwnsOne(h => h.BackgroundImage, image =>
+                    {
+                        image.OwnsOne(i => i.Style);
+                    });
+                }); config.OwnsMany(c => c.Sections);
             });
         }
     }

@@ -1,5 +1,6 @@
 using Identity.Application.Contracts.Persistence;
 using Identity.Persistense.Context;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Identity.Persistense
 {
@@ -18,6 +19,10 @@ namespace Identity.Persistense
         public async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
             return await _context.SaveChangesAsync(cancellationToken);
+        }
+        public async Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken)
+        {
+            return await _context.Database.BeginTransactionAsync(cancellationToken);
         }
     }
 }

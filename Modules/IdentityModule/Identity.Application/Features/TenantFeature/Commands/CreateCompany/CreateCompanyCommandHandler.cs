@@ -65,230 +65,293 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
         public async Task<CreateCompanyResponse> Handle(CreateCompanyCommand request, CancellationToken cancellationToken)
         {
-            // ===== VALIDATION =====
-            var createdTenant =  await _tenantDomainResolver.GetTenantByDomainAsync(request.Domain);
-            if(createdTenant!=null)
-                return new CreateCompanyResponse { Error = "Domain is occupied", Success = false };
-
-
-            if (string.IsNullOrWhiteSpace(request.SiteName))
-                return new CreateCompanyResponse { Error = "SiteName is required" , Success = false };
-
-            if (string.IsNullOrWhiteSpace(request.Domain))
-                return new CreateCompanyResponse { Error = "Domain is required", Success = false };
-
-            if (string.IsNullOrWhiteSpace(request.BusinessType))
-                return new CreateCompanyResponse { Error = "BusinessType is required", Success = false };
-
-            if (request.Logo == null)
-                return new CreateCompanyResponse { Error = "Logo is required", Success = false };
-
-
-            var user = await _authRepository.FindByIdAsync(request.UserId);
-            if (user == null)
-                return new CreateCompanyResponse { Success = false, Error = "User not found." };
-            
-
-            if (user.TenantId != null)
-                return new CreateCompanyResponse { Success = false, Error = "User already belongs to a company." };
-
-            if (user.State != UserTenantState.PendingTenant)
-                return new CreateCompanyResponse { Success = false, Error = "User is not in pending tenant state." };
-
-            if (await _tenantRepository.ExistsAsync(request.CompanyCode))
-                return new CreateCompanyResponse { Success = false, Error = "Company code already exists." };
-
-            if (string.IsNullOrWhiteSpace(request.PlanCode))
-                return new CreateCompanyResponse { Success = false, Error = "Subscription plan selection is required" };
-
-            if (string.IsNullOrWhiteSpace(request.CurrencyCode))
-                return new CreateCompanyResponse { Success = false, Error = "Currency selection is required" };
-
-
-            // ===== STEP 1: CREATE TENANT (IdentityModule responsibility) =====
-            
-            var tenant = await _tenantRepository.CreateAsync(new Tenant
+            using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
+            try
             {
-                Id = Guid.NewGuid().ToString(),
-                Name = request.CompanyName,
-                Code = request.CompanyCode.ToUpper(),
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow
-            });
-
-            // ===== STEP 2: ASSIGN USER TO TENANT =====
-            
-            user.TenantId = tenant.Id;
-            user.State = UserTenantState.TenantOwner;
-            user.TenantJoinedAt = DateTime.UtcNow;
-            await _authRepository.UpdateAsync(user);
-
-            // ===== STEP 3: CREATE DEFAULT ROLES =====
-            
-            var defaultRoles = new[] 
-            { 
-                Roles.SuperAdmin, 
-                Roles.InventoryManager, 
-                Roles.HRManager, 
-                Roles.ProcurementManager, 
-                Roles.ReportViewer ,
-                Roles.WebsiteAdmin
-            };
 
 
-            var createdRoles = new List<ApplicationRole>();
+                // ===== VALIDATION =====
+                var createdTenant = await _tenantDomainResolver.GetTenantByDomainAsync(request.Domain);
+                if (createdTenant != null)
+                    return new CreateCompanyResponse { Error = "Domain is occupied", Success = false };
 
-            foreach (var roleName in defaultRoles)
-            {
-                var tenantRoleName = $"{roleName}_{tenant.Code}";
-                var role = new ApplicationRole
+
+                if (string.IsNullOrWhiteSpace(request.SiteName))
+                    return new CreateCompanyResponse { Error = "SiteName is required", Success = false };
+
+                if (string.IsNullOrWhiteSpace(request.Domain))
+                    return new CreateCompanyResponse { Error = "Domain is required", Success = false };
+
+                if (string.IsNullOrWhiteSpace(request.BusinessType))
+                    return new CreateCompanyResponse { Error = "BusinessType is required", Success = false };
+
+                if (request.Logo == null)
+                    return new CreateCompanyResponse { Error = "Logo is required", Success = false };
+
+
+                var user = await _authRepository.FindByIdAsync(request.UserId);
+                if (user == null)
+                    return new CreateCompanyResponse { Success = false, Error = "User not found." };
+
+
+                if (user.TenantId != null)
+                    return new CreateCompanyResponse { Success = false, Error = "User already belongs to a company." };
+
+                if (user.State != UserTenantState.PendingTenant)
+                    return new CreateCompanyResponse { Success = false, Error = "User is not in pending tenant state." };
+
+                if (await _tenantRepository.ExistsAsync(request.CompanyCode))
+                    return new CreateCompanyResponse { Success = false, Error = "Company code already exists." };
+
+                if (string.IsNullOrWhiteSpace(request.PlanCode))
+                    return new CreateCompanyResponse { Success = false, Error = "Subscription plan selection is required" };
+
+                if (string.IsNullOrWhiteSpace(request.CurrencyCode))
+                    return new CreateCompanyResponse { Success = false, Error = "Currency selection is required" };
+
+
+                // ===== STEP 1: CREATE TENANT (IdentityModule responsibility) =====
+
+                var tenant = await _tenantRepository.CreateAsync(new Tenant
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Name = tenantRoleName,
-                    NormalizedName = tenantRoleName.ToUpper(),
-                    TenantId = tenant.Id
-                };
+                    Name = request.CompanyName,
+                    Code = request.CompanyCode.ToUpper(),
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow
+                });
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-                var roleResult = await _roleManager.CreateAsync(role);
-                if (!roleResult.Succeeded)
+                // ===== STEP 2: ASSIGN USER TO TENANT =====
+
+                user.TenantId = tenant.Id;
+                user.State = UserTenantState.TenantOwner;
+                user.TenantJoinedAt = DateTime.UtcNow;
+                await _authRepository.UpdateAsync(user);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                // ===== STEP 3: CREATE DEFAULT ROLES =====
+
+                var defaultRoles = new[]
+                {
+                Roles.SuperAdmin,
+                Roles.InventoryManager,
+                Roles.HRManager,
+                Roles.ProcurementManager,
+                Roles.ReportViewer ,
+                 Roles.WebsiteAdmin
+               };
+
+
+                var createdRoles = new List<ApplicationRole>();
+
+                foreach (var roleName in defaultRoles)
+                {
+                    var tenantRoleName = $"{roleName}_{tenant.Code}";
+                    var role = new ApplicationRole
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = tenantRoleName,
+                        NormalizedName = tenantRoleName.ToUpper(),
+                        TenantId = tenant.Id
+                    };
+
+                    var roleResult = await _roleManager.CreateAsync(role);
+                    if (!roleResult.Succeeded)
+                    {
+                        return new CreateCompanyResponse
+                        {
+                            Success = false,
+                            Error = $"Failed to create role {roleName}: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}"
+                        };
+                    }
+                    createdRoles.Add(role);
+                }
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                // ===== STEP 4: CREATE SUBSCRIPTION (via SubscriptionModule) =====
+
+                var subscriptionResult = await _subscriptionService.CreateSubscriptionAsync(
+                    tenant.Id,
+                    tenant.Name,
+                    request.PlanCode,
+                    request.CurrencyCode,
+                    request.Interval
+                );
+
+                if (!subscriptionResult.Success)
                 {
                     return new CreateCompanyResponse
                     {
                         Success = false,
-                        Error = $"Failed to create role {roleName}: {string.Join(", ", roleResult.Errors.Select(e => e.Description))}"
+                        Error = subscriptionResult.Error ?? "Failed to create subscription"
                     };
                 }
-                createdRoles.Add(role);
-            }
 
-            // ===== STEP 4: CREATE SUBSCRIPTION (via SubscriptionModule) =====
-            
-            var subscriptionResult = await _subscriptionService.CreateSubscriptionAsync(
-                tenant.Id,
-                tenant.Name,
-                request.PlanCode,
-                request.CurrencyCode,
-                request.Interval
-            );
+                // ===== STEP 5: ASSIGN PERMISSIONS TO ROLES =====
 
-            if (!subscriptionResult.Success)
-            {
+                await AssignPermissionsToRolesBasedOnModules(tenant.Id, createdRoles, subscriptionResult.EnabledModules);
+
+                // ===== STEP 6: ASSIGN SUPERADMIN ROLE TO USER =====
+
+                var superAdminRole = createdRoles.FirstOrDefault(r => r.Name == $"{Roles.SuperAdmin}_{tenant.Code}");
+                if (superAdminRole != null)
+                {
+                    var userRole = new ApplicationUserRole
+                    {
+                        UserId = user.Id,
+                        RoleId = superAdminRole.Id,
+                        TenantId = tenant.Id,
+                        AssignedAt = DateTime.UtcNow,
+                        AssignedBy = user.Id
+                    };
+                    await _authRepository.AddUserRoleAsync(userRole);
+                }
+
+                // ===== COMMIT IDENTITY CHANGES =====
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+                // ===== STEP 7: PROCESS WEBSITE IMAGES (via WebsiteModule) =====
+                // Delegate file handling to WebsiteModule before initializing website
+
+                string logoUrl = string.Empty;
+                string heroBackgroundImageUrl = string.Empty;
+
+                if (request.Logo != null)
+                {
+                    logoUrl = await _websiteImageService.ProcessWebsiteLogoAsync(tenant.Id, request.Logo);
+                }
+
+                if (string.IsNullOrEmpty(request.ThemeCode) && request.HeroBackgroundImage != null)
+                {
+                    heroBackgroundImageUrl = await _websiteImageService.ProcessWebsiteHeroImageAsync(tenant.Id, request.HeroBackgroundImage);
+                }
+
+                // ===== STEP 8: INITIALIZE WEBSITE (via WebsiteModule) =====
+                // This is done AFTER tenant is committed and images are processed
+
+                var websiteRequest = new WebsiteInitializationRequest
+                {
+                    // Theme selection (determines mode)
+                    ThemeCode = request.ThemeCode,
+
+                    // Business data (always from user)
+                    SiteName = request.SiteName,
+                    Domain = request.Domain,
+                    BusinessType = request.BusinessType,
+                    LogoUrl = logoUrl,
+                    about_the_site = request.about_the_site,
+                    location = request.location,
+                    phone = request.phone,
+                    email = request.email,
+
+                    // Presentation data (used ONLY in Custom mode, IGNORED in Theme mode)
+                    // Map from flattened command properties
+                    Colors = string.IsNullOrEmpty(request.PrimaryColor) ? null : new WebsiteColors
+                    {
+                        Primary = request.PrimaryColor,
+                        Secondary = request.SecondaryColor ?? string.Empty,
+                        Background = request.BackgroundColor ?? string.Empty,
+                        Text = request.TextColor ?? string.Empty,
+                        FontFamily = request.FontFamily ?? "Neo Sans Arabic"
+                    },
+                    Hero = string.IsNullOrEmpty(request.HeroTitle) ? null : new WebsiteHero
+                    {
+                        Title = new WebsiteTextContent
+                        {
+                            Text = request.HeroTitle,
+                            Style = new WebsiteTextStyle
+                            {
+                                FontSize = request.HeroTitleFontSize ?? 16,
+                                FontWeight = request.HeroTitleFontWeight ?? WebsiteFontWeight.Normal,
+                                Color = request.HeroTitleColor ?? "#000000",
+                                Alignment = request.HeroTitleAlignment ?? WebsiteTextAlign.Left,
+                                HorizontalSpacing = request.HeroTitleHorizontalSpacing ?? 0,
+                                VerticalSpacing = request.HeroTitleVerticalSpacing ?? 0
+                            }
+                        },
+                        Subtitle = new WebsiteTextContent
+                        {
+                            Text = request.HeroSubtitle ?? string.Empty,
+                            Style = new WebsiteTextStyle
+                            {
+                                FontSize = request.HeroSubtitleFontSize ?? 16,
+                                FontWeight = request.HeroSubtitleFontWeight ?? WebsiteFontWeight.Normal,
+                                Color = request.HeroSubtitleColor ?? "#000000",
+                                Alignment = request.HeroSubtitleAlignment ?? WebsiteTextAlign.Left,
+                                HorizontalSpacing = request.HeroSubtitleHorizontalSpacing ?? 0,
+                                VerticalSpacing = request.HeroSubtitleVerticalSpacing ?? 0
+                            }
+                        },
+                        ButtonText = new WebsiteTextContent
+                        {
+                            Text = request.HeroButtonText ?? string.Empty,
+                            Style = new WebsiteTextStyle
+                            {
+                                FontSize = request.HeroButtonTextFontSize ?? 16,
+                                FontWeight = request.HeroButtonTextFontWeight ?? WebsiteFontWeight.Normal,
+                                Color = request.HeroButtonTextColor ?? "#000000",
+                                Alignment = request.HeroButtonTextAlignment ?? WebsiteTextAlign.Left,
+                                HorizontalSpacing = request.HeroButtonTextHorizontalSpacing ?? 0,
+                                VerticalSpacing = request.HeroButtonTextVerticalSpacing ?? 0
+                            }
+                        },
+                        BackgroundImage = new WebsiteImageContent
+                        {
+                            Url = heroBackgroundImageUrl,
+                            Style = new WebsiteImageStyle
+                            {
+                                BorderRadius = request.HeroBackgroundBorderRadius ?? 6,
+                                OverlayColor = request.HeroBackgroundOverlayColor ?? "#FFFFFF",
+                                OverlayOpacity = request.HeroBackgroundOverlayOpacity ?? 40
+                            }
+                        }
+                    },
+                    Sections = request.Sections
+                };
+
+                var websiteResult = await _websiteProvisioningService.InitializeTenantWebsiteAsync(
+                    tenant.Id,
+                    websiteRequest
+                );
+
+                if (!websiteResult.Success)
+                {
+                    // Website provisioning failed - return error but tenant is already created
+                    // In production, you might want to log this or handle differently
+                    return new CreateCompanyResponse
+                    {
+                        Success = false,
+                        Error = websiteResult.Error ?? "Failed to initialize website"
+                    };
+                }
+
+                // ===== STEP 9: GENERATE NEW JWT TOKEN =====
+
+                var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id);
+                var roles = new List<string> { $"{Roles.SuperAdmin}_{tenant.Code}" };
+                var newToken = _jwtTokenService.GenerateToken(user, roles, permissions, tenant.Id);
+                await transaction.CommitAsync(cancellationToken);
+
                 return new CreateCompanyResponse
                 {
-                    Success = false,
-                    Error = subscriptionResult.Error ?? "Failed to create subscription"
-                };
-            }
-
-            // ===== STEP 5: ASSIGN PERMISSIONS TO ROLES =====
-            
-            await AssignPermissionsToRolesBasedOnModules(tenant.Id, createdRoles, subscriptionResult.EnabledModules);
-
-            // ===== STEP 6: ASSIGN SUPERADMIN ROLE TO USER =====
-            
-            var superAdminRole = createdRoles.FirstOrDefault(r => r.Name == $"{Roles.SuperAdmin}_{tenant.Code}");
-            if (superAdminRole != null)
-            {
-                var userRole = new ApplicationUserRole
-                {
-                    UserId = user.Id,
-                    RoleId = superAdminRole.Id,
+                    Success = true,
                     TenantId = tenant.Id,
-                    AssignedAt = DateTime.UtcNow,
-                    AssignedBy = user.Id
+                    TenantName = tenant.Name,
+                    NewToken = newToken,
+                    SubscriptionPlanName = subscriptionResult.PlanName,
+                    IsTrial = subscriptionResult.IsTrial,
+                    TrialEndsAt = subscriptionResult.TrialEndsAt
                 };
-                await _authRepository.AddUserRoleAsync(userRole);
+
             }
-
-            // ===== COMMIT IDENTITY CHANGES =====
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            // ===== STEP 7: PROCESS WEBSITE IMAGES (via WebsiteModule) =====
-            // Delegate file handling to WebsiteModule before initializing website
-            
-            string logoUrl = string.Empty;
-            string heroBackgroundImageUrl = string.Empty;
-
-            if (request.Logo != null)
+            catch (Exception)
             {
-                logoUrl = await _websiteImageService.ProcessWebsiteLogoAsync(tenant.Id, request.Logo);
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
             }
-
-            if (string.IsNullOrEmpty(request.ThemeCode) && request.HeroBackgroundImage != null)
-            {
-                heroBackgroundImageUrl = await _websiteImageService.ProcessWebsiteHeroImageAsync(tenant.Id, request.HeroBackgroundImage);
-            }
-
-            // ===== STEP 8: INITIALIZE WEBSITE (via WebsiteModule) =====
-            // This is done AFTER tenant is committed and images are processed
-            
-            var websiteRequest = new WebsiteInitializationRequest
-            {
-                // Theme selection (determines mode)
-                ThemeCode = request.ThemeCode,
-                
-                // Business data (always from user)
-                SiteName = request.SiteName,
-                Domain = request.Domain,
-                BusinessType = request.BusinessType,
-                LogoUrl = logoUrl,
-                about_the_site = request.about_the_site,
-                location = request.location,
-                phone = request.phone,
-                email = request.email,
-                
-                // Presentation data (used ONLY in Custom mode, IGNORED in Theme mode)
-                // Map from flattened command properties
-                Colors = string.IsNullOrEmpty(request.PrimaryColor) ? null : new WebsiteColors
-                {
-                    Primary = request.PrimaryColor,
-                    Secondary = request.SecondaryColor ?? string.Empty,
-                    Background = request.BackgroundColor ?? string.Empty,
-                    Text = request.TextColor ?? string.Empty
-                },
-                Hero = string.IsNullOrEmpty(request.HeroTitle) ? null : new WebsiteHero
-                {
-                    Title = request.HeroTitle,
-                    Subtitle = request.HeroSubtitle ?? string.Empty,
-                    ButtonText = request.HeroButtonText ?? string.Empty,
-                    BackgroundImage = heroBackgroundImageUrl // Use generated path
-                },
-                Sections = request.Sections
-            };
-
-            var websiteResult = await _websiteProvisioningService.InitializeTenantWebsiteAsync(
-                tenant.Id,
-                websiteRequest
-            );
-
-            if (!websiteResult.Success)
-            {
-                // Website provisioning failed - return error but tenant is already created
-                // In production, you might want to log this or handle differently
-                return new CreateCompanyResponse
-                {
-                    Success = false,
-                    Error = websiteResult.Error ?? "Failed to initialize website"
-                };
-            }
-
-            // ===== STEP 9: GENERATE NEW JWT TOKEN =====
-            
-            var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id);
-            var roles = new List<string> { $"{Roles.SuperAdmin}_{tenant.Code}" };
-            var newToken = _jwtTokenService.GenerateToken(user, roles, permissions, tenant.Id);
-
-            return new CreateCompanyResponse
-            {
-                Success = true,
-                TenantId = tenant.Id,
-                TenantName = tenant.Name,
-                NewToken = newToken,
-                SubscriptionPlanName = subscriptionResult.PlanName,
-                IsTrial = subscriptionResult.IsTrial,
-                TrialEndsAt = subscriptionResult.TrialEndsAt
-            };
         }
+
 
         private async Task AssignPermissionsToRolesBasedOnModules(
             string tenantId, 

@@ -1,6 +1,7 @@
 using MediatR;
 using Website.Application.Contracts.Persistence;
 using Website.Application.DTOs;
+using Website.Domain.ValueObjects;
 using SharedKernel.Core.Files;
 
 namespace Website.Application.Features.Themes.Queries.GetAllThemes
@@ -10,7 +11,9 @@ namespace Website.Application.Features.Themes.Queries.GetAllThemes
         private readonly IThemeRepository _themeRepository;
         private readonly IFileUrlResolver _fileUrlResolver;
 
-        public GetAllThemesQueryHandler(IThemeRepository themeRepository, IFileUrlResolver fileUrlResolver)
+        public GetAllThemesQueryHandler(
+            IThemeRepository themeRepository,
+            IFileUrlResolver fileUrlResolver)
         {
             _themeRepository = themeRepository;
             _fileUrlResolver = fileUrlResolver;
@@ -20,36 +23,107 @@ namespace Website.Application.Features.Themes.Queries.GetAllThemes
         {
             var themes = await _themeRepository.GetAllAsync();
 
-            var themeDtos = themes.Select(t => {
-                var dto = new ThemeDto
-                {
-                    Id = t.Id,
-                    Code = t.Code,
-                    Name = t.Name,
-                    PreviewImage = _fileUrlResolver.Resolve(t.PreviewImage) ?? t.PreviewImage,
-                    IsActive = t.IsActive,
-                    Config = new Domain.ValueObjects.ThemeConfig
-                    {
-                        Colors = t.Config.Colors,
-                        Hero = new Domain.ValueObjects.HeroSection
-                        {
-                            Title = t.Config.Hero.Title,
-                            Subtitle = t.Config.Hero.Subtitle,
-                            ButtonText = t.Config.Hero.ButtonText,
-                            BackgroundImage = _fileUrlResolver.Resolve(t.Config.Hero.BackgroundImage) ?? t.Config.Hero.BackgroundImage
-                        },
-                        Sections = t.Config.Sections
-                    },
-                    CreatedAt = t.CreatedAt,
-                    UpdatedAt = t.UpdatedAt
-                };
-                return dto;
-            }).ToList();
+            var themeDtos = themes
+                .Select(MapThemeDto)
+                .ToList();
 
             return new GetAllThemesResponse
             {
                 Success = true,
                 Themes = themeDtos
+            };
+        }
+
+        private ThemeDto MapThemeDto(Domain.Entities.Theme theme)
+        {
+            var config = theme.Config ?? new ThemeConfig();
+
+            var hero = config.Hero ?? new HeroSection();
+
+            var title = hero.Title ?? new TextContent();
+            var subtitle = hero.Subtitle ?? new TextContent();
+            var buttonText = hero.ButtonText ?? new TextContent();
+
+            var bgImage = hero.BackgroundImage ?? new ImageContent();
+
+            var colors = config.Colors ?? new ThemeColors();
+
+            return new ThemeDto
+            {
+                Id = theme.Id,
+                Code = theme.Code,
+                Name = theme.Name,
+
+                PreviewImage =
+                    _fileUrlResolver.Resolve(theme.PreviewImage)
+                    ?? theme.PreviewImage,
+
+                IsActive = theme.IsActive,
+
+                Config = new ThemeConfig
+                {
+                    Colors = new ThemeColors
+                    {
+                        Primary = colors.Primary,
+                        Secondary = colors.Secondary,
+                        Background = colors.Background,
+                        Text = colors.Text,
+                        FontFamily = colors.FontFamily
+                    },
+
+                    Hero = new HeroSection
+                    {
+                        Title = MapTextContent(title),
+                        Subtitle = MapTextContent(subtitle),
+                        ButtonText = MapTextContent(buttonText),
+
+                        BackgroundImage = new ImageContent
+                        {
+                            Url =
+                                _fileUrlResolver.Resolve(bgImage.Url)
+                                ?? bgImage.Url
+                                ?? string.Empty,
+
+                            Style = new ImageStyle
+                            {
+                                BorderRadius = bgImage.Style?.BorderRadius ?? 6,
+                                OverlayColor = bgImage.Style?.OverlayColor ?? "#FFFFFF",
+                                OverlayOpacity = bgImage.Style?.OverlayOpacity ?? 40
+                            }
+                        }
+                    },
+
+                    Sections = config.Sections?
+                        .Select(s => new SectionItem
+                        {
+                            Id = s.Id,
+                            Enabled = s.Enabled,
+                            Order = s.Order
+                        })
+                        .ToList() ?? new()
+                },
+
+                CreatedAt = theme.CreatedAt,
+                UpdatedAt = theme.UpdatedAt
+            };
+        }
+
+        private static TextContent MapTextContent(TextContent src)
+        {
+            var style = src.Style ?? new TextStyle();
+
+            return new TextContent
+            {
+                Text = src.Text,
+                Style = new TextStyle
+                {
+                    FontSize = style.FontSize == 0 ? 16 : style.FontSize,
+                    FontWeight = style.FontWeight,
+                    Color = style.Color ?? "#000000",
+                    Alignment = style.Alignment,
+                    HorizontalSpacing = style.HorizontalSpacing,
+                    VerticalSpacing = style.VerticalSpacing
+                }
             };
         }
     }

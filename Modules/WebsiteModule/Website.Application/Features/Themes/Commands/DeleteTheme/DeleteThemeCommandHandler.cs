@@ -39,9 +39,9 @@ namespace Website.Application.Features.Themes.Commands.DeleteTheme
                 await _fileService.DeleteFileAsync(theme.PreviewImage);
             }
 
-            if (!string.IsNullOrEmpty(theme.Config.Hero.BackgroundImage))
+            if (!string.IsNullOrEmpty(theme.Config.Hero.BackgroundImage?.Url))
             {
-                await _fileService.DeleteFileAsync(theme.Config.Hero.BackgroundImage);
+                await _fileService.DeleteFileAsync(theme.Config.Hero.BackgroundImage.Url);
             }
 
             // Delete Record

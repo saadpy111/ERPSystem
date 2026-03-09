@@ -1,7 +1,9 @@
 using MediatR;
-using Website.Application.Contracts.Persistence;
 using SharedKernel.Website;
 using Website.Application.Contracts.Infrastruture.FileService;
+using Website.Application.Contracts.Persistence;
+using Website.Domain.Entities;
+using Website.Domain.Enums;
 using Website.Domain.ValueObjects;
 
 namespace Website.Application.Features.Themes.Commands.UpdateTheme
@@ -14,7 +16,7 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
         private readonly IFileService _fileService;
 
         public UpdateThemeCommandHandler(
-            IThemeRepository themeRepository, 
+            IThemeRepository themeRepository,
             IWebsiteUnitOfWork unitOfWork,
             IWebsiteImageService websiteImageService,
             IFileService fileService)
@@ -38,62 +40,191 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 };
             }
 
-            // Update theme properties (code cannot be changed)
+            EnsureConfigStructure(theme);
+
             theme.Name = request.Name;
             theme.IsActive = request.IsActive;
 
-            // Handle Preview Image Replacement
+            // ───────── Preview Image ─────────
             if (request.PreviewImageFile != null)
             {
-                // Delete old image
                 if (!string.IsNullOrEmpty(theme.PreviewImage))
-                {
                     await _fileService.DeleteFileAsync(theme.PreviewImage);
-                }
 
-                // Save new image
-                theme.PreviewImage = await _websiteImageService.ProcessThemePreviewImageAsync(theme.Code, request.PreviewImageFile);
+                theme.PreviewImage =
+                    await _websiteImageService.ProcessThemePreviewImageAsync(
+                        theme.Code,
+                        request.PreviewImageFile);
             }
 
-            // Handle Hero Background Image Replacement
+            // ───────── Hero Background Image ─────────
             if (request.HeroBackgroundImageFile != null)
             {
-                // Delete old image
-                if (!string.IsNullOrEmpty(theme.Config.Hero.BackgroundImage))
-                {
-                    await _fileService.DeleteFileAsync(theme.Config.Hero.BackgroundImage);
-                }
+                if (!string.IsNullOrEmpty(theme.Config.Hero.BackgroundImage.Url))
+                    await _fileService.DeleteFileAsync(theme.Config.Hero.BackgroundImage.Url);
 
-                // Save new image
-                theme.Config.Hero.BackgroundImage = await _websiteImageService.ProcessThemeHeroImageAsync(theme.Code, request.HeroBackgroundImageFile);
+                theme.Config.Hero.BackgroundImage.Url =
+                    await _websiteImageService.ProcessThemeHeroImageAsync(
+                        theme.Code,
+                        request.HeroBackgroundImageFile);
             }
 
-            // Map flattened Colors
+            // ───────── Colors ─────────
             if (request.PrimaryColor != null)
-            {
                 theme.Config.Colors.Primary = request.PrimaryColor;
-                theme.Config.Colors.Secondary = request.SecondaryColor ?? theme.Config.Colors.Secondary;
-                theme.Config.Colors.Background = request.BackgroundColor ?? theme.Config.Colors.Background;
-                theme.Config.Colors.Text = request.TextColor ?? theme.Config.Colors.Text;
-            }
 
-            // Map flattened Hero Text
-            if (request.HeroTitle != null)
-            {
-                theme.Config.Hero.Title = request.HeroTitle;
-                theme.Config.Hero.Subtitle = request.HeroSubtitle ?? theme.Config.Hero.Subtitle;
-                theme.Config.Hero.ButtonText = request.HeroButtonText ?? theme.Config.Hero.ButtonText;
-            }
+            if (request.SecondaryColor != null)
+                theme.Config.Colors.Secondary = request.SecondaryColor;
 
+            if (request.BackgroundColor != null)
+                theme.Config.Colors.Background = request.BackgroundColor;
+
+            if (request.TextColor != null)
+                theme.Config.Colors.Text = request.TextColor;
+
+            if (request.FontFamily != null)
+                theme.Config.Colors.FontFamily = request.FontFamily;
+
+            // ───────── Hero Title ─────────
+            UpdateTextContent(
+                theme.Config.Hero.Title,
+                request.HeroTitle,
+                request.HeroTitleFontSize,
+                request.HeroTitleFontWeight,
+                request.HeroTitleColor,
+                request.HeroTitleAlignment,
+                request.HeroTitleHorizontalSpacing,
+                request.HeroTitleVerticalSpacing);
+
+            // ───────── Hero Subtitle ─────────
+            UpdateTextContent(
+                theme.Config.Hero.Subtitle,
+                request.HeroSubtitle,
+                request.HeroSubtitleFontSize,
+                request.HeroSubtitleFontWeight,
+                request.HeroSubtitleColor,
+                request.HeroSubtitleAlignment,
+                request.HeroSubtitleHorizontalSpacing,
+                request.HeroSubtitleVerticalSpacing);
+
+            // ───────── Hero Button ─────────
+            UpdateTextContent(
+                theme.Config.Hero.ButtonText,
+                request.HeroButtonText,
+                request.HeroButtonTextFontSize,
+                request.HeroButtonTextFontWeight,
+                request.HeroButtonTextColor,
+                request.HeroButtonTextAlignment,
+                request.HeroButtonTextHorizontalSpacing,
+                request.HeroButtonTextVerticalSpacing);
+
+            // ───────── Hero Image Style ─────────
+            if (request.HeroBackgroundBorderRadius.HasValue)
+                theme.Config.Hero.BackgroundImage.Style.BorderRadius =
+                    request.HeroBackgroundBorderRadius.Value;
+
+            if (request.HeroBackgroundOverlayColor != null)
+                theme.Config.Hero.BackgroundImage.Style.OverlayColor =
+                    request.HeroBackgroundOverlayColor;
+
+            if (request.HeroBackgroundOverlayOpacity.HasValue)
+                theme.Config.Hero.BackgroundImage.Style.OverlayOpacity =
+                    request.HeroBackgroundOverlayOpacity.Value;
+
+            // ───────── Sections ─────────
             if (request.Sections != null)
             {
-                theme.Config.Sections = request.Sections;
+                theme.Config.Sections = request.Sections
+                    .Select(s => new SectionItem
+                    {
+                        Id = s.Id,
+                        Enabled = s.Enabled,
+                        Order = s.Order
+                    })
+                    .ToList();
             }
 
             await _themeRepository.UpdateAsync(theme);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new UpdateThemeResponse { Success = true };
+        }
+
+        // ───────────────── Helpers ─────────────────
+
+        private static void EnsureConfigStructure(Theme theme)
+        {
+            theme.Config ??= new ThemeConfig();
+            theme.Config.Colors ??= new ThemeColors();
+            theme.Config.Hero ??= new HeroSection();
+
+            theme.Config.Hero.Title ??= DefaultTextContent();
+            theme.Config.Hero.Subtitle ??= DefaultTextContent();
+            theme.Config.Hero.ButtonText ??= DefaultTextContent();
+            theme.Config.Hero.BackgroundImage ??= DefaultImageContent();
+        }
+
+        private static void UpdateTextContent(
+            TextContent target,
+            string? text,
+            int? fontSize,
+            FontWeight? weight,
+            string? color,
+            TextAlign? align,
+            int? hSpacing,
+            int? vSpacing)
+        {
+            if (text != null)
+                target.Text = text;
+
+            if (fontSize.HasValue)
+                target.Style.FontSize = fontSize.Value;
+
+            if (weight.HasValue)
+                target.Style.FontWeight = weight.Value;
+
+            if (color != null)
+                target.Style.Color = color;
+
+            if (align.HasValue)
+                target.Style.Alignment = align.Value;
+
+            if (hSpacing.HasValue)
+                target.Style.HorizontalSpacing = hSpacing.Value;
+
+            if (vSpacing.HasValue)
+                target.Style.VerticalSpacing = vSpacing.Value;
+        }
+
+        private static TextContent DefaultTextContent()
+        {
+            return new TextContent
+            {
+                Text = "",
+                Style = new TextStyle
+                {
+                    FontSize = 16,
+                    FontWeight = FontWeight.Normal,
+                    Color = "#000000",
+                    Alignment = TextAlign.Left,
+                    HorizontalSpacing = 0,
+                    VerticalSpacing = 0
+                }
+            };
+        }
+
+        private static ImageContent DefaultImageContent()
+        {
+            return new ImageContent
+            {
+                Url = "",
+                Style = new ImageStyle
+                {
+                    BorderRadius = 6,
+                    OverlayColor = "#FFFFFF",
+                    OverlayOpacity = 40
+                }
+            };
         }
     }
 }

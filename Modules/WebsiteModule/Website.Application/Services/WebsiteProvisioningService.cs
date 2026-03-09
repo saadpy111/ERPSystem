@@ -8,34 +8,21 @@ namespace Website.Application.Services
 {
     /// <summary>
     /// Implementation of IWebsiteProvisioningService.
-    /// 
+    ///
     /// STRICT BUSINESS RULES (NON-NEGOTIABLE):
     /// ═══════════════════════════════════════════════════════════════
     /// CASE 1: THEME MODE
-    /// ═══════════════════════════════════════════════════════════════
-
     /// - Business data: FROM USER
-    /// - Colors & Hero: FROM THEME ONLY
+    /// - Colors & Hero: FROM THEME ONLY (full snapshot)
     /// - Sections:
     ///   - From USER if provided
     ///   - Otherwise fallback to THEME
     /// - NO merging of Colors or Hero
-
-    /// 
-    /// ═══════════════════════════════════════════════════════════════
-    /// CASE 2: CUSTOM MODE (ThemeCode is NULL)
-    /// ═══════════════════════════════════════════════════════════════
-    /// - Business data: FROM USER (required)
-    /// - Presentation data: FROM USER (REQUIRED - validation error if missing)
-    /// - NO backend defaults - we do NOT invent UI decisions
-    /// 
-    /// ═══════════════════════════════════════════════════════════════
-    /// FORBIDDEN BEHAVIOR:
-    /// ═══════════════════════════════════════════════════════════════
-    /// - Setting default Colors, Hero, or Sections in backend code
-    /// - Merging user input with Theme configuration
-    /// - Allowing user input to override Theme presentation
-    /// - Creating implicit UI decisions
+    ///
+    /// CASE 2: CUSTOM MODE
+    /// - Business data: FROM USER
+    /// - Presentation data: FROM USER
+    /// - Defaults applied for missing nested style fields
     /// </summary>
     public class WebsiteProvisioningService : IWebsiteProvisioningService
     {
@@ -43,10 +30,10 @@ namespace Website.Application.Services
         private readonly ITenantWebsiteRepository _tenantWebsiteRepository;
         private readonly IWebsiteUnitOfWork _unitOfWork;
 
-        public WebsiteProvisioningService(
-            IThemeRepository themeRepository,
-            ITenantWebsiteRepository tenantWebsiteRepository,
-            IWebsiteUnitOfWork unitOfWork)
+    public WebsiteProvisioningService(
+        IThemeRepository themeRepository,
+        ITenantWebsiteRepository tenantWebsiteRepository,
+        IWebsiteUnitOfWork unitOfWork)
         {
             _themeRepository = themeRepository;
             _tenantWebsiteRepository = tenantWebsiteRepository;
@@ -57,19 +44,10 @@ namespace Website.Application.Services
             string tenantId,
             WebsiteInitializationRequest request)
         {
-       
-
-            // Check if tenant already has a website
             if (await _tenantWebsiteRepository.ExistsAsync(tenantId))
                 return Fail("Tenant website already exists");
 
             TenantWebsite tenantWebsite;
-
-            // ═══════════════════════════════════════════════════════════════
-            // CASE 1: THEME MODE
-            // Theme is provided → Presentation comes from THEME ONLY
-            // User's Colors, Hero, Sections from request if not then from theme
-            // ═══════════════════════════════════════════════════════════════
 
             Theme? theme = null;
             var hasThemeCode = !string.IsNullOrWhiteSpace(request.ThemeCode);
@@ -85,40 +63,30 @@ namespace Website.Application.Services
                 theme.IsActive;
 
             if (isValidActiveTheme)
-            {     
-             
-                // Prepare Sections => first from request , second from theme. 
+            {
                 var sections = request.Sections != null && request.Sections.Any()
-                ? request.Sections.Select(s => new SectionItem
-                {
-                    Id = s.Id,
-                    Enabled = s.Enabled,
-                    Order = s.Order
-                }).ToList()
-                : theme.Config.Sections.Select(s => new SectionItem
-                {
-                    Id = s.Id,
-                    Enabled = s.Enabled,
-                    Order = s.Order
-                }).ToList();
-
-
-
-                // Create TenantWebsite with Theme mode
-                // NOTE: User's presentation input:
-                // - Colors & Hero: IGNORED
-                // - Sections: used if provided, otherwise fallback to theme
+                    ? request.Sections.Select(s => new SectionItem
+                    {
+                        Id = s.Id,
+                        Enabled = s.Enabled,
+                        Order = s.Order
+                    }).ToList()
+                    : theme!.Config?.Sections?.Select(s => new SectionItem
+                    {
+                        Id = s.Id,
+                        Enabled = s.Enabled,
+                        Order = s.Order
+                    }).ToList() ?? new();
 
                 tenantWebsite = new TenantWebsite
                 {
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
                     Mode = WebsiteMode.Theme,
-                    ThemeId = theme.Id,
+                    ThemeId = theme!.Id,
                     IsPublished = true,
                     Config = new SiteConfig
                     {
-                        // Business data: FROM USER
                         SiteName = request.SiteName,
                         Domain = request.Domain,
                         BusinessType = request.BusinessType,
@@ -128,44 +96,14 @@ namespace Website.Application.Services
                         phone = request.phone,
                         email = request.email,
 
-                        // Presentation data: FROM THEME (snapshot copy)
-                        // User presentation input is IGNORED - theme always wins
-                        Colors = new ThemeColors
-                        {
-                            Primary = theme.Config.Colors.Primary,
-                            Secondary = theme.Config.Colors.Secondary,
-                            Background = theme.Config.Colors.Background,
-                            Text = theme.Config.Colors.Text
-                        },
-                        Hero = new HeroSection
-                        {
-                            Title = theme.Config.Hero.Title,
-                            Subtitle = theme.Config.Hero.Subtitle,
-                            ButtonText = theme.Config.Hero.ButtonText,
-                            BackgroundImage = theme.Config.Hero.BackgroundImage
-                        },
+                        Colors = SnapshotColors(theme.Config?.Colors),
+                        Hero = SnapshotHero(theme.Config?.Hero),
                         Sections = sections
-
-                
                     }
                 };
-
-
             }
-
-
-
-            // ═══════════════════════════════════════════════════════════════
-            // CASE 2: CUSTOM MODE
-            // No theme → Presentation MUST come from USER
-            // NO backend defaults - validation error if missing
-            // ═══════════════════════════════════════════════════════════════
-          
-            
             else
             {
-                // Create TenantWebsite with Custom mode
-                // ALL presentation data comes from user - NO defaults
                 tenantWebsite = new TenantWebsite
                 {
                     Id = Guid.NewGuid(),
@@ -175,7 +113,6 @@ namespace Website.Application.Services
                     IsPublished = true,
                     Config = new SiteConfig
                     {
-                        // Business data: FROM USER
                         SiteName = request.SiteName,
                         Domain = request.Domain,
                         BusinessType = request.BusinessType,
@@ -184,42 +121,181 @@ namespace Website.Application.Services
                         location = request.location,
                         phone = request.phone,
                         email = request.email,
-                        
-                        // Presentation data: FROM USER (no defaults)
-                        Colors = new ThemeColors
-                        {
-                            Primary = request.Colors.Primary,
-                            Secondary = request.Colors.Secondary,
-                            Background = request.Colors.Background,
-                            Text = request.Colors.Text
-                        },
-                        Hero = new HeroSection
-                        {
-                            Title = request.Hero.Title,
-                            Subtitle = request.Hero.Subtitle ?? string.Empty,
-                            ButtonText = request.Hero.ButtonText,
-                            BackgroundImage = request.Hero.BackgroundImage ?? string.Empty
-                        },
-                        Sections = request.Sections.Select(s => new SectionItem
+
+                        Colors = MapColors(request.Colors),
+                        Hero = MapHero(request.Hero),
+                        Sections = request.Sections?.Select(s => new SectionItem
                         {
                             Id = s.Id,
                             Enabled = s.Enabled,
                             Order = s.Order
-                        }).ToList()
+                        }).ToList() ?? new()
                     }
                 };
             }
 
-            // Persist
             await _tenantWebsiteRepository.CreateAsync(tenantWebsite);
             await _unitOfWork.SaveChangesAsync();
 
             return new WebsiteProvisioningResult { Success = true };
         }
 
+        private static ThemeColors SnapshotColors(ThemeColors? src) => new()
+        {
+            Primary = src?.Primary ?? "#000000",
+            Secondary = src?.Secondary ?? "#FFFFFF",
+            Background = src?.Background ?? "#FFFFFF",
+            Text = src?.Text ?? "#000000",
+            FontFamily = src?.FontFamily ?? "Neo Sans Arabic"
+        };
+
+        private static HeroSection SnapshotHero(HeroSection? src) => new()
+        {
+            Title = SnapshotTextContent(src?.Title),
+            Subtitle = SnapshotTextContent(src?.Subtitle),
+            ButtonText = SnapshotTextContent(src?.ButtonText),
+            BackgroundImage = SnapshotImageContent(src?.BackgroundImage)
+        };
+
+        private static TextContent SnapshotTextContent(TextContent? src)
+        {
+            if (src == null) return DefaultTextContent();
+
+            return new TextContent
+            {
+                Text = src.Text,
+                Style = new TextStyle
+                {
+                    FontSize = src.Style?.FontSize ?? 16,
+                    FontWeight = src.Style?.FontWeight ?? FontWeight.Normal,
+                    Color = src.Style?.Color ?? "#000000",
+                    Alignment = src.Style?.Alignment ?? TextAlign.Left,
+                    HorizontalSpacing = src.Style?.HorizontalSpacing ?? 0,
+                    VerticalSpacing = src.Style?.VerticalSpacing ?? 0
+                }
+            };
+        }
+
+        private static ImageContent SnapshotImageContent(ImageContent? src)
+        {
+            if (src == null) return DefaultImageContent();
+
+            return new ImageContent
+            {
+                Url = src.Url,
+                Style = new ImageStyle
+                {
+                    BorderRadius = src.Style?.BorderRadius ?? 6,
+                    OverlayColor = src.Style?.OverlayColor ?? "#FFFFFF",
+                    OverlayOpacity = src.Style?.OverlayOpacity ?? 40
+                }
+            };
+        }
+
+        private static ThemeColors MapColors(WebsiteColors? src) => new()
+        {
+            Primary = src?.Primary ?? string.Empty,
+            Secondary = src?.Secondary ?? string.Empty,
+            Background = src?.Background ?? string.Empty,
+            Text = src?.Text ?? string.Empty,
+            FontFamily = src?.FontFamily ?? "Neo Sans Arabic"
+        };
+
+        private static HeroSection MapHero(WebsiteHero? src)
+        {
+            if (src == null) return new HeroSection();
+
+            return new HeroSection
+            {
+                Title = MapTextContent(src.Title),
+                Subtitle = MapTextContent(src.Subtitle),
+                ButtonText = MapTextContent(src.ButtonText),
+                BackgroundImage = MapImageContent(src.BackgroundImage)
+            };
+        }
+
+        private static TextContent MapTextContent(WebsiteTextContent? src)
+        {
+            if (src == null) return DefaultTextContent();
+
+            var style = src.Style;
+
+            return new TextContent
+            {
+                Text = src.Text,
+                Style = new TextStyle
+                {
+                    FontSize = style?.FontSize ?? 16,
+                    FontWeight = MapFontWeight(style?.FontWeight),
+                    Color = style?.Color ?? "#000000",
+                    Alignment = MapTextAlign(style?.Alignment),
+                    HorizontalSpacing = style?.HorizontalSpacing ?? 0,
+                    VerticalSpacing = style?.VerticalSpacing ?? 0
+                }
+            };
+        }
+
+        private static ImageContent MapImageContent(WebsiteImageContent? src)
+        {
+            if (src == null) return DefaultImageContent();
+
+            var style = src.Style;
+
+            return new ImageContent
+            {
+                Url = src.Url,
+                Style = new ImageStyle
+                {
+                    BorderRadius = style?.BorderRadius ?? 6,
+                    OverlayColor = style?.OverlayColor ?? "#FFFFFF",
+                    OverlayOpacity = style?.OverlayOpacity ?? 40
+                }
+            };
+        }
+
+        private static FontWeight MapFontWeight(WebsiteFontWeight? w) => w switch
+        {
+            WebsiteFontWeight.Light => FontWeight.Light,
+            WebsiteFontWeight.Bold => FontWeight.Bold,
+            _ => FontWeight.Normal
+        };
+
+        private static TextAlign MapTextAlign(WebsiteTextAlign? a) => a switch
+        {
+            WebsiteTextAlign.Center => TextAlign.Center,
+            WebsiteTextAlign.Right => TextAlign.Right,
+            _ => TextAlign.Left
+        };
+
+        private static TextContent DefaultTextContent() => new()
+        {
+            Text = string.Empty,
+            Style = new TextStyle
+            {
+                FontSize = 16,
+                FontWeight = FontWeight.Normal,
+                Color = "#000000",
+                Alignment = TextAlign.Left,
+                HorizontalSpacing = 0,
+                VerticalSpacing = 0
+            }
+        };
+
+        private static ImageContent DefaultImageContent() => new()
+        {
+            Url = string.Empty,
+            Style = new ImageStyle
+            {
+                BorderRadius = 6,
+                OverlayColor = "#FFFFFF",
+                OverlayOpacity = 40
+            }
+        };
+
         private static WebsiteProvisioningResult Fail(string error)
         {
             return new WebsiteProvisioningResult { Success = false, Error = error };
         }
     }
+
 }

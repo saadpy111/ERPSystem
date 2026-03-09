@@ -2,6 +2,7 @@ using MediatR;
 using Website.Application.Contracts.Persistence;
 using Website.Domain.Entities;
 using SharedKernel.Website;
+using Website.Domain.Enums;
 using Website.Domain.ValueObjects;
 
 namespace Website.Application.Features.Themes.Commands.CreateTheme
@@ -13,7 +14,7 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
         private readonly IWebsiteImageService _websiteImageService;
 
         public CreateThemeCommandHandler(
-            IThemeRepository themeRepository, 
+            IThemeRepository themeRepository,
             IWebsiteUnitOfWork unitOfWork,
             IWebsiteImageService websiteImageService)
         {
@@ -24,34 +25,54 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
 
         public async Task<CreateThemeResponse> Handle(CreateThemeCommand request, CancellationToken cancellationToken)
         {
-            // Validate unique code
-            if (await _themeRepository.ExistsAsync(request.Code))
+            if (string.IsNullOrWhiteSpace(request.Code))
             {
                 return new CreateThemeResponse
                 {
                     Success = false,
-                    Error = $"Theme with code '{request.Code}' already exists"
+                    Error = "Theme code is required"
                 };
             }
 
-            // Process Images
+            if (string.IsNullOrWhiteSpace(request.Name))
+            {
+                return new CreateThemeResponse
+                {
+                    Success = false,
+                    Error = "Theme name is required"
+                };
+            }
+
+            var code = request.Code.Trim().ToLowerInvariant();
+
+            if (await _themeRepository.ExistsAsync(code))
+            {
+                return new CreateThemeResponse
+                {
+                    Success = false,
+                    Error = $"Theme with code '{code}' already exists"
+                };
+            }
+
             string previewImagePath = string.Empty;
             string heroBackgroundImagePath = string.Empty;
 
             if (request.PreviewImageFile != null)
             {
-                previewImagePath = await _websiteImageService.ProcessThemePreviewImageAsync(request.Code, request.PreviewImageFile);
+                previewImagePath = await _websiteImageService
+                    .ProcessThemePreviewImageAsync(code, request.PreviewImageFile);
             }
 
             if (request.HeroBackgroundImageFile != null)
             {
-                heroBackgroundImagePath = await _websiteImageService.ProcessThemeHeroImageAsync(request.Code, request.HeroBackgroundImageFile);
+                heroBackgroundImagePath = await _websiteImageService
+                    .ProcessThemeHeroImageAsync(code, request.HeroBackgroundImageFile);
             }
 
             var theme = new Theme
             {
                 Id = Guid.NewGuid(),
-                Code = request.Code,
+                Code = code,
                 Name = request.Name,
                 PreviewImage = previewImagePath,
                 IsActive = request.IsActive,
@@ -62,16 +83,57 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
                         Primary = request.PrimaryColor ?? string.Empty,
                         Secondary = request.SecondaryColor ?? string.Empty,
                         Background = request.BackgroundColor ?? string.Empty,
-                        Text = request.TextColor ?? string.Empty
+                        Text = request.TextColor ?? string.Empty,
+                        FontFamily = request.FontFamily ?? "Neo Sans Arabic"
                     },
+
                     Hero = new HeroSection
                     {
-                        Title = request.HeroTitle ?? string.Empty,
-                        Subtitle = request.HeroSubtitle ?? string.Empty,
-                        ButtonText = request.HeroButtonText ?? string.Empty,
-                        BackgroundImage = heroBackgroundImagePath
+                        Title = BuildTextContent(
+                            request.HeroTitle,
+                            request.HeroTitleFontSize,
+                            request.HeroTitleFontWeight,
+                            request.HeroTitleColor,
+                            request.HeroTitleAlignment,
+                            request.HeroTitleHorizontalSpacing,
+                            request.HeroTitleVerticalSpacing),
+
+                        Subtitle = BuildTextContent(
+                            request.HeroSubtitle,
+                            request.HeroSubtitleFontSize,
+                            request.HeroSubtitleFontWeight,
+                            request.HeroSubtitleColor,
+                            request.HeroSubtitleAlignment,
+                            request.HeroSubtitleHorizontalSpacing,
+                            request.HeroSubtitleVerticalSpacing),
+
+                        ButtonText = BuildTextContent(
+                            request.HeroButtonText,
+                            request.HeroButtonTextFontSize,
+                            request.HeroButtonTextFontWeight,
+                            request.HeroButtonTextColor,
+                            request.HeroButtonTextAlignment,
+                            request.HeroButtonTextHorizontalSpacing,
+                            request.HeroButtonTextVerticalSpacing),
+
+                        BackgroundImage = new ImageContent
+                        {
+                            Url = heroBackgroundImagePath,
+                            Style = new ImageStyle
+                            {
+                                BorderRadius = request.HeroBackgroundBorderRadius ?? 6,
+                                OverlayColor = request.HeroBackgroundOverlayColor ?? "#FFFFFF",
+                                OverlayOpacity = request.HeroBackgroundOverlayOpacity ?? 40
+                            }
+                        }
                     },
-                    Sections = request.Sections ?? new List<SectionItem>()
+
+                    Sections = request.Sections?.Select(s => new SectionItem
+                    {
+                        Id = s.Id,
+                        Enabled = s.Enabled,
+                        Order = s.Order
+                    }).ToList() ?? new List<SectionItem>()
                 }
             };
 
@@ -82,6 +144,30 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
             {
                 Success = true,
                 ThemeId = theme.Id
+            };
+        }
+
+        private static TextContent BuildTextContent(
+            string? text,
+            int? fontSize,
+            FontWeight? weight,
+            string? color,
+            TextAlign? align,
+            int? horizontalSpacing,
+            int? verticalSpacing)
+        {
+            return new TextContent
+            {
+                Text = text ?? string.Empty,
+                Style = new TextStyle
+                {
+                    FontSize = fontSize ?? 16,
+                    FontWeight = weight ?? FontWeight.Normal,
+                    Color = color ?? "#000000",
+                    Alignment = align ?? TextAlign.Left,
+                    HorizontalSpacing = horizontalSpacing ?? 0,
+                    VerticalSpacing = verticalSpacing ?? 0
+                }
             };
         }
     }

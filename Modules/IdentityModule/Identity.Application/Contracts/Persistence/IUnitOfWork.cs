@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Storage;
+
 namespace Identity.Application.Contracts.Persistence
 {
     /// <summary>
@@ -9,5 +11,6 @@ namespace Identity.Application.Contracts.Persistence
         /// Commits all changes to the database as a single transaction
         /// </summary>
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken cancellationToken);
     }
 }

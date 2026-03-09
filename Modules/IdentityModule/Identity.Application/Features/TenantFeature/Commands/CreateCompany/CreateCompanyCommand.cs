@@ -17,6 +17,11 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
     /// WEBSITE CONFIGURATION RULES:
     /// - If ThemeCode is provided: Presentation data (Colors, Hero, Sections) is IGNORED
     /// - If ThemeCode is null: Presentation data is REQUIRED
+    /// 
+    /// NEW PRESENTATION FIELDS:
+    /// - FontFamily for global website font
+    /// - Text styling per hero element (FontSize, FontWeight, Color, Alignment, Spacing)
+    /// - Image styling for hero background (BorderRadius, OverlayColor, OverlayOpacity)
     /// </summary>
     public class CreateCompanyCommand : IRequest<CreateCompanyResponse>
     {
@@ -39,7 +44,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         /// </summary>
         public string? ThemeCode { get; set; }
         
-        // Business data (always required)
+        // ── Business data (always required) ─────────────────────────────────
         public string SiteName { get; set; } = string.Empty;
         public string Domain { get; set; } = string.Empty;
         public string BusinessType { get; set; } = string.Empty;
@@ -48,23 +53,48 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         public string phone { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
         
-        // Uploaded Images
+        // ── Uploaded Images ──────────────────────────────────────────────────
         public IFormFile? Logo { get; set; }
         public IFormFile? HeroBackgroundImage { get; set; }
         
-        // Presentation data (required ONLY for Custom mode, ignored for Theme mode)
-        // Flattened to keep request flat for multipart/form-data support
-        
-        // Colors
+        // ── Colors (required ONLY for Custom mode, ignored for Theme mode) ───
         public string? PrimaryColor { get; set; }
         public string? SecondaryColor { get; set; }
         public string? BackgroundColor { get; set; }
         public string? TextColor { get; set; }
+        public string? FontFamily { get; set; }
         
-        // Hero Text
+        // ── Hero Title ───────────────────────────────────────────────────────
         public string? HeroTitle { get; set; }
+        public int? HeroTitleFontSize { get; set; }
+        public WebsiteFontWeight? HeroTitleFontWeight { get; set; }
+        public string? HeroTitleColor { get; set; }
+        public WebsiteTextAlign? HeroTitleAlignment { get; set; }
+        public int? HeroTitleHorizontalSpacing { get; set; }
+        public int? HeroTitleVerticalSpacing { get; set; }
+
+        // ── Hero Subtitle ────────────────────────────────────────────────────
         public string? HeroSubtitle { get; set; }
+        public int? HeroSubtitleFontSize { get; set; }
+        public WebsiteFontWeight? HeroSubtitleFontWeight { get; set; }
+        public string? HeroSubtitleColor { get; set; }
+        public WebsiteTextAlign? HeroSubtitleAlignment { get; set; }
+        public int? HeroSubtitleHorizontalSpacing { get; set; }
+        public int? HeroSubtitleVerticalSpacing { get; set; }
+
+        // ── Hero Button Text ─────────────────────────────────────────────────
         public string? HeroButtonText { get; set; }
+        public int? HeroButtonTextFontSize { get; set; }
+        public WebsiteFontWeight? HeroButtonTextFontWeight { get; set; }
+        public string? HeroButtonTextColor { get; set; }
+        public WebsiteTextAlign? HeroButtonTextAlignment { get; set; }
+        public int? HeroButtonTextHorizontalSpacing { get; set; }
+        public int? HeroButtonTextVerticalSpacing { get; set; }
+
+        // ── Hero Background Image Style ──────────────────────────────────────
+        public int? HeroBackgroundBorderRadius { get; set; }
+        public string? HeroBackgroundOverlayColor { get; set; }
+        public int? HeroBackgroundOverlayOpacity { get; set; }
         
         public List<WebsiteSection>? Sections { get; set; }
     }

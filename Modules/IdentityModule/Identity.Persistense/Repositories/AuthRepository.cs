@@ -67,6 +67,7 @@ namespace Identity.Persistense.Repositories
         public async Task UpdateAsync(ApplicationUser user)
         {
             await _userManager.UpdateAsync(user);
+           
         }
 
         public async Task<bool> RoleExistsAsync(string roleName)

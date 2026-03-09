@@ -42,7 +42,7 @@ namespace SharedKernel.Website
     }
 
     /// <summary>
-    /// Color configuration for website.
+    /// Color configuration for website, including global font family.
     /// REQUIRED for Custom mode. IGNORED for Theme mode.
     /// </summary>
     public class WebsiteColors
@@ -51,18 +51,74 @@ namespace SharedKernel.Website
         public string Secondary { get; set; } = string.Empty;
         public string Background { get; set; } = string.Empty;
         public string Text { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Global font family for the website. Default: "Neo Sans Arabic".
+        /// </summary>
+        public string FontFamily { get; set; } = "Neo Sans Arabic";
     }
+
+    // ─────────────────────────────────────────────────────────────────────────────
+    // Text Styling system (mirrors Domain ValueObjects, defined here for SharedKernel consumers)
+    // ─────────────────────────────────────────────────────────────────────────────
+
+    public enum WebsiteFontWeight
+    {
+        Light = 0,
+        Normal = 1,
+        Bold = 2
+    }
+
+    public enum WebsiteTextAlign
+    {
+        Left = 0,
+        Center = 1,
+        Right = 2
+    }
+
+    public class WebsiteTextStyle
+    {
+        public int FontSize { get; set; } = 16;
+        public WebsiteFontWeight FontWeight { get; set; } = WebsiteFontWeight.Normal;
+        public string Color { get; set; } = "#000000";
+        public WebsiteTextAlign Alignment { get; set; } = WebsiteTextAlign.Left;
+        public int HorizontalSpacing { get; set; } = 0;
+        public int VerticalSpacing { get; set; } = 0;
+    }
+
+    public class WebsiteTextContent
+    {
+        public string Text { get; set; } = string.Empty;
+        public WebsiteTextStyle Style { get; set; } = new();
+    }
+
+    public class WebsiteImageStyle
+    {
+        public int BorderRadius { get; set; } = 6;
+        public string OverlayColor { get; set; } = "#FFFFFF";
+        public int OverlayOpacity { get; set; } = 40;
+    }
+
+    public class WebsiteImageContent
+    {
+        public string Url { get; set; } = string.Empty;
+        public WebsiteImageStyle Style { get; set; } = new();
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────────
 
     /// <summary>
     /// Hero section configuration for website.
     /// REQUIRED for Custom mode. IGNORED for Theme mode.
+    /// All text fields are rich content (text + style).
+    /// BackgroundImage is image content (url + style).
     /// </summary>
     public class WebsiteHero
     {
-        public string Title { get; set; } = string.Empty;
-        public string Subtitle { get; set; } = string.Empty;
-        public string ButtonText { get; set; } = string.Empty;
-        public string BackgroundImage { get; set; } = string.Empty;
+        public WebsiteTextContent Title { get; set; } = new();
+        public WebsiteTextContent Subtitle { get; set; } = new();
+        public WebsiteTextContent ButtonText { get; set; } = new();
+        public WebsiteImageContent BackgroundImage { get; set; } = new();
     }
 
     /// <summary>

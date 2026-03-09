@@ -9,6 +9,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
     /// Handler for applying a theme to a tenant's website.
     /// CRITICAL: Theme is COPIED into SiteConfig (snapshot), not live-linked.
     /// Business data is NEVER overridden.
+    /// Supports rich text styling and image styling.
     /// </summary>
     public class ApplyThemeCommandHandler : IRequestHandler<ApplyThemeCommand, ApplyThemeResponse>
     {
@@ -30,7 +31,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
         {
             // Step 1: Load and validate theme
             var theme = await _themeRepository.GetByIdAsync(request.ThemeId);
-            
+
             if (theme == null)
             {
                 return new ApplyThemeResponse
@@ -51,10 +52,9 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
 
             // Step 2: Get or create tenant website
             var tenantWebsite = await _tenantWebsiteRepository.GetByTenantIdAsync(request.TenantId);
-            
+
             if (tenantWebsite == null)
             {
-                // Create new tenant website with theme
                 tenantWebsite = new Domain.Entities.TenantWebsite
                 {
                     Id = Guid.NewGuid(),
@@ -63,7 +63,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                     ThemeId = theme.Id,
                     Config = new SiteConfig
                     {
-                        // Business data starts empty (tenant must provide)
+                        // Business data starts empty
                         SiteName = string.Empty,
                         Domain = string.Empty,
                         BusinessType = string.Empty,
@@ -72,28 +72,16 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                         location = string.Empty,
                         phone = string.Empty,
                         email = string.Empty,
-                        
-                        // Presentation data COPIED from theme (SNAPSHOT)
-                        Colors = new ThemeColors
-                        {
-                            Primary = theme.Config.Colors.Primary,
-                            Secondary = theme.Config.Colors.Secondary,
-                            Background = theme.Config.Colors.Background,
-                            Text = theme.Config.Colors.Text
-                        },
-                        Hero = new HeroSection
-                        {
-                            Title = theme.Config.Hero.Title,
-                            Subtitle = theme.Config.Hero.Subtitle,
-                            ButtonText = theme.Config.Hero.ButtonText,
-                            BackgroundImage = theme.Config.Hero.BackgroundImage
-                        },
-                        Sections = theme.Config.Sections.Select(s => new SectionItem
+
+                        // Presentation snapshot
+                        Colors = SnapshotColors(theme.Config?.Colors),
+                        Hero = SnapshotHero(theme.Config?.Hero),
+                        Sections = theme.Config?.Sections?.Select(s => new SectionItem
                         {
                             Id = s.Id,
                             Enabled = s.Enabled,
                             Order = s.Order
-                        }).ToList()
+                        }).ToList() ?? new()
                     },
                     IsPublished = false
                 };
@@ -102,36 +90,19 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
             }
             else
             {
-                // PRESERVE business data, replace ONLY presentation data
-                var existingConfig = tenantWebsite.Config;
-                
+                // Preserve business data
                 tenantWebsite.Mode = WebsiteMode.Theme;
                 tenantWebsite.ThemeId = theme.Id;
-                
-                // Copy ONLY presentation data (Colors, Hero, Sections) - SNAPSHOT
-                tenantWebsite.Config.Colors = new ThemeColors
-                {
-                    Primary = theme.Config.Colors.Primary,
-                    Secondary = theme.Config.Colors.Secondary,
-                    Background = theme.Config.Colors.Background,
-                    Text = theme.Config.Colors.Text
-                };
-                tenantWebsite.Config.Hero = new HeroSection
-                {
-                    Title = theme.Config.Hero.Title,
-                    Subtitle = theme.Config.Hero.Subtitle,
-                    ButtonText = theme.Config.Hero.ButtonText,
-                    BackgroundImage = theme.Config.Hero.BackgroundImage
-                };
-                tenantWebsite.Config.Sections = theme.Config.Sections.Select(s => new SectionItem
+
+                tenantWebsite.Config.Colors = SnapshotColors(theme.Config?.Colors);
+                tenantWebsite.Config.Hero = SnapshotHero(theme.Config?.Hero);
+
+                tenantWebsite.Config.Sections = theme.Config?.Sections?.Select(s => new SectionItem
                 {
                     Id = s.Id,
                     Enabled = s.Enabled,
                     Order = s.Order
-                }).ToList();
-
-                // Business data (SiteName, Domain, BusinessType, LogoUrl, about_the_site, location, phone, email) PRESERVED
-                // They were NOT touched above
+                }).ToList() ?? new();
 
                 await _tenantWebsiteRepository.UpdateAsync(tenantWebsite);
             }
@@ -140,5 +111,50 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
 
             return new ApplyThemeResponse { Success = true };
         }
+
+        // Snapshot helpers
+
+
+        private static ThemeColors SnapshotColors(ThemeColors? src) => new()
+        {
+            Primary = src?.Primary ?? "#000000",
+            Secondary = src?.Secondary ?? "#ffffff",
+            Background = src?.Background ?? "#ffffff",
+            Text = src?.Text ?? "#000000",
+            FontFamily = src?.FontFamily ?? "Default"
+        };
+
+        private static HeroSection SnapshotHero(HeroSection? src) => new()
+        {
+            Title = SnapshotTextContent(src?.Title),
+            Subtitle = SnapshotTextContent(src?.Subtitle),
+            ButtonText = SnapshotTextContent(src?.ButtonText),
+            BackgroundImage = SnapshotImageContent(src?.BackgroundImage)
+        };
+
+        private static TextContent SnapshotTextContent(TextContent? src) => new()
+        {
+            Text = src?.Text ?? string.Empty,
+            Style = new TextStyle
+            {
+                FontSize = src?.Style?.FontSize ?? 16,
+                FontWeight = src?.Style?.FontWeight ?? FontWeight.Normal,
+                Color = src?.Style?.Color ?? "#000000",
+                Alignment = src?.Style?.Alignment ?? TextAlign.Left,
+                HorizontalSpacing = src?.Style?.HorizontalSpacing ?? 0,
+                VerticalSpacing = src?.Style?.VerticalSpacing ?? 0
+            }
+        };
+
+        private static ImageContent SnapshotImageContent(ImageContent? src) => new()
+        {
+            Url = src?.Url ?? string.Empty,
+            Style = new ImageStyle
+            {
+                BorderRadius = src?.Style?.BorderRadius ?? 6,
+                OverlayColor = src?.Style?.OverlayColor ?? "#FFFFFF",
+                OverlayOpacity = src?.Style?.OverlayOpacity ?? 40
+            }
+        };
     }
 }
