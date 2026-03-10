@@ -102,7 +102,7 @@ namespace Website.Api.Controllers
         /// </summary>
         [HttpPut("products/{id}/price")]
         [HasPermission(WebsitePermissions.ProductsEdit)]
-        public async Task<IActionResult> UpdatePrice(Guid id, [FromBody] decimal newPrice)
+        public async Task<IActionResult> UpdatePrice(Guid id, decimal newPrice)
         {
             var response = await _mediator.Send(new UpdateProductPriceCommandRequest
             {
@@ -116,12 +116,11 @@ namespace Website.Api.Controllers
         /// <summary>
         /// Update product images.
         /// </summary>
-        [HttpPut("products/{id}/images")]
+        [HttpPut("products/images")]
         [Consumes("multipart/form-data")]
         [HasPermission(WebsitePermissions.ProductsEdit)]
-        public async Task<IActionResult> UpdateImages(Guid id, [FromForm] UpdateWebsiteProductImagesCommandRequest request)
+        public async Task<IActionResult> UpdateImages([FromForm] UpdateWebsiteProductImagesCommandRequest request)
         {
-            request.ProductId = id;
             var response = await _mediator.Send(request);
             if (!response.Success) return BadRequest(response.Message);
             return Ok(response);

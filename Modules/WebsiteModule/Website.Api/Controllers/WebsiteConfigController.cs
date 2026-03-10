@@ -9,7 +9,8 @@ using System.Security.Claims;
 using Website.Application.Features.TenantWebsite.Commands.ApplyTheme;
 using Website.Application.Features.TenantWebsite.Commands.UpdateConfig;
 using Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteConfig;
-
+using Website.Application.Features.TenantWebsite.Queries.GetPublishStatus;
+using Website.Application.Features.TenantWebsite.Commands.TogglePublishStatus;
 namespace Website.Api.Controllers
 {
     /// <summary>
@@ -122,6 +123,52 @@ namespace Website.Api.Controllers
             if (!result.Success)
                 return BadRequest(new { error = result.Error });
             
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Get whether the website is published
+        /// </summary>
+        [HttpGet("publish-status")]
+        [Authorize]
+        [ProducesResponseType(typeof(GetWebsitePublishStatusResponse), 200)]
+        [ProducesResponseType(400)]
+        [HasPermission(WebsitePermissions.ConfigView)]
+        public async Task<IActionResult> GetPublishStatus()
+        {
+            var tenantId = GetTenantId();
+            
+            if (string.IsNullOrEmpty(tenantId))
+                return BadRequest(new { error = "Tenant context required" });
+
+            var result = await _mediator.Send(new GetWebsitePublishStatusQuery { TenantId = tenantId });
+
+            if (!result.Success)
+                return BadRequest(new { error = result.Error });
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Toggle the publication status of the website
+        /// </summary>
+        [HttpPut("toggle-publish")]
+        [Authorize]
+        [ProducesResponseType(typeof(ToggleWebsitePublishStatusResponse), 200)]
+        [ProducesResponseType(400)]
+        [HasPermission(WebsitePermissions.ConfigPublish)]
+        public async Task<IActionResult> TogglePublishStatus()
+        {
+            var tenantId = GetTenantId();
+            
+            if (string.IsNullOrEmpty(tenantId))
+                return BadRequest(new { error = "Tenant context required" });
+
+            var result = await _mediator.Send(new ToggleWebsitePublishStatusCommand { TenantId = tenantId });
+
+            if (!result.Success)
+                return BadRequest(new { error = result.Error });
+
             return Ok(result);
         }
     }
