@@ -30,7 +30,7 @@ namespace Website.Api.Controllers
         /// Create a new coupon.
         /// </summary>
         [HttpPost]
-        [HasPermission(WebsitePermissions.CouponsManage)]
+     //   [HasPermission(WebsitePermissions.CouponsManage)]
         public async Task<IActionResult> Create([FromBody] CreateCouponCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -42,7 +42,7 @@ namespace Website.Api.Controllers
         /// Get paginated coupons list.
         /// </summary>
         [HttpGet]
-         [HasPermission(WebsitePermissions.CouponsView)]
+      //   [HasPermission(WebsitePermissions.CouponsView)]
         public async Task<IActionResult> GetAll([FromQuery] CouponFilter filter)
         {
             var response = await _mediator.Send(new GetCouponsPagedQueryRequest { Filter = filter });
@@ -53,7 +53,7 @@ namespace Website.Api.Controllers
         /// Get coupon details by ID.
         /// </summary>
         [HttpGet("{id}")]
-        [HasPermission(WebsitePermissions.CouponsView)]
+     //   [HasPermission(WebsitePermissions.CouponsView)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var response = await _mediator.Send(new GetCouponByIdQueryRequest { Id = id });

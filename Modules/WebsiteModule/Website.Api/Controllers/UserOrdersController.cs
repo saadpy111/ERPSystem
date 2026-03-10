@@ -72,6 +72,38 @@ namespace Website.Api.Controllers
             
             return Ok(new { response.OrderId, response.OrderNumber });
         }
+
+        [HttpGet("order-status")]
+        [AllowAnonymous]
+        public IActionResult GetOrderStatus()
+        {
+            var values = Enum.GetValues(typeof(OrderStatus))
+                .Cast<OrderStatus>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Name = e.ToString()
+                })
+                .ToList();
+
+            return Ok(values);
+        }
+
+        [HttpGet("payment-method")]
+        [AllowAnonymous]
+        public IActionResult GetPaymentMethod()
+        {
+            var values = Enum.GetValues(typeof(PaymentMethod))
+                .Cast<PaymentMethod>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Name = e.ToString()
+                })
+                .ToList();
+
+            return Ok(values);
+        }
     }
 
     public record CheckoutRequest(

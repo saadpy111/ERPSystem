@@ -7,10 +7,11 @@ using SharedKernel.Multitenancy;
 using SharedKernel.Website;
 using System.Security.Claims;
 using Website.Application.Features.TenantWebsite.Commands.ApplyTheme;
-using Website.Application.Features.TenantWebsite.Commands.UpdateConfig;
-using Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteConfig;
-using Website.Application.Features.TenantWebsite.Queries.GetPublishStatus;
 using Website.Application.Features.TenantWebsite.Commands.TogglePublishStatus;
+using Website.Application.Features.TenantWebsite.Commands.UpdateConfig;
+using Website.Application.Features.TenantWebsite.Queries.GetPublishStatus;
+using Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteConfig;
+using Website.Domain.Enums;
 namespace Website.Api.Controllers
 {
     /// <summary>
@@ -171,7 +172,62 @@ namespace Website.Api.Controllers
 
             return Ok(result);
         }
+
+
+
+
+        [HttpGet("font-weights")]
+        public IActionResult GetFontWeights()
+        {
+            var values = Enum.GetValues(typeof(FontWeight))
+                .Cast<FontWeight>()
+                .Select(e => new 
+                {
+                    Value = (int)e,
+                    Name = e.ToString()
+                })
+                .ToList();
+
+            return Ok(values);
+        }
+
+
+        [HttpGet("text-align")]
+        public IActionResult GetTextAlign()
+        {
+            var values = Enum.GetValues(typeof(TextAlign))
+                .Cast<TextAlign>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Name = e.ToString()
+                })
+                .ToList();
+
+            return Ok(values);
+        }
+
+        [HttpGet("website-mode")]
+        public IActionResult GetWebsiteMode()
+        {
+            var values = Enum.GetValues(typeof(WebsiteMode))
+                .Cast<WebsiteMode>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Name = e.ToString()
+                })
+                .ToList();
+
+            return Ok(values);
+        }
     }
+
+
+    
+
+
+
 
     public class ApplyThemeRequest
     {

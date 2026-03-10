@@ -137,6 +137,40 @@ namespace Website.Api.Controllers
             if (!response.Success) return NotFound(response.Message);
             return NoContent();
         }
+
+        [HttpGet("discount-type")]
+        [AllowAnonymous]
+        public IActionResult GetDiscountType()
+        {
+            var values = Enum.GetValues(typeof(DiscountType))
+                .Cast<DiscountType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Name = e.ToString()
+                })
+                .ToList();
+
+            return Ok(values);
+        }
+
+        [HttpGet("offer-scope")]
+        [AllowAnonymous]
+        public IActionResult GetOfferScpoe()
+        {
+            var values = Enum.GetValues(typeof(OfferScopeType))
+                .Cast<OfferScopeType>()
+                .Select(e => new
+                {
+                    Value = (int)e,
+                    Name = e.ToString()
+                })
+                .ToList();
+
+            return Ok(values);
+        }
+
+
     }
 
     // Request DTOs (used only for HTTP binding, not domain logic)
