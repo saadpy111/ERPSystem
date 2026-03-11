@@ -31,9 +31,11 @@ namespace Website.Api.Controllers
             _mediator = mediator;
         }
 
+
         /// <summary>
         /// Get all offers.
         /// </summary>
+        /// 
         [HttpGet]
         [HasPermission(WebsitePermissions.OffersView)]
         public async Task<IActionResult> GetAll([FromQuery] bool? isActive = null)

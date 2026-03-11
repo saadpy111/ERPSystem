@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Website.Application.Features.CollectionFeatures.Commands.CreateCollection
 {
@@ -7,7 +8,7 @@ namespace Website.Application.Features.CollectionFeatures.Commands.CreateCollect
         public string Name { get; set; } = string.Empty;
         public string? Slug { get; set; }
         public string? Description { get; set; }
-        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
         public int DisplayOrder { get; set; } = 0;
     }
 }

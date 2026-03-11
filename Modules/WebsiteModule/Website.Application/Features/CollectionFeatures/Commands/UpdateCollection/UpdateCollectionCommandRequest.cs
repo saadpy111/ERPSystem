@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 
 namespace Website.Application.Features.CollectionFeatures.Commands.UpdateCollection
 {
@@ -8,7 +9,7 @@ namespace Website.Application.Features.CollectionFeatures.Commands.UpdateCollect
         public string? Name { get; set; }
         public string? Slug { get; set; }
         public string? Description { get; set; }
-        public string? ImageUrl { get; set; }
+        public IFormFile? Image { get; set; }
         public bool? IsActive { get; set; }
         public int? DisplayOrder { get; set; }
     }

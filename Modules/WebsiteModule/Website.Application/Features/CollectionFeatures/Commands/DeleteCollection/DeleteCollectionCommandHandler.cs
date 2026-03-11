@@ -1,4 +1,5 @@
 using MediatR;
+using Website.Application.Contracts.Infrastruture.FileService;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Domain.Entities;
 
@@ -7,10 +8,12 @@ namespace Website.Application.Features.CollectionFeatures.Commands.DeleteCollect
     public class DeleteCollectionCommandHandler : IRequestHandler<DeleteCollectionCommandRequest, DeleteCollectionCommandResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IFileService _fileService;
 
-        public DeleteCollectionCommandHandler(IUnitOfWork unitOfWork)
+        public DeleteCollectionCommandHandler(IUnitOfWork unitOfWork, IFileService fileService)
         {
             _unitOfWork = unitOfWork;
+            _fileService = fileService;
         }
 
         public async Task<DeleteCollectionCommandResponse> Handle(DeleteCollectionCommandRequest request, CancellationToken cancellationToken)
@@ -25,6 +28,11 @@ namespace Website.Application.Features.CollectionFeatures.Commands.DeleteCollect
                     Success = false,
                     Message = "Collection not found."
                 };
+            }
+
+            if (!string.IsNullOrEmpty(collection.ImageUrl))
+            {
+                await _fileService.DeleteFileAsync(collection.ImageUrl);
             }
 
             repo.Remove(collection);

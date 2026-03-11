@@ -29,7 +29,7 @@ namespace Website.Domain.Entities
         /// <summary>
         /// Whether the collection is visible on storefront.
         /// </summary>
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; } = false;
 
         /// <summary>
         /// Display order for sorting collections.

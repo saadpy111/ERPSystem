@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Authorization;
@@ -58,7 +59,7 @@ namespace Website.Api.Controllers
         /// </summary>
         [HttpPost]
         [HasPermission(WebsitePermissions.CollectionsManage)]
-        public async Task<IActionResult> Create([FromBody] CreateCollectionCommandRequest request)
+        public async Task<IActionResult> Create([FromForm] CreateCollectionCommandRequest request)
         {
             var response = await _mediator.Send(request);
             if (!response.Success) return BadRequest(response.Message);
@@ -70,7 +71,7 @@ namespace Website.Api.Controllers
         /// </summary>
         [HttpPut("{id}")]
         [HasPermission(WebsitePermissions.CollectionsManage)]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateCollectionRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromForm] UpdateCollectionRequest request)
         {
             var command = new UpdateCollectionCommandRequest
             {
@@ -78,7 +79,7 @@ namespace Website.Api.Controllers
                 Name = request.Name,
                 Slug = request.Slug,
                 Description = request.Description,
-                ImageUrl = request.ImageUrl,
+                Image = request.Image,
                 IsActive = request.IsActive,
                 DisplayOrder = request.DisplayOrder
             };
@@ -143,7 +144,7 @@ namespace Website.Api.Controllers
         string? Name,
         string? Slug,
         string? Description,
-        string? ImageUrl,
+        IFormFile? Image,
         bool? IsActive,
         int? DisplayOrder
     );

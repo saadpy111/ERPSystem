@@ -4,6 +4,7 @@ using Website.Application.Pagination;
 using Website.Domain.Entities;
 using SharedKernel.Multitenancy;
 using System.Linq.Expressions;
+using SharedKernel.Core.Files;
 
 namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontCollections
 {
@@ -11,11 +12,13 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontC
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITenantProvider _tenantProvider;
+        private readonly IFileUrlResolver _fileUrlResolver;
 
-        public GetStorefrontCollectionsQueryHandler(IUnitOfWork unitOfWork, ITenantProvider tenantProvider)
+        public GetStorefrontCollectionsQueryHandler(IUnitOfWork unitOfWork, ITenantProvider tenantProvider , IFileUrlResolver fileUrlResolver)
         {
             _unitOfWork = unitOfWork;
             _tenantProvider = tenantProvider;
+            _fileUrlResolver = fileUrlResolver;
         }
 
         public async Task<GetStorefrontCollectionsQueryResponse> Handle(GetStorefrontCollectionsQueryRequest request, CancellationToken cancellationToken)
@@ -37,14 +40,13 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontC
                 pageSize: request.PageSize,
                 orderBy: q => q.OrderBy(c => c.DisplayOrder).ThenBy(c => c.Name));
             
-            // Map manually because it's paged
             var dtos = collections.Items.Select(c => new StorefrontCollectionDto
             {
                 Id = c.Id,
                 Name = c.Name,
                 Slug = c.Slug,
                 Description = c.Description,
-                ImageUrl = c.ImageUrl
+                ImageUrl = _fileUrlResolver.Resolve(c.ImageUrl)
             }).ToList();
 
             var pagedResult = new PagedResult<StorefrontCollectionDto>
