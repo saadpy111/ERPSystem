@@ -98,6 +98,18 @@ namespace Website.Api.Controllers
         }
 
         /// <summary>
+        /// Republish an unpublished product on the website.
+        /// </summary>
+        [HttpPost("products/{id}/republish")]
+        [HasPermission(WebsitePermissions.ProductsPublish)]
+        public async Task<IActionResult> Republish(Guid id)
+        {
+            var response = await _mediator.Send(new Application.Features.WebsiteProductFeatures.Commands.RepublishProduct.RepublishProductCommandRequest { WebsiteProductId = id });
+            if (!response.Success) return NotFound(response.Message);
+            return Ok(new { response.Message });
+        }
+
+        /// <summary>
         /// Update product price.
         /// </summary>
         [HttpPut("products/{id}/price")]

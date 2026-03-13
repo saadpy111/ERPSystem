@@ -107,6 +107,18 @@ namespace Website.Api.Controllers
         }
 
         /// <summary>
+        /// Republish an unpublished category.
+        /// </summary>
+        [HttpPost("{id}/republish")]
+        [HasPermission(WebsitePermissions.CategoriesPublish)]
+        public async Task<IActionResult> Republish(Guid id)
+        {
+            var response = await _mediator.Send(new Application.Features.WebsiteCategoryFeatures.Commands.RepublishCategory.RepublishCategoryCommandRequest { WebsiteCategoryId = id });
+            if (!response.Success) return NotFound(response.Message);
+            return Ok(new { response.Message });
+        }
+
+        /// <summary>
         /// Update a category.
         /// </summary>
         [HttpPut("{id}")]

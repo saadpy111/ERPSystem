@@ -56,13 +56,12 @@ namespace Website.Application.Features.WebsiteCategoryFeatures.Commands.Unpublis
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Note: Products under inactive categories will be hidden from storefront 
-            // by filtering queries (products remain published but category is inactive)
+
 
             return new UnpublishCategoryCommandResponse
             {
                 Success = true,
-                ProductsAffected = 0 // Products are hidden via category filter, not unpublished
+                ProductsAffected = 0
             };
         }
 

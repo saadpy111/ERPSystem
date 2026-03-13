@@ -35,7 +35,7 @@ namespace Website.Application.Features.CollectionFeatures.Commands.CreateCollect
                 Slug = request.Slug ?? request.Name.ToLowerInvariant().Replace(" ", "-"),
                 Description = request.Description,
                 ImageUrl = imageUrl,
-                IsActive = true,
+                IsActive = false,
                 DisplayOrder = request.DisplayOrder,
                 TenantId = _tenantProvider.GetTenantId() ?? string.Empty
             };
