@@ -130,8 +130,8 @@ namespace Identity.Application.Features.TenantFeature.Commands.AcceptInvitation
             // SINGLE SAVE POINT - Atomic Commit
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-            // Step 4: Get User Permissions (after successful commit)
-            var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id);
+            // Step 4: Get User Permissions (after successful commit, scoped to the joined tenant)
+            var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id, invitation.TenantId);
 
             // Step 5: Get User Roles
             var roles = await _userManager.GetRolesAsync(user);

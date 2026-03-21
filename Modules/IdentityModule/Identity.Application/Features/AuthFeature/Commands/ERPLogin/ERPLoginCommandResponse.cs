@@ -1,6 +1,12 @@
-namespace Identity.Application.Features.AuthFeature.Queries.Login
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Identity.Application.Features.AuthFeature.Commands.ERPLogin
 {
-    public class LoginQueryResponse
+    public class ERPLoginCommandResponse
     {
         public bool Success { get; set; }
         public string? Error { get; set; }

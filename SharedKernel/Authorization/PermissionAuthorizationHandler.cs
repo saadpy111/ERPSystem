@@ -4,19 +4,30 @@ using SharedKernel.Subscription;
 namespace SharedKernel.Authorization
 {
     /// <summary>
-    /// Handles PermissionRequirement by checking INTERSECTION:
-    /// 1. User has permission (from claims)
-    /// 2. AND Module is enabled in tenant's subscription
+    /// Handles PermissionRequirement using a hybrid authorization model:
+    ///
+    ///   1. Tenant guard      – deny immediately if "tenant" claim is absent.
+    ///   2. Hybrid permission – delegate to <see cref="IPermissionService"/>:
+    ///                            a. Check JWT "permission" claims (fast).
+    ///                            b. Fall back to DB lookup if not in token.
+    ///   3. Subscription gate – deny if the owning module is disabled in the
+    ///                          tenant's active subscription plan (INTERSECTION).
+    ///
+    /// The handler itself has NO direct dependency on persistence or HTTP context.
+    /// All permission resolution is handled by IPermissionService.
     /// </summary>
     public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionRequirement>
     {
+        private readonly IPermissionService _permissionService;
         private readonly ISubscriptionModuleChecker _subscriptionChecker;
         private readonly IPermissionModuleMapper _permissionMapper;
 
         public PermissionAuthorizationHandler(
+            IPermissionService permissionService,
             ISubscriptionModuleChecker subscriptionChecker,
             IPermissionModuleMapper permissionMapper)
         {
+            _permissionService = permissionService;
             _subscriptionChecker = subscriptionChecker;
             _permissionMapper = permissionMapper;
         }
@@ -25,7 +36,8 @@ namespace SharedKernel.Authorization
             AuthorizationHandlerContext context,
             PermissionRequirement requirement)
         {
-            // Auto-deny if no tenant (pre-tenant users cannot access business logic)
+            // ── Guard: tenant claim must be present ──────────────────────────────
+            // Pre-tenant users (e.g. during onboarding) must never reach business logic.
             var tenantId = context.User.FindFirst("tenant")?.Value;
             if (string.IsNullOrEmpty(tenantId))
             {
@@ -33,30 +45,33 @@ namespace SharedKernel.Authorization
                 return;
             }
 
-            // Step 1: Check if user has the permission (from claims)
-            var permissionClaims = context.User.FindAll("permission").Select(c => c.Value).ToList();
-            
-            if (!permissionClaims.Contains(requirement.Permission))
+            // ── Hybrid permission check (token → DB fallback) ────────────────────
+            // IPermissionService encapsulates all logic; the handler stays clean.
+            var hasPermission = await _permissionService
+                .HasPermissionAsync(context.User, requirement.Permission);
+
+            if (!hasPermission)
             {
                 context.Fail();
                 return;
             }
 
-            // Step 2: INTERSECTION - Check if module is enabled in subscription
+            // ── Subscription intersection: module must be enabled ────────────────
             var permissionModule = _permissionMapper.GetModuleForPermission(requirement.Permission);
-            
+
             if (permissionModule != null)
             {
-                var isModuleEnabled = await _subscriptionChecker.IsModuleEnabledAsync(tenantId, permissionModule);
-                
+                var isModuleEnabled = await _subscriptionChecker
+                    .IsModuleEnabledAsync(tenantId, permissionModule);
+
                 if (!isModuleEnabled)
                 {
-                    context.Fail(); // Permission exists but module disabled in subscription
+                    context.Fail(); // Permission granted but module disabled in plan
                     return;
                 }
             }
 
-            // Both checks passed: user has permission AND module is enabled
+            // All checks passed
             context.Succeed(requirement);
         }
     }

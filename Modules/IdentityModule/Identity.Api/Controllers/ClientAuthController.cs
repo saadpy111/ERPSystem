@@ -1,3 +1,5 @@
+using Identity.Application.Dtos.AccountDtos;
+using Identity.Application.Features.AuthFeature.Queries.Login;
 using Identity.Application.Features.ClientAuthFeature.Commands.ClientRegister;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -40,6 +42,26 @@ namespace Identity.Api.Controllers
             return Ok(result);
         }
 
+
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var request = new LoginQueryRequest() { LoginDto = dto };
+
+            var response = await _mediator.Send(request);
+
+            if (!response.Success)
+                return Unauthorized(new { Error = response.Error });
+
+            return Ok(new
+            {
+                token = response.Token,
+            });
+        }
+
         /// <summary>
         /// Login a customer to a tenant's storefront.
         /// </summary>
@@ -51,10 +73,10 @@ namespace Identity.Api.Controllers
         //public async Task<IActionResult> Login([FromBody] ClientLoginCommand command)
         //{
         //    var result = await _mediator.Send(command);
-            
+
         //    if (!result.Success)
         //        return BadRequest(result);
-            
+
         //    return Ok(result);
         //}
     }

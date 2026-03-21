@@ -328,7 +328,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
                 // ===== STEP 9: GENERATE NEW JWT TOKEN =====
 
-                var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id);
+                var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id, tenant.Id);
                 var roles = new List<string> { $"{Roles.SuperAdmin}_{tenant.Code}" };
                 var newToken = _jwtTokenService.GenerateToken(user, roles, permissions, tenant.Id);
                 await transaction.CommitAsync(cancellationToken);

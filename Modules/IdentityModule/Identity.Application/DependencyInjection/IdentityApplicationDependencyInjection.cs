@@ -1,6 +1,7 @@
-﻿using Identity.Application.Contracts.Persistence;
+using Identity.Application.Contracts.Persistence;
 using Identity.Application.Features.AccountFeature.Queries.GetAllAcounts;
 using Identity.Application.Services;
+using SharedKernel.Authorization;
 using SharedKernel.Contracts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,9 @@ namespace Identity.Application.DependencyInjection
             });
 
             services.AddScoped<IUserLookupService, UserLookupService>();
+
+            // Hybrid permission service: token-first then DB fallback
+            services.AddScoped<IPermissionService, PermissionService>();
 
             return services;
         }

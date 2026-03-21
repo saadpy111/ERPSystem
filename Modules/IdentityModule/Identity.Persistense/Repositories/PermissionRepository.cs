@@ -13,25 +13,27 @@ namespace Identity.Persistense.Repositories
             _context = context;
         }
 
-        public async Task<List<string>> GetUserEffectivePermissionsAsync(string userId)
+        /// <inheritdoc />
+        public async Task<List<string>> GetUserEffectivePermissionsAsync(string userId, string tenantId)
         {
-            var permissions = new List<string>();
+            // IgnoreQueryFilters so we control isolation manually — the DbContext
+            // query filter may not have been built for this tenantId at startup.
 
-            // Get direct user permissions
+            // 1. Direct user permissions (scoped to the tenant)
             var userPermissions = await _context.UserPermissions
-                 .IgnoreQueryFilters()
-                .Where(up => up.UserId == userId)
+                .IgnoreQueryFilters()
+                .Where(up => up.UserId == userId && up.TenantId == tenantId)
                 .Include(up => up.Permission)
                 .Select(up => up.Permission.Name)
                 .ToListAsync();
 
-            permissions.AddRange(userPermissions);
-
-            // Get permissions from user's roles
+            // 2. Role-based permissions (roles scoped to the tenant)
             var rolePermissions = await _context.UserRoles
-                 .IgnoreQueryFilters()
-                .Where(ur => ur.UserId == userId)
-                .Join(_context.RolePermissions,
+                .IgnoreQueryFilters()
+                .Where(ur => ur.UserId == userId && ur.TenantId == tenantId)
+                .Join(
+                    _context.RolePermissions.IgnoreQueryFilters()
+                        .Where(rp => rp.TenantId == tenantId),
                     ur => ur.RoleId,
                     rp => rp.RoleId,
                     (ur, rp) => rp)
@@ -39,10 +41,8 @@ namespace Identity.Persistense.Repositories
                 .Select(rp => rp.Permission.Name)
                 .ToListAsync();
 
-            permissions.AddRange(rolePermissions);
-
-            // Return distinct permissions
-            return permissions.Distinct().ToList();
+            // Merge and deduplicate
+            return userPermissions.Union(rolePermissions).Distinct().ToList();
         }
     }
 }

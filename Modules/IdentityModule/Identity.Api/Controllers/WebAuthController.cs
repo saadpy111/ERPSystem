@@ -1,7 +1,8 @@
-﻿using Identity.Application.Contracts.Services;
+using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.AccountDtos;
 using Identity.Application.Features.AuthFeature.Commands.RegisterUser;
 using Identity.Application.Features.AuthFeature.Queries.Login;
+using Identity.Application.Features.ClientAuthFeature.Commands.ClientRegister;
 using Identity.Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -14,26 +15,24 @@ using System.Threading.Tasks;
 
 namespace Identity.Api.Controllers
 {
-   
+
 
 
     [ApiController]
     [Route("api/[controller]")]
     [ApiExplorerSettings(GroupName = "Identity")]
-    public class AuthController : ControllerBase
+    public class WebAuthController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public AuthController(IMediator mediator)
+        public WebAuthController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
 
 
-        /// <summary>
-        /// Login user and get JWT token
-        /// </summary>
+
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
@@ -46,12 +45,18 @@ namespace Identity.Api.Controllers
             if (!response.Success)
                 return Unauthorized(new { Error = response.Error });
 
-            return Ok(new { Token = response.Token });
+            return Ok(new
+            {
+                token = response.Token,
+                user = new
+                {
+                    roles = response.Roles,
+                    permissions = response.Permissions
+                }
+            });
         }
 
-        /// <summary>
-        /// Register a new user without tenant (Two-Phase Onboarding - Phase 1)
-        /// </summary>
+
         [HttpPost("register-client")]
         public async Task<IActionResult> RegisterUser([FromBody] RegisterUserCommand command)
         {
@@ -65,7 +70,11 @@ namespace Identity.Api.Controllers
 
             return Ok(new { message = response.Message, userId = response.UserId });
         }
+    
+
+
+
+
+
     }
-
-
 }

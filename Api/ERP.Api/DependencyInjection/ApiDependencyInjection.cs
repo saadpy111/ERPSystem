@@ -123,7 +123,7 @@ namespace ERP.Api.DependencyInjection
             #endregion
 
             services.AddControllers().AddApplicationPart(typeof(LocationController).Assembly);
-            services.AddControllers().AddApplicationPart(typeof(AuthController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(WebAuthController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(VendorsController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(EmployeesController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(ReportsController).Assembly);
