@@ -327,8 +327,11 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 }
 
                 // ===== STEP 9: GENERATE NEW JWT TOKEN =====
-
-                var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id, tenant.Id);
+                var tenantIdForPermissions = user.TenantId ?? string.Empty;
+                var uiPermissions = string.IsNullOrEmpty(tenantIdForPermissions)
+                    ? new List<string>()
+                    : await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id, tenantIdForPermissions);
+                var permissions = new List<string>();
                 var roles = new List<string> { $"{Roles.SuperAdmin}" };
                 var newToken = _jwtTokenService.GenerateToken(user, roles, permissions, tenant.Id);
                 await transaction.CommitAsync(cancellationToken);
@@ -341,7 +344,9 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                     NewToken = newToken,
                     SubscriptionPlanName = subscriptionResult.PlanName,
                     IsTrial = subscriptionResult.IsTrial,
-                    TrialEndsAt = subscriptionResult.TrialEndsAt
+                    TrialEndsAt = subscriptionResult.TrialEndsAt,
+                    Roles = roles.ToList(),
+                    Permissions = uiPermissions
                 };
 
             }
@@ -369,7 +374,17 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
                 if (role.Name == Roles.SuperAdmin)
                 {
-                    permissionIdsToAssign = enabledPermissions.Select(p => p.Id).ToList();
+                    // SuperAdmin gets all enabled subscription permissions PLUS all Admin infrastructure permissions
+                    var adminPermissionIds = allPermissions
+                        .Where(p => p.Module == "Admin")
+                        .Select(p => p.Id)
+                        .ToList();
+
+                    permissionIdsToAssign = enabledPermissions
+                        .Select(p => p.Id)
+                        .Union(adminPermissionIds)
+                        .Distinct()
+                        .ToList();
                 }
                 else if (role.Name == Roles.InventoryManager)
                 {

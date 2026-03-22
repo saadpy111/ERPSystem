@@ -7,12 +7,15 @@ using Website.Application.DTOs;
 using Website.Application.Features.DashboardFeatures.Queries.GetDashboardOverview;
 using Website.Application.Features.DashboardFeatures.Queries.GetWeeklyOverview;
 using System.Collections.Generic;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Website.Api.Controllers
 {
     [ApiController]
     [ApiExplorerSettings(GroupName = "Website")]
     [Route("api/admin/dashboard/overview")]
+    [Authorize]
     public class AdminDashboardController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,6 +26,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(WebsitePermissions.DashboardView)]
         public async Task<ActionResult<DashboardOverviewDto>> GetDashboardOverview(
             [FromQuery] int? days = null,
             [FromQuery] DateTime? fromdate = null,
@@ -34,6 +38,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet("~/api/admin/analytics/weekly-overview")]
+        [HasPermission(WebsitePermissions.DashboardView)]
         public async Task<ActionResult<List<WeeklyAnalyticsDto>>> GetWeeklyOverview([FromQuery] int? days = 7)
         {
             var query = new GetWeeklyOverviewQuery { Days = days };

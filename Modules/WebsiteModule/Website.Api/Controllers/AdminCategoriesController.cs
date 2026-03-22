@@ -42,7 +42,7 @@ namespace Website.Api.Controllers
         /// Read-only, queries Inventory directly.
         /// </summary>
         [HttpGet("inventory")]
-        [HasPermission(WebsitePermissions.CategoriesPublish)]
+        [HasPermission(WebsitePermissions.CategoriesCreate)]
         public async Task<IActionResult> GetInventoryCategories([FromQuery] GetInventoryCategoriesQueryRequest request)
         {
             var response = await _mediator.Send(request);
@@ -85,7 +85,7 @@ namespace Website.Api.Controllers
         /// Publish a category.
         /// </summary>
         [HttpPost("publish")]
-        [HasPermission(WebsitePermissions.CategoriesPublish)]
+        [HasPermission(WebsitePermissions.CategoriesCreate)]
         public async Task<IActionResult> Publish([FromBody] PublishCategoryCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -98,7 +98,7 @@ namespace Website.Api.Controllers
         /// Hides category and child categories from storefront.
         /// </summary>
         [HttpPost("{id}/unpublish")]
-        [HasPermission(WebsitePermissions.CategoriesManage)]
+        [HasPermission(WebsitePermissions.CategoriesEdit)]
         public async Task<IActionResult> Unpublish(Guid id)
         {
             var response = await _mediator.Send(new UnpublishCategoryCommandRequest { WebsiteCategoryId = id });
@@ -110,7 +110,7 @@ namespace Website.Api.Controllers
         /// Republish an unpublished category.
         /// </summary>
         [HttpPost("{id}/republish")]
-        [HasPermission(WebsitePermissions.CategoriesPublish)]
+        [HasPermission(WebsitePermissions.CategoriesCreate)]
         public async Task<IActionResult> Republish(Guid id)
         {
             var response = await _mediator.Send(new Application.Features.WebsiteCategoryFeatures.Commands.RepublishCategory.RepublishCategoryCommandRequest { WebsiteCategoryId = id });

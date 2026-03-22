@@ -60,7 +60,7 @@ namespace Website.Api.Controllers
         /// Create a new offer.
         /// </summary>
         [HttpPost]
-        [HasPermission(WebsitePermissions.OffersManage)]
+        [HasPermission(WebsitePermissions.OffersCreate)]
         public async Task<IActionResult> Create([FromBody] CreateOfferCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -72,7 +72,7 @@ namespace Website.Api.Controllers
         /// Update an offer.
         /// </summary>
         [HttpPut("{id}")]
-        [HasPermission(WebsitePermissions.OffersManage)]
+        [HasPermission(WebsitePermissions.OffersEdit)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateOfferRequest request)
         {
             var command = new UpdateOfferCommandRequest
@@ -96,7 +96,7 @@ namespace Website.Api.Controllers
         /// Delete an offer.
         /// </summary>
         [HttpDelete("{id}")]
-        [HasPermission(WebsitePermissions.OffersManage)]
+        [HasPermission(WebsitePermissions.OffersDelete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var response = await _mediator.Send(new DeleteOfferCommandRequest { Id = id });
@@ -108,7 +108,7 @@ namespace Website.Api.Controllers
         /// Add a product to an offer.
         /// </summary>
         [HttpPost("{id}/products")]
-        [HasPermission(WebsitePermissions.OffersManage)]
+        [HasPermission(WebsitePermissions.OffersCreate)]
         public async Task<IActionResult> AddProduct(Guid id, [FromBody] AddProductToOfferRequest request)
         {
             var command = new AddProductToOfferCommandRequest
@@ -126,7 +126,7 @@ namespace Website.Api.Controllers
         /// Remove a product from an offer.
         /// </summary>
         [HttpDelete("{id}/products/{productId}")]
-        [HasPermission(WebsitePermissions.OffersManage)]
+        [HasPermission(WebsitePermissions.OffersDelete)]
         public async Task<IActionResult> RemoveProduct(Guid id, Guid productId)
         {
             var command = new RemoveProductFromOfferCommandRequest

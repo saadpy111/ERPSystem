@@ -12,6 +12,8 @@ using Identity.Application.Features.AccountManagement.Queries.GetRoles;
 using Identity.Application.Features.AccountManagement.Queries.GetUsers;
 using Identity.Domain.Enums;
 using MediatR;
+using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Multitenancy;
@@ -59,6 +61,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Create a new user in this scope (System or Client).</summary>
         [HttpPost("accounts")]
+        [HasPermission(AdminPermissions.UsersCreate)]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest body)
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();
@@ -78,6 +81,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Get all users in this scope (paginated, searchable).</summary>
         [HttpGet("accounts")]
+        [HasPermission(AdminPermissions.UsersView)]
         public async Task<IActionResult> GetUsers(
             [FromQuery] string? search,
             [FromQuery] int pageNumber = 1,
@@ -106,6 +110,7 @@ namespace Identity.Api.Controllers
         /// Filtering logic lives in the handler — controller stays clean.
         /// </summary>
         [HttpGet("permissions")]
+        [HasPermission(AdminPermissions.PermissionsView)]
         public async Task<IActionResult> GetPermissions()
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();
@@ -122,6 +127,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Get all tenant roles (paginated).</summary>
         [HttpGet("roles")]
+        [HasPermission(AdminPermissions.RolesView)]
         public async Task<IActionResult> GetRoles(
             [FromQuery] string? search,
             [FromQuery] int pageNumber = 1,
@@ -142,6 +148,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Create a new role in this tenant.</summary>
         [HttpPost("roles")]
+        [HasPermission(AdminPermissions.RolesCreate)]
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest body)
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();
@@ -159,6 +166,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Update (rename) a role.</summary>
         [HttpPut("roles/{roleId}")]
+        [HasPermission(AdminPermissions.RolesEdit)]
         public async Task<IActionResult> UpdateRole(string roleId, [FromBody] UpdateRoleRequest body)
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();
@@ -176,6 +184,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Delete a role.</summary>
         [HttpDelete("roles/{roleId}")]
+        [HasPermission(AdminPermissions.RolesDelete)]
         public async Task<IActionResult> DeleteRole(string roleId)
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();
@@ -194,6 +203,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Add a single permission to a role.</summary>
         [HttpPost("roles/{roleId}/permissions")]
+        [HasPermission(AdminPermissions.RolesAssignPermissions)]
         public async Task<IActionResult> AddPermissionToRole(
             string roleId, [FromBody] SinglePermissionRequest body)
         {
@@ -212,6 +222,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Remove a single permission from a role.</summary>
         [HttpDelete("roles/{roleId}/permissions/{permissionId}")]
+        [HasPermission(AdminPermissions.RolesRemovePermissions)]
         public async Task<IActionResult> RemovePermissionFromRole(string roleId, string permissionId)
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();
@@ -229,6 +240,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Replace ALL permissions of a role atomically.</summary>
         [HttpPut("roles/{roleId}/permissions")]
+        [HasPermission(AdminPermissions.RolesAssignPermissions)]
         public async Task<IActionResult> ReplaceRolePermissions(
             string roleId, [FromBody] ReplacePermissionsRequest body)
         {
@@ -249,6 +261,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Assign a role to a user.</summary>
         [HttpPost("users/{userId}/roles/{roleId}")]
+        [HasPermission(AdminPermissions.UsersAssignRoles)]
         public async Task<IActionResult> AssignRoleToUser(string userId, string roleId)
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();
@@ -267,6 +280,7 @@ namespace Identity.Api.Controllers
 
         /// <summary>Remove a role from a user.</summary>
         [HttpDelete("users/{userId}/roles/{roleId}")]
+        [HasPermission(AdminPermissions.UsersRemoveRoles)]
         public async Task<IActionResult> RemoveRoleFromUser(string userId, string roleId)
         {
             if (string.IsNullOrEmpty(TenantId)) return MissingTenant();

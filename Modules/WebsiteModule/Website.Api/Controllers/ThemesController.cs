@@ -6,6 +6,8 @@ using Website.Application.Features.Themes.Commands.DeleteTheme;
 using Website.Application.Features.Themes.Commands.UpdateTheme;
 using Website.Application.Features.Themes.Queries.GetAllThemes;
 using Website.Application.Features.Themes.Queries.GetThemeById;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Website.Api.Controllers
 {
@@ -15,6 +17,7 @@ namespace Website.Api.Controllers
     [ApiController]
     [Route("api/website/themes")]
     [ApiExplorerSettings(GroupName = "Website")]
+    [Authorize]
     public class ThemesController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -57,7 +60,6 @@ namespace Website.Api.Controllers
         /// Create new theme (ADMIN ONLY)
         /// </summary>
         [HttpPost]
-        //[Authorize(Roles = "PlatformAdmin")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(CreateThemeResponse), 201)]
         [ProducesResponseType(400)]

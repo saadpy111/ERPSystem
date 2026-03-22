@@ -30,7 +30,7 @@ namespace Identity.Application.Features.AccountManagement.Queries.GetPermissions
             // Filter by scope
             var filtered = request.UserType == UserType.Client
                 ? all.Where(p => p.Module == "Website")   // Client: website-only
-                : all.Where(p => p.Module!="Website");  // System: everything else
+                : all.Where(p => p.Module!="Website" && p.Module != "Admin");  // System: everything else
 
             var dtos = filtered
                 .OrderBy(p => p.Module)

@@ -37,7 +37,7 @@ namespace Website.Api.Controllers
         /// Read-only, queries Inventory directly.
         /// </summary>
         [HttpGet("inventory-products")]
-        [HasPermission(WebsitePermissions.ProductsPublish)]
+        [HasPermission(WebsitePermissions.ProductsCreate)]
         public async Task<IActionResult> GetInventoryProducts([FromQuery] GetInventoryProductsQueryRequest request)
         {
             var response = await _mediator.Send(request);
@@ -76,7 +76,7 @@ namespace Website.Api.Controllers
         /// Accepts only IDs - fetches product data from Inventory.
         /// </summary>
         [HttpPost("products/publish")]
-        [HasPermission(WebsitePermissions.ProductsPublish)]
+        [HasPermission(WebsitePermissions.ProductsCreate)]
         public async Task<IActionResult> Publish([FromBody] PublishProductCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -89,7 +89,7 @@ namespace Website.Api.Controllers
         /// Hides from storefront but preserves snapshot for re-publish.
         /// </summary>
         [HttpPost("products/{id}/unpublish")]
-        [HasPermission(WebsitePermissions.ProductsPublish)]
+        [HasPermission(WebsitePermissions.ProductsDelete)]
         public async Task<IActionResult> Unpublish(Guid id)
         {
             var response = await _mediator.Send(new UnpublishProductCommandRequest { WebsiteProductId = id });
@@ -101,7 +101,7 @@ namespace Website.Api.Controllers
         /// Republish an unpublished product on the website.
         /// </summary>
         [HttpPost("products/{id}/republish")]
-        [HasPermission(WebsitePermissions.ProductsPublish)]
+        [HasPermission(WebsitePermissions.ProductsCreate)]
         public async Task<IActionResult> Republish(Guid id)
         {
             var response = await _mediator.Send(new Application.Features.WebsiteProductFeatures.Commands.RepublishProduct.RepublishProductCommandRequest { WebsiteProductId = id });

@@ -1,57 +1,60 @@
 namespace SharedKernel.Constants.Permissions
 {
     /// <summary>
-    /// Website Module Permissions
-    /// Based on actual endpoints from Website.Api controllers
+    /// Website Module Permissions — strict CRUD-based.
+    /// No "Manage" abstractions. Each HTTP verb maps to exactly one permission:
+    ///   GET    → View
+    ///   POST   → Create
+    ///   PUT    → Edit
+    ///   DELETE → Delete
     /// </summary>
     public static class WebsitePermissions
     {
         public const string Module = "Website";
 
-        // ===== THEMES =====
-        public const string ThemesView = "Website.Themes.View";
-        public const string ThemesCreate = "Website.Themes.Create";
-        public const string ThemesEdit = "Website.Themes.Edit";
-        public const string ThemesDelete = "Website.Themes.Delete";
-
         // ===== WEBSITE CONFIG =====
-        public const string ConfigView = "Website.Config.View";
-        public const string ConfigEdit = "Website.Config.Edit";
+        public const string ConfigView       = "Website.Config.View";
+        public const string ConfigEdit       = "Website.Config.Edit";
         public const string ConfigApplyTheme = "Website.Config.ApplyTheme";
-        public const string ConfigPublish = "Website.Config.Publish";
+        public const string ConfigPublish    = "Website.Config.Publish";
 
-        // ===== PRODUCTS (E-Commerce) =====
-        public const string ProductsView = "Website.Products.View";
-        public const string ProductsPublish = "Website.Products.Publish";
-        public const string ProductsEdit = "Website.Products.Edit";
-        public const string ProductsUnpublish = "Website.Products.Unpublish";
+        // ===== PRODUCTS =====
+        public const string ProductsView      = "Website.Products.View";
+        public const string ProductsCreate    = "Website.Products.Create";   // publish from Inventory
+        public const string ProductsEdit      = "Website.Products.Edit";
+        public const string ProductsDelete    = "Website.Products.Delete";   // unpublish / remove
 
-        // ===== CATEGORIES (E-Commerce) =====
-        public const string CategoriesView = "Website.Categories.View";
-        public const string CategoriesPublish = "Website.Categories.Publish";
-        public const string CategoriesEdit = "Website.Categories.Edit";
+        // ===== CATEGORIES =====
+        public const string CategoriesView   = "Website.Categories.View";
+        public const string CategoriesCreate = "Website.Categories.Create";  // publish
+        public const string CategoriesEdit   = "Website.Categories.Edit";    // update, unpublish, republish
         public const string CategoriesDelete = "Website.Categories.Delete";
-        public const string CategoriesManage = "Website.Categories.Manage";
 
-        // ===== COLLECTIONS (E-Commerce) =====
-        public const string CollectionsView = "Website.Collections.View";
-        public const string CollectionsManage = "Website.Collections.Manage";
+        // ===== COLLECTIONS =====
+        public const string CollectionsView   = "Website.Collections.View";
+        public const string CollectionsCreate = "Website.Collections.Create";
+        public const string CollectionsEdit   = "Website.Collections.Edit";
+        public const string CollectionsDelete = "Website.Collections.Delete";
 
-        // ===== OFFERS (E-Commerce) =====
-        public const string OffersView = "Website.Offers.View";
-        public const string OffersManage = "Website.Offers.Manage";
+        // ===== OFFERS =====
+        public const string OffersView   = "Website.Offers.View";
+        public const string OffersCreate = "Website.Offers.Create";
+        public const string OffersEdit   = "Website.Offers.Edit";
+        public const string OffersDelete = "Website.Offers.Delete";
 
-        // ===== ORDERS (E-Commerce) =====
+        // ===== ORDERS =====
         public const string OrdersView = "Website.Orders.View";
-        public const string OrdersManage = "Website.Orders.Manage";
+        public const string OrdersEdit = "Website.Orders.Edit";   // update status
 
-        // ===== COUPONS (E-Commerce) =====
-        public const string CouponsView = "Website.Coupons.View";
-        public const string CouponsManage = "Website.Coupons.Manage";
+        // ===== COUPONS =====
+        public const string CouponsView   = "Website.Coupons.View";
+        public const string CouponsCreate = "Website.Coupons.Create";
 
-        // ===== CUSTOMERS (E-Commerce) =====
+        // ===== CUSTOMERS =====
         public const string CustomersView = "Website.Customers.View";
-        public const string CustomersManage = "Website.Customers.Manage";
+
+        // ===== ANALYTICS & DASHBOARD =====
+        public const string AnalyticsView = "Website.Analytics.View";
+        public const string DashboardView = "Website.Dashboard.View";
     }
 }
-

@@ -37,6 +37,7 @@ namespace Website.Api.Controllers
             return Ok(response);
         }
         [HttpGet("stats")]
+        [HasPermission(WebsitePermissions.OrdersView)]
         public async Task<IActionResult> GetDashboardStats()
         {
             var response = await _mediator.Send(new GetAdminDashboardStatsQuery());
@@ -57,7 +58,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpPut("{id}/status")]
-        [HasPermission(WebsitePermissions.OrdersManage)]
+        [HasPermission(WebsitePermissions.OrdersEdit)]
         public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateOrderStatusRequest request)
         {
             var command = new UpdateOrderStatusCommandRequest

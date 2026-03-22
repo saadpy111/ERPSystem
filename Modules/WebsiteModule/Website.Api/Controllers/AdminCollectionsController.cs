@@ -58,7 +58,7 @@ namespace Website.Api.Controllers
         /// Create a new collection.
         /// </summary>
         [HttpPost]
-        [HasPermission(WebsitePermissions.CollectionsManage)]
+        [HasPermission(WebsitePermissions.CollectionsCreate)]
         public async Task<IActionResult> Create([FromForm] CreateCollectionCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -70,7 +70,7 @@ namespace Website.Api.Controllers
         /// Update a collection.
         /// </summary>
         [HttpPut("{id}")]
-        [HasPermission(WebsitePermissions.CollectionsManage)]
+        [HasPermission(WebsitePermissions.CollectionsEdit)]
         public async Task<IActionResult> Update(Guid id, [FromForm] UpdateCollectionRequest request)
         {
             var command = new UpdateCollectionCommandRequest
@@ -93,7 +93,7 @@ namespace Website.Api.Controllers
         /// Delete a collection.
         /// </summary>
         [HttpDelete("{id}")]
-        [HasPermission(WebsitePermissions.CollectionsManage)]
+        [HasPermission(WebsitePermissions.CollectionsDelete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var response = await _mediator.Send(new DeleteCollectionCommandRequest { Id = id });
@@ -105,7 +105,7 @@ namespace Website.Api.Controllers
         /// Add a product to a collection.
         /// </summary>
         [HttpPost("{id}/products")]
-        [HasPermission(WebsitePermissions.CollectionsManage)]
+        [HasPermission(WebsitePermissions.CollectionsCreate)]
         public async Task<IActionResult> AddProduct(Guid id, [FromBody] AddProductRequest request)
         {
             var command = new AddProductToCollectionCommandRequest
@@ -124,7 +124,7 @@ namespace Website.Api.Controllers
         /// Remove a product from a collection.
         /// </summary>
         [HttpDelete("{id}/products/{productId}")]
-        [HasPermission(WebsitePermissions.CollectionsManage)]
+        [HasPermission(WebsitePermissions.CollectionsDelete)]
         public async Task<IActionResult> RemoveProduct(Guid id, Guid productId)
         {
             var command = new RemoveProductFromCollectionCommandRequest

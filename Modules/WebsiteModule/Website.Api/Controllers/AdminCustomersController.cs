@@ -12,7 +12,7 @@ namespace Website.Api.Controllers
     [ApiController]
     [Route("api/admin/customers")]
     [ApiExplorerSettings(GroupName = "Website")]
- //   [Authorize]
+    [Authorize]
     public class AdminCustomersController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -23,7 +23,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet]
-       // [HasPermission(WebsitePermissions.CustomersView)]
+        [HasPermission(WebsitePermissions.CustomersView)]
         public async Task<IActionResult> GetCustomers([FromQuery] CustomerFilter filter)
         {
             var response = await _mediator.Send(new GetCustomersPagedQuery { Filter = filter });
@@ -31,7 +31,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet("{id}")]
-     //   [HasPermission(WebsitePermissions.CustomersView)]
+        [HasPermission(WebsitePermissions.CustomersView)]
         public async Task<IActionResult> GetCustomerDetails(Guid id, [FromQuery] int ordersPage = 1, [FromQuery] int ordersPageSize = 10)
         {
             var response = await _mediator.Send(new GetCustomerDetailsQuery 
