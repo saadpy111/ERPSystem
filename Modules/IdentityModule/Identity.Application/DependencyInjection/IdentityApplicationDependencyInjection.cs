@@ -1,5 +1,4 @@
 using Identity.Application.Contracts.Persistence;
-using Identity.Application.Features.AccountFeature.Queries.GetAllAcounts;
 using Identity.Application.Services;
 using SharedKernel.Authorization;
 using SharedKernel.Contracts;

@@ -51,6 +51,39 @@ namespace Identity.Persistense.Seeders
                 await _context.Permissions.AddRangeAsync(permissionEntities);
                 await _context.SaveChangesAsync();
             }
+
+            var tenants = await _context.Tenants.ToListAsync();
+
+            foreach (var tenant in tenants)
+            {
+                var ownerRole = await _context.Roles
+                    .FirstOrDefaultAsync(r => r.Name == Roles.SuperAdmin && r.TenantId == tenant.Id);
+
+                if (ownerRole == null) continue;
+
+                var existingRolePermissions = await _context.RolePermissions
+                    .Where(rp => rp.RoleId == ownerRole.Id)
+                    .Select(rp => rp.PermissionId)
+                    .ToListAsync();
+
+                var newPermissionsForOwner = permissionEntities
+                    .Where(p => !existingRolePermissions.Contains(p.Id))
+                    .Select(p => new RolePermission
+                    {
+                        RoleId = ownerRole.Id,
+                        PermissionId = p.Id,
+                        TenantId = tenant.Id,
+                        AssignedAt = DateTime.UtcNow
+                    })
+                    .ToList();
+
+                if (newPermissionsForOwner.Any())
+                {
+                    await _context.RolePermissions.AddRangeAsync(newPermissionsForOwner);
+                }
+            }
+
+            await _context.SaveChangesAsync();
         }
 
         private string GenerateDescription(string permissionName)

@@ -147,7 +147,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
                 foreach (var roleName in defaultRoles)
                 {
-                    var tenantRoleName = $"{roleName}_{tenant.Code}";
+                    var tenantRoleName = $"{roleName}";
                     var role = new ApplicationRole
                     {
                         Id = Guid.NewGuid().ToString(),
@@ -194,7 +194,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
                 // ===== STEP 6: ASSIGN SUPERADMIN ROLE TO USER =====
 
-                var superAdminRole = createdRoles.FirstOrDefault(r => r.Name == $"{Roles.SuperAdmin}_{tenant.Code}");
+                var superAdminRole = createdRoles.FirstOrDefault(r => r.Name == $"{Roles.SuperAdmin}");
                 if (superAdminRole != null)
                 {
                     var userRole = new ApplicationUserRole
@@ -329,7 +329,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 // ===== STEP 9: GENERATE NEW JWT TOKEN =====
 
                 var permissions = await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id, tenant.Id);
-                var roles = new List<string> { $"{Roles.SuperAdmin}_{tenant.Code}" };
+                var roles = new List<string> { $"{Roles.SuperAdmin}" };
                 var newToken = _jwtTokenService.GenerateToken(user, roles, permissions, tenant.Id);
                 await transaction.CommitAsync(cancellationToken);
 
@@ -365,37 +365,52 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
             foreach (var role in roles)
             {
-                List<string> permissionIdsToAssign = new List<string>();
+                List<string> permissionIdsToAssign = new();
 
-                if (role.Name!.Contains(Roles.SuperAdmin))
+                if (role.Name == Roles.SuperAdmin)
                 {
                     permissionIdsToAssign = enabledPermissions.Select(p => p.Id).ToList();
                 }
-                else if (role.Name.Contains(Roles.InventoryManager))
+                else if (role.Name == Roles.InventoryManager)
                 {
-                    permissionIdsToAssign = enabledPermissions.Where(p => p.Module == "Inventory").Select(p => p.Id).ToList();
+                    permissionIdsToAssign = enabledPermissions
+                        .Where(p => p.Module == "Inventory")
+                        .Select(p => p.Id)
+                        .ToList();
                 }
-                else if (role.Name.Contains(Roles.HRManager))
+                else if (role.Name == Roles.HRManager)
                 {
-                    permissionIdsToAssign = enabledPermissions.Where(p => p.Module == "HR").Select(p => p.Id).ToList();
+                    permissionIdsToAssign = enabledPermissions
+                        .Where(p => p.Module == "HR")
+                        .Select(p => p.Id)
+                        .ToList();
                 }
-                else if (role.Name.Contains(Roles.ProcurementManager))
+                else if (role.Name == Roles.ProcurementManager)
                 {
-                    permissionIdsToAssign = enabledPermissions.Where(p => p.Module == "Procurement").Select(p => p.Id).ToList();
+                    permissionIdsToAssign = enabledPermissions
+                        .Where(p => p.Module == "Procurement")
+                        .Select(p => p.Id)
+                        .ToList();
                 }
-                else if (role.Name.Contains(Roles.ReportViewer))
+                else if (role.Name == Roles.ReportViewer)
                 {
-                    permissionIdsToAssign = enabledPermissions.Where(p => p.Module == "Report").Select(p => p.Id).ToList();
+                    permissionIdsToAssign = enabledPermissions
+                        .Where(p => p.Module == "Report")
+                        .Select(p => p.Id)
+                        .ToList();
                 }
-                else if(role.Name.Contains(Roles.WebsiteAdmin))
+                else if (role.Name == Roles.WebsiteAdmin)
                 {
-                    permissionIdsToAssign = enabledPermissions.Where(p => p.Module == "Website").Select(p => p.Id).ToList();
+                    permissionIdsToAssign = enabledPermissions
+                        .Where(p => p.Module == "Website")
+                        .Select(p => p.Id)
+                        .ToList();
                 }
-
 
                 if (permissionIdsToAssign.Any())
                 {
-                    await _rolePermissionRepository.AssignPermissionsToRoleAsync(role.Id, permissionIdsToAssign, tenantId);
+                    await _rolePermissionRepository
+                        .AssignPermissionsToRoleAsync(role.Id, permissionIdsToAssign, tenantId);
                 }
             }
         }
