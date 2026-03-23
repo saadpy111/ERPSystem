@@ -32,10 +32,10 @@ namespace Website.Api.Controllers
         /// <summary>
         /// Get the current user's cart.
         /// </summary>
-        [HttpGet("{CouponCode}")]
-        public async Task<IActionResult> GetCart(string? CouponCode)
+        [HttpGet]
+        public async Task<IActionResult> GetCart([FromQuery] string? couponCode)
         {
-            var response = await _mediator.Send(new GetCartQueryRequest { UserId = GetUserId() , CouponCode = CouponCode });
+            var response = await _mediator.Send(new GetCartQueryRequest { UserId = GetUserId() , CouponCode = couponCode });
             return Ok(response.Cart);
         }
 
