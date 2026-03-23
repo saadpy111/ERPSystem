@@ -1,8 +1,9 @@
-﻿using Identity.Application.Contracts.Persistence;
+using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Services;
 using Identity.Application.Features.AuthFeature.Queries.Login;
 using MediatR;
 using SharedKernel.Multitenancy;
+using Identity.Domain.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,7 +57,7 @@ namespace Identity.Application.Features.AuthFeature.Commands.ERPLogin
                 Success = true,
                 Token = token,
                 UserId = user.Id,
-                Roles = roles.ToList(),
+                Roles = roles.Select(r => r.ToCleanRoleName(user.TenantId)).ToList(),
                 Permissions = uiPermissions
             };
         }

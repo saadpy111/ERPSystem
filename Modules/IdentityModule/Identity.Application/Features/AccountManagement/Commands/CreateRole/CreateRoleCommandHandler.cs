@@ -23,9 +23,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.CreateRole
         public async Task<CreateRoleResponse> Handle(CreateRoleCommand request, CancellationToken cancellationToken)
         {
             // Role names are unique per tenant by convention: "Name_TenantCode"
-            var roleName = request.Name.Trim();
+            var baseRoleName = request.Name.Trim();
+            var roleName = $"{baseRoleName}_{request.TenantId}";
             if (await _authRepository.RoleExistsAsync(roleName))
-                return new CreateRoleResponse { Success = false, Error = $"Role '{roleName}' already exists." };
+                return new CreateRoleResponse { Success = false, Error = $"Role '{baseRoleName}' already exists." };
 
             var role = new ApplicationRole
             {

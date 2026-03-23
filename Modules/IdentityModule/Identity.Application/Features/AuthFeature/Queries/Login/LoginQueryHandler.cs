@@ -3,6 +3,7 @@ using Identity.Application.Contracts.Persistence;
 using Identity.Application.Contracts.Services;
 using MediatR;
 using SharedKernel.Multitenancy;
+using Identity.Domain.Extensions;
 
 namespace Identity.Application.Features.AuthFeature.Queries.Login
 {
@@ -45,8 +46,7 @@ namespace Identity.Application.Features.AuthFeature.Queries.Login
 
             var roles = await _authService.GetUserRolesAsync(user);
             
-            // The token is purposefully kept lightweight without permission claims.
-            // Backend authorization will rely on the UI Database fallback logic (PermissionService).
+    
             var tokenPermissions = new List<string>();
             var token = _jwt.GenerateToken(user, roles, tokenPermissions, user.TenantId);
 
@@ -61,7 +61,7 @@ namespace Identity.Application.Features.AuthFeature.Queries.Login
                 Success = true, 
                 Token = token,
                 UserId = user.Id,
-                Roles = roles.ToList(),
+                Roles = roles.Select(r => r.ToCleanRoleName(user.TenantId)).ToList(),
                 Permissions = uiPermissions
             };
         }

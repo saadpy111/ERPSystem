@@ -6,6 +6,7 @@ using Identity.Domain.Enums;
 using Identity.Persistense.Context;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Identity.Domain.Extensions;
 
 namespace Identity.Persistense.Repositories
 {
@@ -116,7 +117,7 @@ namespace Identity.Persistense.Repositories
                 FullName = u.FullName ?? string.Empty,
                 Roles    = u.UserRoles
                             .Where(ur => ur.TenantId == tenantId)
-                            .Select(ur => ur.Role?.Name ?? string.Empty)
+                            .Select(ur => (ur.Role?.Name ?? string.Empty).ToCleanRoleName(tenantId))
                             .ToList()
             }).ToList();
 
@@ -156,7 +157,7 @@ namespace Identity.Persistense.Repositories
             var dtos = roles.Select(r => new RoleDto
             {
                 Id          = r.Id,
-                Name        = r.Name ?? string.Empty,
+                Name        = (r.Name ?? string.Empty).ToCleanRoleName(tenantId),
                 TenantId    = r.TenantId,
                 Permissions = r.RolePermissions
                                .Where(rp => rp.TenantId == tenantId)

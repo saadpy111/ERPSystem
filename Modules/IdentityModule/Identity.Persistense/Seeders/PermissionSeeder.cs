@@ -53,11 +53,12 @@ namespace Identity.Persistense.Seeders
             }
 
             var tenants = await _context.Tenants.ToListAsync();
+            var allPermissions = await _context.Permissions.ToListAsync();
 
             foreach (var tenant in tenants)
             {
                 var ownerRole = await _context.Roles
-                    .FirstOrDefaultAsync(r => r.Name == Roles.SuperAdmin && r.TenantId == tenant.Id);
+                    .FirstOrDefaultAsync(r => r.Name == $"{Roles.SuperAdmin}_{tenant.Id}" && r.TenantId == tenant.Id);
 
                 if (ownerRole == null) continue;
 
@@ -66,7 +67,7 @@ namespace Identity.Persistense.Seeders
                     .Select(rp => rp.PermissionId)
                     .ToListAsync();
 
-                var newPermissionsForOwner = permissionEntities
+                var newPermissionsForOwner = allPermissions
                     .Where(p => !existingRolePermissions.Contains(p.Id))
                     .Select(p => new RolePermission
                     {

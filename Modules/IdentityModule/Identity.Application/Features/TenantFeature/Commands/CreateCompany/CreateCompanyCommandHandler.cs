@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using SharedKernel.Subscription;
 using SharedKernel.Constants;
 using SharedKernel.Website;
+using Identity.Domain.Extensions;
 
 namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 {
@@ -147,7 +148,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
                 foreach (var roleName in defaultRoles)
                 {
-                    var tenantRoleName = $"{roleName}";
+                    var tenantRoleName = $"{roleName}_{tenant.Id}";
                     var role = new ApplicationRole
                     {
                         Id = Guid.NewGuid().ToString(),
@@ -194,7 +195,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
                 // ===== STEP 6: ASSIGN SUPERADMIN ROLE TO USER =====
 
-                var superAdminRole = createdRoles.FirstOrDefault(r => r.Name == $"{Roles.SuperAdmin}");
+                var superAdminRole = createdRoles.FirstOrDefault(r => r.Name == $"{Roles.SuperAdmin}_{tenant.Id}");
                 if (superAdminRole != null)
                 {
                     var userRole = new ApplicationUserRole
@@ -332,7 +333,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                     ? new List<string>()
                     : await _permissionRepository.GetUserEffectivePermissionsAsync(user.Id, tenantIdForPermissions);
                 var permissions = new List<string>();
-                var roles = new List<string> { $"{Roles.SuperAdmin}" };
+                var roles = new List<string> { $"{Roles.SuperAdmin}_{tenant.Id}" };
                 var newToken = _jwtTokenService.GenerateToken(user, roles, permissions, tenant.Id);
                 await transaction.CommitAsync(cancellationToken);
 
@@ -345,7 +346,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                     SubscriptionPlanName = subscriptionResult.PlanName,
                     IsTrial = subscriptionResult.IsTrial,
                     TrialEndsAt = subscriptionResult.TrialEndsAt,
-                    Roles = roles.ToList(),
+                    Roles = roles.Select(r => r.ToCleanRoleName(tenant.Id)).ToList(),
                     Permissions = uiPermissions
                 };
 
@@ -372,7 +373,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
             {
                 List<string> permissionIdsToAssign = new();
 
-                if (role.Name == Roles.SuperAdmin)
+                if (role.Name == $"{Roles.SuperAdmin}_{tenantId}")
                 {
                     // SuperAdmin gets all enabled subscription permissions PLUS all Admin infrastructure permissions
                     var adminPermissionIds = allPermissions
@@ -386,35 +387,35 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                         .Distinct()
                         .ToList();
                 }
-                else if (role.Name == Roles.InventoryManager)
+                else if (role.Name == $"{Roles.InventoryManager}_{tenantId}")
                 {
                     permissionIdsToAssign = enabledPermissions
                         .Where(p => p.Module == "Inventory")
                         .Select(p => p.Id)
                         .ToList();
                 }
-                else if (role.Name == Roles.HRManager)
+                else if (role.Name == $"{Roles.HRManager}_{tenantId}")
                 {
                     permissionIdsToAssign = enabledPermissions
                         .Where(p => p.Module == "HR")
                         .Select(p => p.Id)
                         .ToList();
                 }
-                else if (role.Name == Roles.ProcurementManager)
+                else if (role.Name == $"{Roles.ProcurementManager}_{tenantId}")
                 {
                     permissionIdsToAssign = enabledPermissions
                         .Where(p => p.Module == "Procurement")
                         .Select(p => p.Id)
                         .ToList();
                 }
-                else if (role.Name == Roles.ReportViewer)
+                else if (role.Name == $"{Roles.ReportViewer}_{tenantId}")
                 {
                     permissionIdsToAssign = enabledPermissions
                         .Where(p => p.Module == "Report")
                         .Select(p => p.Id)
                         .ToList();
                 }
-                else if (role.Name == Roles.WebsiteAdmin)
+                else if (role.Name == $"{Roles.WebsiteAdmin}_{tenantId}")
                 {
                     permissionIdsToAssign = enabledPermissions
                         .Where(p => p.Module == "Website")

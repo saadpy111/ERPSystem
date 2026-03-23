@@ -1,4 +1,5 @@
 using Identity.Application.Contracts.Persistence;
+using Identity.Application.Features.AccountManagement.Commands.CreateRole;
 using MediatR;
 using SharedKernel.Constants;
 
@@ -21,10 +22,19 @@ namespace Identity.Application.Features.AccountManagement.Commands.UpdateRole
             {
                 var role = await _authRepository.GetRoleByIdAsync(request.RoleId, request.TenantId);
                 if (role == null)
-                    return new UpdateRoleResponse { Success = false, Error = "Role not found in this tenant." };
-                if (role.Name == Roles.SuperAdmin)
+                    return new UpdateRoleResponse { Success = false, Error = "Role not found" };
+
+
+                if (role.Name == $"{Roles.SuperAdmin}_{request.TenantId}")
                     return new UpdateRoleResponse { Success = false, Error = "Can not change SuperAdmin role" };
-                role.Name = request.Name.Trim();
+
+
+                var baseRoleName = request.Name.Trim();
+                var roleName = $"{baseRoleName}_{request.TenantId}";
+                if (await _authRepository.RoleExistsAsync(roleName))
+                    return new UpdateRoleResponse { Success = false, Error = $"Role '{baseRoleName}' already exists." };
+
+                role.Name = $"{request.Name.Trim()}_{request.TenantId}";
                 var result = await _authRepository.UpdateRoleAsync(role);
                 if (!result.Succeeded)
                 {
