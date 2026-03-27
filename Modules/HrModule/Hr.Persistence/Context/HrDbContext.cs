@@ -10,6 +10,8 @@ namespace Hr.Persistence.Context
     {
         private readonly ITenantProvider _tenantProvider;
 
+        private string TenantId => _tenantProvider.GetTenantId()!;
+
         public HrDbContext(
             DbContextOptions<HrDbContext> options,
             ITenantProvider tenantProvider)
@@ -51,6 +53,8 @@ namespace Hr.Persistence.Context
             ApplyGlobalTenantFilter(modelBuilder);
         }
 
+        #region Global Filter
+
         private void ApplyGlobalTenantFilter(ModelBuilder modelBuilder)
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
@@ -70,10 +74,12 @@ namespace Hr.Persistence.Context
             where TEntity : BaseEntity
         {
             modelBuilder.Entity<TEntity>()
-                .HasQueryFilter(e => e.TenantId == _tenantProvider.GetTenantId());
+                .HasQueryFilter(e => e.TenantId == TenantId);
         }
 
-        #region SaveChanges Overrides
+        #endregion
+
+        #region SaveChanges
 
         public override int SaveChanges()
         {
@@ -103,7 +109,15 @@ namespace Hr.Persistence.Context
                 }
                 else if (entry.State == EntityState.Modified)
                 {
+                    if (entry.OriginalValues["TenantId"]?.ToString() != tenantId)
+                        throw new Exception("Cross-tenant update is not allowed!");
+
                     entry.Entity.UpdatedAt = DateTime.UtcNow;
+                }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    if (entry.OriginalValues["TenantId"]?.ToString() != tenantId)
+                        throw new Exception("Cross-tenant delete is not allowed!");
                 }
             }
         }

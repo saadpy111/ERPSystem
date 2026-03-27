@@ -20,6 +20,10 @@ namespace Procurement.Persistence.Configurations
                 
             builder.Property(pr => pr.Notes)
                 .HasMaxLength(500);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.Id });
         }
     }
 }

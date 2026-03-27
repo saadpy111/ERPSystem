@@ -18,6 +18,7 @@
 	<ItemGroup>
     <ProjectReference Include="..\Procurement.Application\Procurement.Application.csproj" />
     <ProjectReference Include="..\Procurement.Domain\Procurement.Domain.csproj" />
+    <ProjectReference Include="..\..\..\SharedKernel\SharedKernel.Core.csproj" />
   </ItemGroup>
 
 </Project>

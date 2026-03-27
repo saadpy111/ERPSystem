@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace Procurement.Domain.Entities
 {
-    public class GoodsReceipt
+    public class GoodsReceipt : BaseEntity
     {
-        public Guid Id { get; private set; }
         public Guid WarehouseId { get;  set; }
         public Guid PurchaseOrderId { get;  set; }
         public PurchaseOrder  PurchaseOrder { get; set; }
@@ -17,10 +16,6 @@ namespace Procurement.Domain.Entities
 
         public Guid? ReceivedBy { get; set; }
         public DateTime ReceivedDate { get; set; }
-
-        
-        public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; private set; }
 
         public GoodsReceipt(Guid warehouseId)
         {

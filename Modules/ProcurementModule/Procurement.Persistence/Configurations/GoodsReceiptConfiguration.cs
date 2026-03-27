@@ -28,6 +28,10 @@ namespace Procurement.Persistence.Configurations
                 .WithMany(po => po.GoodsReceipts)
                 .HasForeignKey(gr => gr.PurchaseOrderId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.Id });
         }
     }
 }
