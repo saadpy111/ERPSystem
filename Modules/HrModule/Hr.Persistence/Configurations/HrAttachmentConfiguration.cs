@@ -30,6 +30,10 @@ namespace Hr.Persistence.Configurations
 
             // Configure the polymorphic relationship
             builder.HasIndex(a => new { a.EntityType, a.EntityId });
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.Id });
         }
     }
 }

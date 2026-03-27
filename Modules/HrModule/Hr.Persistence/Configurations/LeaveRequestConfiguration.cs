@@ -23,6 +23,10 @@ namespace Hr.Persistence.Configurations
                 .WithMany(e => e.LeaveRequests)
                 .HasForeignKey(lr => lr.EmployeeId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.RequestId });
         }
     }
 }

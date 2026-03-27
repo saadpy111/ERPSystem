@@ -20,6 +20,11 @@ namespace Hr.Persistence.Configurations
             builder.Property(rs => rs.IsActive)
                 .IsRequired()
                 .HasDefaultValue(true);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.StageId });
         }
     }
 }
+

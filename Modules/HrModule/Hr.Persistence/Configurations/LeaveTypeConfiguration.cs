@@ -24,6 +24,10 @@ namespace Hr.Persistence.Configurations
                 .HasDefaultValue(LeaveTypeStatus.NoPaid);
                 
   
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.LeaveTypeId });
         }
     }
 }

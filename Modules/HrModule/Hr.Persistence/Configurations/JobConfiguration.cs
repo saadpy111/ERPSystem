@@ -42,6 +42,10 @@ namespace Hr.Persistence.Configurations
                 .WithOne(a => a.AppliedJob)
                 .HasForeignKey(a => a.JobId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.JobId });
         }
     }
 }

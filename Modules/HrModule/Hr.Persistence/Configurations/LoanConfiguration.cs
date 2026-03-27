@@ -36,6 +36,11 @@ namespace Hr.Persistence.Configurations
                 .WithOne(i => i.Loan)
                 .HasForeignKey(i => i.LoanId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.LoanId });
         }
     }
 }
+

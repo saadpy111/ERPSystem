@@ -23,6 +23,10 @@ namespace Hr.Persistence.Configurations
                 .WithMany(s => s.Components)
                 .HasForeignKey(c => c.SalaryStructureId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.Id });
         }
     }
 }

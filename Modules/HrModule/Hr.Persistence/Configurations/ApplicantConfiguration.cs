@@ -30,6 +30,11 @@ namespace Hr.Persistence.Configurations
                 .WithMany()
                 .HasForeignKey(a => a.CurrentStageId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Multi-tenancy indexes
+            builder.HasIndex(x => x.TenantId);
+            builder.HasIndex(x => new { x.TenantId, x.ApplicantId });
         }
     }
 }
+

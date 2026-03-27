@@ -1,14 +1,24 @@
+using Hr.Domain;
 using Hr.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using SharedKernel.Multitenancy;
 using System.Reflection;
 
 namespace Hr.Persistence.Context
 {
     public class HrDbContext : DbContext
     {
-        public HrDbContext(DbContextOptions<HrDbContext> options) : base(options)
+        private readonly ITenantProvider _tenantProvider;
+
+        public HrDbContext(
+            DbContextOptions<HrDbContext> options,
+            ITenantProvider tenantProvider)
+            : base(options)
         {
+            _tenantProvider = tenantProvider;
         }
+
+        #region DbSets
 
         public DbSet<Department> Departments { get; set; }
         public DbSet<Employee> Employees { get; set; }
@@ -29,16 +39,79 @@ namespace Hr.Persistence.Context
         public DbSet<SalaryStructure> SalaryStructures { get; set; }
         public DbSet<SalaryStructureComponent> SalaryStructureComponents { get; set; }
 
+        #endregion
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
-            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
             modelBuilder.HasDefaultSchema("Hr");
-            
+            modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+
+            ApplyGlobalTenantFilter(modelBuilder);
         }
+
+        private void ApplyGlobalTenantFilter(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                if (typeof(BaseEntity).IsAssignableFrom(entityType.ClrType))
+                {
+                    var method = typeof(HrDbContext)
+                        .GetMethod(nameof(SetTenantFilter), BindingFlags.NonPublic | BindingFlags.Instance)!
+                        .MakeGenericMethod(entityType.ClrType);
+
+                    method.Invoke(this, new object[] { modelBuilder });
+                }
+            }
+        }
+
+        private void SetTenantFilter<TEntity>(ModelBuilder modelBuilder)
+            where TEntity : BaseEntity
+        {
+            modelBuilder.Entity<TEntity>()
+                .HasQueryFilter(e => e.TenantId == _tenantProvider.GetTenantId());
+        }
+
+        #region SaveChanges Overrides
+
+        public override int SaveChanges()
+        {
+            ApplyTenantAndAudit();
+            return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            ApplyTenantAndAudit();
+            return await base.SaveChangesAsync(cancellationToken);
+        }
+
+        private void ApplyTenantAndAudit()
+        {
+            var tenantId = _tenantProvider.GetTenantId();
+
+            if (string.IsNullOrEmpty(tenantId))
+                throw new Exception("TenantId is not set!");
+
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.TenantId = tenantId;
+                    entry.Entity.CreatedAt = DateTime.UtcNow;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    entry.Entity.UpdatedAt = DateTime.UtcNow;
+                }
+            }
+        }
+
+        #endregion
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            base.OnConfiguring(optionsBuilder);
             if (!optionsBuilder.IsConfigured)
             {
                 string con = "Server=DESKTOP-VGEBCK1\\SQLEXPRESS;Database=InventoryMicro;Trusted_Connection=True;MultipleActiveResultSets=true;Encrypt=False;TrustServerCertificate=True;";
