@@ -33,7 +33,8 @@ namespace Identity.Application.Features.AccountManagement.Commands.CreateRole
                 Id             = Guid.NewGuid().ToString(),
                 Name           = roleName,
                 NormalizedName = roleName.ToUpperInvariant(),
-                TenantId       = request.TenantId
+                TenantId       = request.TenantId,
+                Scope          = request.Scope
             };
 
             var result = await _authRepository.CreateRoleAsync(role);

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Identity.Persistense.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialIdentity : Migration
+    public partial class addInitialIdentity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -53,6 +53,7 @@ namespace Identity.Persistense.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     TenantId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Scope = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -344,10 +345,10 @@ namespace Identity.Persistense.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoles_Name_TenantId",
+                name: "IX_AspNetRoles_Name_TenantId_Scope",
                 schema: "Identity",
                 table: "AspNetRoles",
-                columns: new[] { "Name", "TenantId" },
+                columns: new[] { "Name", "TenantId", "Scope" },
                 unique: true,
                 filter: "[Name] IS NOT NULL");
 

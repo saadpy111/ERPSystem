@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Identity.Persistense.Migrations
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20260131193256_InitialIdentity")]
-    partial class InitialIdentity
+    [Migration("20260326180412_addInitialIdentity")]
+    partial class addInitialIdentity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,6 +43,9 @@ namespace Identity.Persistense.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<int>("Scope")
+                        .HasColumnType("int");
+
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -56,7 +59,7 @@ namespace Identity.Persistense.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("Name", "TenantId")
+                    b.HasIndex("Name", "TenantId", "Scope")
                         .IsUnique()
                         .HasFilter("[Name] IS NOT NULL");
 

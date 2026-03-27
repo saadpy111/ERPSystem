@@ -11,6 +11,7 @@ using Identity.Application.Features.AccountManagement.Queries.GetPermissions;
 using Identity.Application.Features.AccountManagement.Queries.GetRoles;
 using Identity.Application.Features.AccountManagement.Queries.GetUsers;
 using Identity.Domain.Enums;
+using Identity.Domain.Entities;
 using MediatR;
 using SharedKernel.Constants.Permissions;
 using SharedKernel.Authorization;
@@ -49,11 +50,16 @@ namespace Identity.Api.Controllers
         private string? TenantId =>
            _tenantProvider.GetTenantId();
 
+        private  RoleScope TargetedRoleScope =>
+            ManagedUserType == UserType.Client
+                ? RoleScope.Website
+                : RoleScope.ERP;
+
         private string CurrentUserId =>
             User.FindFirstValue("sub") ??
             User.FindFirstValue(ClaimTypes.NameIdentifier) ??
             string.Empty;
-
+        
         private IActionResult MissingTenant() =>
             Unauthorized(new { error = "Tenant context is missing from the token." });
 
@@ -122,9 +128,9 @@ namespace Identity.Api.Controllers
 
             return Ok(response.Permissions);
         }
-
+        
         // ── Roles ─────────────────────────────────────────────────────────────────
-
+        
         /// <summary>Get all tenant roles (paginated).</summary>
         [HttpGet("roles")]
         [HasPermission(AdminPermissions.RolesView)]
@@ -138,6 +144,7 @@ namespace Identity.Api.Controllers
             var response = await _mediator.Send(new GetRolesQuery
             {
                 TenantId   = TenantId,
+                Scope      = TargetedRoleScope,
                 Search     = search,
                 PageNumber = pageNumber,
                 PageSize   = pageSize
@@ -157,6 +164,7 @@ namespace Identity.Api.Controllers
             {
                 TenantId      = TenantId,
                 Name          = body.Name,
+                Scope         = TargetedRoleScope,
                 PermissionIds = body.PermissionIds
             });
 
@@ -175,7 +183,8 @@ namespace Identity.Api.Controllers
             {
                 RoleId   = roleId,
                 TenantId = TenantId,
-                Name     = body.Name
+                Name     = body.Name,
+                Scope    = TargetedRoleScope
             });
 
             if (!response.Success) return BadRequest(new { error = response.Error });
@@ -192,7 +201,8 @@ namespace Identity.Api.Controllers
             var response = await _mediator.Send(new DeleteRoleCommand
             {
                 RoleId   = roleId,
-                TenantId = TenantId
+                TenantId = TenantId,
+                Scope    = TargetedRoleScope
             });
 
             if (!response.Success) return BadRequest(new { error = response.Error });
@@ -213,7 +223,8 @@ namespace Identity.Api.Controllers
             {
                 RoleId       = roleId,
                 TenantId     = TenantId,
-                PermissionId = body.PermissionId
+                PermissionId = body.PermissionId,
+                Scope        = TargetedRoleScope
             });
 
             if (!response.Success) return BadRequest(new { error = response.Error });
@@ -231,7 +242,8 @@ namespace Identity.Api.Controllers
             {
                 RoleId       = roleId,
                 TenantId     = TenantId,
-                PermissionId = permissionId
+                PermissionId = permissionId,
+                Scope        = TargetedRoleScope
             });
 
             if (!response.Success) return BadRequest(new { error = response.Error });
@@ -250,7 +262,8 @@ namespace Identity.Api.Controllers
             {
                 RoleId        = roleId,
                 TenantId      = TenantId,
-                PermissionIds = body.PermissionIds
+                PermissionIds = body.PermissionIds,
+                Scope         = TargetedRoleScope
             });
 
             if (!response.Success) return BadRequest(new { error = response.Error });

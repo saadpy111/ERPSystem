@@ -11,13 +11,15 @@ namespace Identity.Persistense.Configurations
             builder.Property(r => r.TenantId)
                 .IsRequired();
 
+            builder.Property(r => r.Scope)
+                .IsRequired();
 
             builder.HasOne(r => r.Tenant)
                 .WithMany(t => t.Roles)
                 .HasForeignKey(r => r.TenantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasIndex(r => new { r.Name, r.TenantId })
+            builder.HasIndex(r => new { r.Name, r.TenantId, r.Scope })
                 .IsUnique();
         }
     }

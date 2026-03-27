@@ -40,6 +40,9 @@ namespace Identity.Persistense.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<int>("Scope")
+                        .HasColumnType("int");
+
                     b.Property<string>("TenantId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -53,7 +56,7 @@ namespace Identity.Persistense.Migrations
 
                     b.HasIndex("TenantId");
 
-                    b.HasIndex("Name", "TenantId")
+                    b.HasIndex("Name", "TenantId", "Scope")
                         .IsUnique()
                         .HasFilter("[Name] IS NOT NULL");
 

@@ -64,7 +64,6 @@ namespace Identity.Persistense.Context
                     .HasQueryFilter(ti => ti.TenantId == CurrentTenantId);
                     
                 // Note: ApplicationUser filter removed - handled explicitly in repositories
-                // Note: Permission is global and never filtered
             }
         }
     }

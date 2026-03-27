@@ -29,6 +29,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.AddPermission
             if (role == null)
                 return new RolePermissionResponse { Success = false, Error = "Role not found in this tenant." };
 
+            // Scope validation
+            if (role.Scope != request.Scope)
+                return new RolePermissionResponse { Success = false, Error = "Unauthorized access to this role scope." };
+
             // Verify permission exists globally
             var allPermissions = await _rolePermRepo.GetAllPermissionsAsync();
             var permission = allPermissions.FirstOrDefault(p =>

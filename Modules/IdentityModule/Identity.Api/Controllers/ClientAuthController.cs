@@ -56,10 +56,9 @@ namespace Identity.Api.Controllers
             if (!response.Success)
                 return Unauthorized(new { Error = response.Error });
 
-            return Ok(new
-            {
-                token = response.Token,
-            });
+            return Ok(    
+            response
+            );
         }
 
         /// <summary>

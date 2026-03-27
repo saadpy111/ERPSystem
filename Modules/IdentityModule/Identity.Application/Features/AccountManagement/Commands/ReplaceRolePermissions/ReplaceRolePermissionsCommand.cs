@@ -1,5 +1,7 @@
 using Identity.Application.Contracts.Persistence;
 using Identity.Application.Features.AccountManagement.Commands.AddPermissionToRole;
+using Identity.Domain.Entities;
+using Identity.Domain.Enums;
 using MediatR;
 
 namespace Identity.Application.Features.AccountManagement.Commands.ReplaceRolePermissions
@@ -8,6 +10,7 @@ namespace Identity.Application.Features.AccountManagement.Commands.ReplaceRolePe
     {
         public string RoleId { get; set; } = string.Empty;
         public string TenantId { get; set; } = string.Empty;
+        public RoleScope Scope { get; set; }
         /// <summary>Full replacement set — can be permission names or IDs.</summary>
         public List<string> PermissionIds { get; set; } = new();
     }
@@ -35,6 +38,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.ReplaceRolePe
             var role = await _authRepository.GetRoleByIdAsync(request.RoleId, request.TenantId);
             if (role == null)
                 return new RolePermissionResponse { Success = false, Error = "Role not found in this tenant." };
+            
+            // Scope validation
+            if (role.Scope != request.Scope)
+                return new RolePermissionResponse { Success = false, Error = "Unauthorized access to this role scope." };
 
             // Resolve names → IDs (accept both formats)
             var allPermissions = await _rolePermRepo.GetAllPermissionsAsync();

@@ -41,6 +41,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.AssignRoleToU
             var role = await _authRepository.GetRoleByIdAsync(request.RoleId, request.TenantId);
             if (role == null)
                 return new UserRoleResponse { Success = false, Error = "Role not found in this tenant." };
+            
+            // Safety Rule: Validate UserType against Role.Scope
+            if ((int)user.UserType != (int)role.Scope)
+                return new UserRoleResponse { Success = false, Error = $"Cannot assign {role.Scope} role to {user.UserType} user." };
 
             var result = await _authRepository.AssignRoleToUserAsync(user, role, request.TenantId, request.AssignedBy);
             if (!result.Succeeded)

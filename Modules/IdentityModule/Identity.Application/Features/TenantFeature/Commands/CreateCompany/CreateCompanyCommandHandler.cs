@@ -139,7 +139,6 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 Roles.InventoryManager,
                 Roles.HRManager,
                 Roles.ProcurementManager,
-                Roles.ReportViewer ,
                  Roles.WebsiteAdmin
                };
 
@@ -149,12 +148,17 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 foreach (var roleName in defaultRoles)
                 {
                     var tenantRoleName = $"{roleName}_{tenant.Id}";
+                    var scope = roleName == Roles.WebsiteAdmin 
+                        ? RoleScope.Website 
+                        : RoleScope.ERP;
+
                     var role = new ApplicationRole
                     {
                         Id = Guid.NewGuid().ToString(),
                         Name = tenantRoleName,
                         NormalizedName = tenantRoleName.ToUpper(),
-                        TenantId = tenant.Id
+                        TenantId = tenant.Id,
+                        Scope = scope
                     };
 
                     var roleResult = await _roleManager.CreateAsync(role);
@@ -408,13 +412,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                         .Select(p => p.Id)
                         .ToList();
                 }
-                else if (role.Name == $"{Roles.ReportViewer}_{tenantId}")
-                {
-                    permissionIdsToAssign = enabledPermissions
-                        .Where(p => p.Module == "Report")
-                        .Select(p => p.Id)
-                        .ToList();
-                }
+
                 else if (role.Name == $"{Roles.WebsiteAdmin}_{tenantId}")
                 {
                     permissionIdsToAssign = enabledPermissions

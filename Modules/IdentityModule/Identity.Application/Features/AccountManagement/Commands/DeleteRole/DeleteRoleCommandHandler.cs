@@ -19,6 +19,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.DeleteRole
             var role = await _authRepository.GetRoleByIdAsync(request.RoleId, request.TenantId);
             if (role == null)
                 return new DeleteRoleResponse { Success = false, Error = "Role not found in this tenant." };
+            
+            // Scope validation
+            if (role.Scope != request.Scope)
+                return new DeleteRoleResponse { Success = false, Error = "Unauthorized access to this role scope." };
 
             var result = await _authRepository.DeleteRoleAsync(role);
             if (!result.Succeeded)

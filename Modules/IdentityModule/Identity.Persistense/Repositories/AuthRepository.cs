@@ -132,11 +132,11 @@ namespace Identity.Persistense.Repositories
                 .FirstOrDefaultAsync(r => r.Id == roleId && r.TenantId == tenantId);
 
         public async Task<PagedResult<RoleDto>> GetRolesPagedAsync(
-            string tenantId, string? search, int pageNumber, int pageSize)
+            string tenantId ,RoleScope scope, string? search, int pageNumber, int pageSize)
         {
             var query = _roleManager.Roles
                 .IgnoreQueryFilters()
-                .Where(r => r.TenantId == tenantId);
+                .Where(r => r.TenantId == tenantId && r.Scope == scope);
 
             if (!string.IsNullOrWhiteSpace(search))
             {

@@ -13,7 +13,7 @@ namespace Identity.Application.Features.AccountManagement.Queries.GetRoles
         public async Task<GetRolesResponse> Handle(GetRolesQuery request, CancellationToken cancellationToken)
         {
             var paged = await _authRepository.GetRolesPagedAsync(
-                request.TenantId, request.Search, request.PageNumber, request.PageSize);
+                request.TenantId, request.Scope, request.Search, request.PageNumber, request.PageSize);
 
             return new GetRolesResponse { Result = paged };
         }

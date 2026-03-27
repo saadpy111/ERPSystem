@@ -2,6 +2,10 @@ using Identity.Application.Contracts.Persistence;
 using Identity.Application.Features.AccountManagement.Commands.CreateRole;
 using MediatR;
 using SharedKernel.Constants;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Identity.Application.Features.AccountManagement.Commands.UpdateRole
 {
@@ -23,6 +27,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.UpdateRole
                 var role = await _authRepository.GetRoleByIdAsync(request.RoleId, request.TenantId);
                 if (role == null)
                     return new UpdateRoleResponse { Success = false, Error = "Role not found" };
+
+                // Scope validation
+                if (role.Scope != request.Scope)
+                    return new UpdateRoleResponse { Success = false, Error = "Unauthorized access to this role scope." };
 
 
                 if (role.Name == $"{Roles.SuperAdmin}_{request.TenantId}")
@@ -48,7 +56,6 @@ namespace Identity.Application.Features.AccountManagement.Commands.UpdateRole
             catch(Exception)
             {
                 return new UpdateRoleResponse { Success = false, Error = "Error while updating" };
-
             }
         }
     }

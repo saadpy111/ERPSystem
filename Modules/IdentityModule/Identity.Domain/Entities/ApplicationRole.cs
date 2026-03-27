@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Identity.Domain.Enums;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +8,11 @@ using System.Threading.Tasks;
 
 namespace Identity.Domain.Entities
 {
+
     public class ApplicationRole : IdentityRole
     {
         public string TenantId { get; set; } = string.Empty;
+        public RoleScope Scope { get; set; }
 
         // Navigation properties
         public virtual Tenant Tenant { get; set; } = null!;

@@ -32,7 +32,7 @@ namespace Identity.Application.Contracts.Persistence
 
         // ── Role CRUD (tenant-scoped) ─────────────────────────────────────────────
         Task<ApplicationRole?> GetRoleByIdAsync(string roleId, string tenantId);
-        Task<PagedResult<RoleDto>> GetRolesPagedAsync(string tenantId, string? search, int pageNumber, int pageSize);
+        Task<PagedResult<RoleDto>> GetRolesPagedAsync(string tenantId, RoleScope scope, string? search, int pageNumber, int pageSize);
         Task<IdentityResult> UpdateRoleAsync(ApplicationRole role);
         Task<IdentityResult> DeleteRoleAsync(ApplicationRole role);
 

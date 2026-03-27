@@ -10,7 +10,6 @@ namespace SharedKernel.Constants
         public const string InventoryManager = "InventoryManager";
         public const string HRManager = "HRManager";
         public const string ProcurementManager = "ProcurementManager";
-        public const string ReportViewer = "ReportViewer";
         public const string WebsiteAdmin = "WebsiteManager";
     }
 }

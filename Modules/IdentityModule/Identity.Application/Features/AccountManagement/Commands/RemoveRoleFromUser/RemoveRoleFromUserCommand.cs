@@ -31,6 +31,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.RemoveRoleFro
             var role = await _authRepository.GetRoleByIdAsync(request.RoleId, request.TenantId);
             if (role == null)
                 return new UserRoleResponse { Success = false, Error = "Role not found in this tenant." };
+            
+            // Safety Rule: Validate UserType against Role.Scope
+            if ((int)user.UserType != (int)role.Scope)
+                return new UserRoleResponse { Success = false, Error = $"Cannot manage {role.Scope} role for {user.UserType} user." };
 
             var result = await _authRepository.RemoveRoleFromUserAsync(user, role, request.TenantId);
             if (!result.Succeeded)
