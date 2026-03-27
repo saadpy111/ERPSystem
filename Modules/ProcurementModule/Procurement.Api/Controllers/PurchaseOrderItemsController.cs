@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Procurement.Application.Features.PurchaseOrderItemFeatures.Commands;
 using Procurement.Application.Features.PurchaseOrderItemFeatures.Queries;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Procurement.Api.Controllers
 {
@@ -18,6 +20,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPost]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseOrderItemsCreate)]
         public async Task<IActionResult> CreatePurchaseOrderItem([FromBody] CreatePurchaseOrderItemCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -28,6 +31,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPut("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseOrderItemsEdit)]
         public async Task<IActionResult> UpdatePurchaseOrderItem(Guid id, [FromBody] UpdatePurchaseOrderItemCommandRequest request)
         {
             request.Id = id;
@@ -39,6 +43,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpDelete("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseOrderItemsDelete)]
         public async Task<IActionResult> DeletePurchaseOrderItem(Guid id)
         {
             var request = new DeletePurchaseOrderItemCommandRequest { Id = id };
@@ -50,6 +55,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseOrderItemsView)]
         public async Task<IActionResult> GetPurchaseOrderItemById(Guid id)
         {
             var request = new GetPurchaseOrderItemByIdQueryRequest { Id = id };
@@ -61,6 +67,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseOrderItemsView)]
         public async Task<IActionResult> GetAllPurchaseOrderItems()
         {
             var request = new GetAllPurchaseOrderItemsQueryRequest();
@@ -69,6 +76,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet("by-purchase-order/{purchaseOrderId:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseOrderItemsView)]
         public async Task<IActionResult> GetPurchaseOrderItemsByPurchaseOrderId(Guid purchaseOrderId)
         {
             var request = new GetPurchaseOrderItemsByPurchaseOrderIdQueryRequest { PurchaseOrderId = purchaseOrderId };
@@ -76,4 +84,4 @@ namespace Procurement.Api.Controllers
             return Ok(response);
         }
     }
-}
+}

@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Procurement.Application.Features.PurchaseInvoiceFeatures.Commands;
 using Procurement.Application.Features.PurchaseInvoiceFeatures.Queries;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Procurement.Api.Controllers
 {
@@ -18,6 +20,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPost]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseInvoicesCreate)]
         public async Task<IActionResult> CreatePurchaseInvoice([FromBody] CreatePurchaseInvoiceCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -28,6 +31,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPut("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseInvoicesEdit)]
         public async Task<IActionResult> UpdatePurchaseInvoice(Guid id, [FromBody] UpdatePurchaseInvoiceCommandRequest request)
         {
             request.Id = id;
@@ -39,6 +43,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpDelete("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseInvoicesDelete)]
         public async Task<IActionResult> DeletePurchaseInvoice(Guid id)
         {
             var request = new DeletePurchaseInvoiceCommandRequest { Id = id };
@@ -50,6 +55,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseInvoicesView)]
         public async Task<IActionResult> GetPurchaseInvoiceById(Guid id)
         {
             var request = new GetPurchaseInvoiceByIdQueryRequest { Id = id };
@@ -61,6 +67,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseInvoicesView)]
         public async Task<IActionResult> GetAllPurchaseInvoices()
         {
             var request = new GetAllPurchaseInvoicesQueryRequest();
@@ -69,6 +76,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet("by-purchase-order/{purchaseOrderId:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseInvoicesView)]
         public async Task<IActionResult> GetPurchaseInvoicesByPurchaseOrderId(Guid purchaseOrderId)
         {
             var request = new GetPurchaseInvoicesByPurchaseOrderIdQueryRequest { PurchaseOrderId = purchaseOrderId };
@@ -76,4 +84,4 @@ namespace Procurement.Api.Controllers
             return Ok(response);
         }
     }
-}
+}

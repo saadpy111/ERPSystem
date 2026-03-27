@@ -2,6 +2,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Procurement.Application.Features.PurchaseRequisitionFeatures.Commands;
 using Procurement.Application.Features.PurchaseRequisitionFeatures.Queries;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Procurement.Api.Controllers
 {
@@ -18,6 +20,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPost]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseRequisitionsCreate)]
         public async Task<IActionResult> CreatePurchaseRequisition([FromBody] CreatePurchaseRequisitionCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -28,6 +31,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPut("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseRequisitionsEdit)]
         public async Task<IActionResult> UpdatePurchaseRequisition(Guid id, [FromBody] UpdatePurchaseRequisitionCommandRequest request)
         {
             request.Id = id;
@@ -39,6 +43,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpDelete("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseRequisitionsDelete)]
         public async Task<IActionResult> DeletePurchaseRequisition(Guid id)
         {
             var request = new DeletePurchaseRequisitionCommandRequest { Id = id };
@@ -50,6 +55,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet("{id:guid}")]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseRequisitionsView)]
         public async Task<IActionResult> GetPurchaseRequisitionById(Guid id)
         {
             var request = new GetPurchaseRequisitionByIdQueryRequest { Id = id };
@@ -61,6 +67,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet]
+        [Authorize(Permissions = ProcurementPermissions.PurchaseRequisitionsView)]
         public async Task<IActionResult> GetAllPurchaseRequisitions()
         {
             var request = new GetAllPurchaseRequisitionsQueryRequest();
@@ -68,4 +75,4 @@ namespace Procurement.Api.Controllers
             return Ok(response);
         }
     }
-}
+}

@@ -47,5 +47,7 @@ namespace SharedKernel.Constants.Permissions
         public const string GoodsReceiptsCreate = "Procurement.GoodsReceipts.Create";
         public const string GoodsReceiptsEdit = "Procurement.GoodsReceipts.Edit";
         public const string GoodsReceiptsDelete = "Procurement.GoodsReceipts.Delete";
+        public const string GoodsReceiptsConfirm = "Procurement.GoodsReceipts.Confirm";
     }
 }
+

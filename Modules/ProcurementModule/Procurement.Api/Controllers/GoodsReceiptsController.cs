@@ -5,6 +5,8 @@ using Procurement.Application.Features.GoodsReceiptFeatures.Commands;
 using Procurement.Application.Features.GoodsReceiptFeatures.Queries;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Procurement.Api.Controllers
 {
@@ -21,6 +23,7 @@ namespace Procurement.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Permissions = ProcurementPermissions.GoodsReceiptsCreate)]
         public async Task<IActionResult> Create([FromBody] CreateGoodsReceiptCommandRequest request)
         {
             var result = await _mediator.Send(request);
@@ -31,6 +34,7 @@ namespace Procurement.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Permissions = ProcurementPermissions.GoodsReceiptsEdit)]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateGoodsReceiptCommandRequest request)
         {
             if (id != request.Id)
@@ -44,6 +48,7 @@ namespace Procurement.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Permissions = ProcurementPermissions.GoodsReceiptsDelete)]
         public async Task<IActionResult> Delete(Guid id)
         {
             var request = new DeleteGoodsReceiptCommandRequest { Id = id };
@@ -56,6 +61,7 @@ namespace Procurement.Api.Controllers
         }
 
         [HttpPost("{id}/confirm")]
+        [Authorize(Permissions = ProcurementPermissions.GoodsReceiptsConfirm)]
         public async Task<IActionResult> Confirm(Guid id)
         {
             var command = new ConfirmGoodsReceiptCommandRequest { GoodsReceiptId = id };
@@ -68,6 +74,7 @@ namespace Procurement.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Permissions = ProcurementPermissions.GoodsReceiptsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllGoodsReceiptsQueryRequest();
@@ -76,6 +83,7 @@ namespace Procurement.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Permissions = ProcurementPermissions.GoodsReceiptsView)]
         public async Task<IActionResult> GetById(Guid id)
         {
             var query = new GetGoodsReceiptByIdQueryRequest { Id = id };
@@ -88,3 +96,4 @@ namespace Procurement.Api.Controllers
         }
     }
 }
+
