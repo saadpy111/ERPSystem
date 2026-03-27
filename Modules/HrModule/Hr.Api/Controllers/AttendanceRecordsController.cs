@@ -7,6 +7,8 @@ using Hr.Application.DTOs;
 using Hr.Application.Features.AttendanceRecordFeatures.UpdateAttendanceRecord;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Hr.Api.Controllers
 {
@@ -23,6 +25,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Permissions = HrPermissions.AttendanceCreate)]
         public async Task<IActionResult> Create([FromBody] CreateAttendanceRecordRequest request)
         {
             var result = await _mediator.Send(request);
@@ -34,6 +37,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Permissions = HrPermissions.AttendanceView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllAttendanceRecordsRequest();
@@ -42,6 +46,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
+        [Authorize(Permissions = HrPermissions.AttendanceView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetAttendanceRecordsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -49,6 +54,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Permissions = HrPermissions.AttendanceView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetAttendanceRecordByIdRequest { Id = id };
@@ -61,6 +67,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Permissions = HrPermissions.AttendanceEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateAttendanceRecordRequest request)
         {
             request.RecordId = id;
@@ -74,6 +81,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Permissions = HrPermissions.AttendanceDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteAttendanceRecordRequest { RecordId = id };
@@ -86,6 +94,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("AttendanceRecordMetadata")]
+        [Authorize(Permissions = HrPermissions.AttendanceView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -116,3 +125,4 @@ namespace Hr.Api.Controllers
         }
     }
 }
+

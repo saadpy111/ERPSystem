@@ -8,6 +8,8 @@ using Hr.Application.Features.LoanInstallmentFeatures.PayLoanInstallment;
 using Hr.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Hr.Api.Controllers
 {
@@ -24,6 +26,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllLoanInstallmentsRequest();
@@ -32,6 +35,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetLoanInstallmentsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -39,6 +43,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetLoanInstallmentByIdRequest { Id = id };
@@ -51,6 +56,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLoanInstallmentRequest request)
         {
             request.InstallmentId = id;
@@ -64,6 +70,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteLoanInstallmentRequest { InstallmentId = id };
@@ -76,6 +83,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost("{id}/pay")]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsPay)]
         public async Task<IActionResult> PayInstallment(int id, [FromBody] PayLoanInstallmentRequest request)
         {
             request.InstallmentId = id;
@@ -91,6 +99,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsView)]
         public IActionResult GetInstallmentStatuses()
         {
             var statuses = Enum.GetValues(typeof(InstallmentStatus))
@@ -100,6 +109,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("LoanInstallmentMetadata")]
+        [Authorize(Permissions = HrPermissions.LoanInstallmentsView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -128,4 +138,4 @@ namespace Hr.Api.Controllers
             return Ok(metadata);
         }
     }
-}
+}

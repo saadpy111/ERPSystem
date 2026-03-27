@@ -12,6 +12,8 @@ using Hr.Application.DTOs;
 using Hr.Application.Features.RecruitmentStageFeatures.UpdateRecruitmentStage;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Hr.Api.Controllers
 {
@@ -28,6 +30,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesCreate)]
         public async Task<IActionResult> Create([FromBody] CreateRecruitmentStageRequest request)
         {
             var result = await _mediator.Send(request);
@@ -39,6 +42,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllRecruitmentStagesRequest();
@@ -47,6 +51,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetRecruitmentStagesPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -54,6 +59,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("active")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesView)]
         public async Task<IActionResult> GetActive()
         {
             var query = new GetActiveRecruitmentStagesRequest();
@@ -62,6 +68,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("ordered")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesView)]
         public async Task<IActionResult> GetOrdered()
         {
             var query = new GetOrderedRecruitmentStagesRequest();
@@ -70,6 +77,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetRecruitmentStageByIdRequest { Id = id };
@@ -82,6 +90,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateRecruitmentStageRequest request)
         {
             request.StageId = id;
@@ -95,6 +104,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{id}/activate")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesEdit)]
         public async Task<IActionResult> Activate(int id)
         {
             var request = new ActivateRecruitmentStageRequest { StageId = id };
@@ -107,6 +117,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{id}/deactivate")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesEdit)]
         public async Task<IActionResult> Deactivate(int id)
         {
             var request = new DeactivateRecruitmentStageRequest { StageId = id };
@@ -119,6 +130,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("reorder")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesReorder)]
         public async Task<IActionResult> Reorder([FromBody] ReorderRecruitmentStagesRequest request)
         {
             var result = await _mediator.Send(request);
@@ -130,6 +142,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteRecruitmentStageRequest { StageId = id };
@@ -142,6 +155,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("RecruitmentStageMetadata")]
+        [Authorize(Permissions = HrPermissions.RecruitmentStagesView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -167,3 +181,4 @@ namespace Hr.Api.Controllers
         }
     }
 }
+

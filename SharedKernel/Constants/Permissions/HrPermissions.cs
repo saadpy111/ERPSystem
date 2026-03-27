@@ -32,12 +32,15 @@ namespace SharedKernel.Constants.Permissions
         public const string JobsCreate = "HR.Jobs.Create";
         public const string JobsEdit = "HR.Jobs.Edit";
         public const string JobsDelete = "HR.Jobs.Delete";
+        public const string JobsActivate = "HR.Jobs.Activate";
+        public const string JobsDeactivate = "HR.Jobs.Deactivate";
 
         // ===== EMPLOYEE CONTRACTS =====
         public const string ContractsView = "HR.Contracts.View";
         public const string ContractsCreate = "HR.Contracts.Create";
         public const string ContractsEdit = "HR.Contracts.Edit";
         public const string ContractsDelete = "HR.Contracts.Delete";
+        public const string ContractsManageAttachments = "HR.Contracts.ManageAttachments";
 
         // ===== ATTENDANCE RECORDS =====
         public const string AttendanceView = "HR.Attendance.View";
@@ -95,12 +98,17 @@ namespace SharedKernel.Constants.Permissions
         // ===== LOAN INSTALLMENTS =====
         public const string LoanInstallmentsView = "HR.LoanInstallments.View";
         public const string LoanInstallmentsEdit = "HR.LoanInstallments.Edit";
+        public const string LoanInstallmentsDelete = "HR.LoanInstallments.Delete";
+        public const string LoanInstallmentsPay = "HR.LoanInstallments.Pay";
 
         // ===== RECRUITMENT STAGES =====
         public const string RecruitmentStagesView = "HR.RecruitmentStages.View";
         public const string RecruitmentStagesCreate = "HR.RecruitmentStages.Create";
         public const string RecruitmentStagesEdit = "HR.RecruitmentStages.Edit";
         public const string RecruitmentStagesDelete = "HR.RecruitmentStages.Delete";
+        public const string RecruitmentStagesActivate = "HR.RecruitmentStages.Activate";
+        public const string RecruitmentStagesDeactivate = "HR.RecruitmentStages.Deactivate";
+        public const string RecruitmentStagesReorder = "HR.RecruitmentStages.Reorder";
 
         // ===== APPLICANTS =====
         public const string ApplicantsView = "HR.Applicants.View";
@@ -108,5 +116,10 @@ namespace SharedKernel.Constants.Permissions
         public const string ApplicantsEdit = "HR.Applicants.Edit";
         public const string ApplicantsDelete = "HR.Applicants.Delete";
         public const string ApplicantsHire = "HR.Applicants.Hire";
+        public const string ApplicantsAccept = "HR.Applicants.Accept";
+        public const string ApplicantsReject = "HR.Applicants.Reject";
+        public const string ApplicantsMoveToStage = "HR.Applicants.MoveToStage";
+        public const string ApplicantsScheduleInterview = "HR.Applicants.ScheduleInterview";
+        public const string ApplicantsManageAttachments = "HR.Applicants.ManageAttachments";
     }
 }

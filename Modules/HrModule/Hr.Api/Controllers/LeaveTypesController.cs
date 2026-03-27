@@ -8,6 +8,8 @@ using Hr.Application.Features.LeaveTypeFeatures.Queries.GetLeaveTypesPaged;
 using Hr.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Hr.Api.Controllers
 {
@@ -24,6 +26,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Permissions = HrPermissions.LeaveTypesCreate)]
         public async Task<IActionResult> Create([FromBody] CreateLeaveTypeRequest request)
         {
             var result = await _mediator.Send(request);
@@ -35,6 +38,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Permissions = HrPermissions.LeaveTypesView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllLeaveTypesRequest();
@@ -43,6 +47,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
+        [Authorize(Permissions = HrPermissions.LeaveTypesView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetLeaveTypesPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -50,6 +55,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Permissions = HrPermissions.LeaveTypesView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetLeaveTypeByIdRequest { Id = id };
@@ -62,6 +68,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Permissions = HrPermissions.LeaveTypesEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLeaveTypeRequest request)
         {
             request.Id = id;
@@ -75,6 +82,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Permissions = HrPermissions.LeaveTypesDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteLeaveTypeRequest { Id = id };
@@ -89,6 +97,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
+        [Authorize(Permissions = HrPermissions.LeaveTypesView)]
         public IActionResult GetLeaveTypeStatuses()
         {
             var statuses = Enum.GetValues(typeof(LeaveTypeStatus))
@@ -98,6 +107,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("LeaveTypeMetadata")]
+        [Authorize(Permissions = HrPermissions.LeaveTypesView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -124,4 +134,4 @@ namespace Hr.Api.Controllers
             return Ok(metadata);
         }
     }
-}
+}

@@ -10,6 +10,8 @@ using Hr.Application.DTOs;
 using Hr.Application.Features.DepartmentFeatures.UpdateDepartment;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Hr.Api.Controllers
 {
@@ -26,6 +28,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Permissions = HrPermissions.DepartmentsCreate)]
         public async Task<IActionResult> Create([FromForm] CreateDepartmentRequest request)
         {
             var result = await _mediator.Send(request);
@@ -36,6 +39,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Permissions = HrPermissions.DepartmentsView)]
         public async Task<IActionResult> GetAll()
         {
             var result = await _mediator.Send(new GetAllDepartmentsRequest());
@@ -43,6 +47,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
+        [Authorize(Permissions = HrPermissions.DepartmentsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetDepartmentsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -50,6 +55,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("tree")]
+        [Authorize(Permissions = HrPermissions.DepartmentsViewTree)]
         public async Task<IActionResult> GetTree()
         {
             var result = await _mediator.Send(new GetDepartmentTreeRequest());
@@ -57,6 +63,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Permissions = HrPermissions.DepartmentsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _mediator.Send(new GetDepartmentByIdRequest { Id = id });
@@ -67,6 +74,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Permissions = HrPermissions.DepartmentsEdit)]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateDepartmentRequest request)
         {
             request.Id = id;
@@ -80,6 +88,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Permissions = HrPermissions.DepartmentsDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteDepartmentRequest { Id = id };
@@ -92,6 +101,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost("{id}/attachments")]
+        [Authorize(Permissions = HrPermissions.DepartmentsManageAttachments)]
         public async Task<IActionResult> UploadAttachment(int id, [FromForm] UploadDepartmentAttachmentRequest request)
         {
             request.DepartmentId = id;
@@ -103,6 +113,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("attachments/{attachmentId}")]
+        [Authorize(Permissions = HrPermissions.DepartmentsManageAttachments)]
         public async Task<IActionResult> DeleteAttachment(int attachmentId)
         {
             var request = new DeleteDepartmentAttachmentRequest { AttachmentId = attachmentId };
@@ -114,6 +125,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("DepartmentMetadata")]
+        [Authorize(Permissions = HrPermissions.DepartmentsView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -137,4 +149,4 @@ namespace Hr.Api.Controllers
             return Ok(metadata);
         }
     }
-}
+}
