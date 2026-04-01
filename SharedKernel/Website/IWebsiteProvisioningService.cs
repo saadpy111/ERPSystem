@@ -216,5 +216,17 @@ namespace SharedKernel.Website
         /// Returns the relative path to the saved image.
         /// </summary>
         Task<string> ProcessWebsiteClientOImgAsync(string tenantId, IFormFile file);
+
+        /// <summary>
+        /// Processes and saves the Contact-Us section image for a theme.
+        /// Returns the relative path to the saved image.
+        /// </summary>
+        Task<string> ProcessThemeContactUsImgAsync(string themeCode, IFormFile file);
+
+        /// <summary>
+        /// Processes and saves the Client-Overview image for a theme.
+        /// Returns the relative path to the saved image.
+        /// </summary>
+        Task<string> ProcessThemeClientOImgAsync(string themeCode, IFormFile file);
     }
 }

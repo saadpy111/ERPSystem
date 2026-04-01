@@ -43,7 +43,7 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
             EnsureConfigStructure(theme);
 
             theme.Name = request.Name;
-            theme.IsActive = request.IsActive;
+            //theme.IsActive = request.IsActive;
 
             // ───────── Preview Image ─────────
             if (request.PreviewImageFile != null)
@@ -131,6 +131,54 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 theme.Config.Hero.BackgroundImage.Style.OverlayOpacity =
                     request.HeroBackgroundOverlayOpacity.Value;
 
+            // ───────── ContactUsImg Image ─────────
+            if (request.ContactUsImgFile != null)
+            {
+                if (!string.IsNullOrEmpty(theme.Config.ContactUsImages.ContactUsImg.Url))
+                    await _fileService.DeleteFileAsync(theme.Config.ContactUsImages.ContactUsImg.Url);
+
+                theme.Config.ContactUsImages.ContactUsImg.Url =
+                    await _websiteImageService.ProcessThemeContactUsImgAsync(
+                        theme.Code,
+                        request.ContactUsImgFile);
+            }
+
+            if (request.ContactUsImgBorderRadius.HasValue)
+                theme.Config.ContactUsImages.ContactUsImg.Style.BorderRadius =
+                    request.ContactUsImgBorderRadius.Value;
+
+            if (request.ContactUsImgOverlayColor != null)
+                theme.Config.ContactUsImages.ContactUsImg.Style.OverlayColor =
+                    request.ContactUsImgOverlayColor;
+
+            if (request.ContactUsImgOverlayOpacity.HasValue)
+                theme.Config.ContactUsImages.ContactUsImg.Style.OverlayOpacity =
+                    request.ContactUsImgOverlayOpacity.Value;
+
+            // ───────── ClientOImg Image ─────────
+            if (request.ClientOImgFile != null)
+            {
+                if (!string.IsNullOrEmpty(theme.Config.ContactUsImages.ClientOImg.Url))
+                    await _fileService.DeleteFileAsync(theme.Config.ContactUsImages.ClientOImg.Url);
+
+                theme.Config.ContactUsImages.ClientOImg.Url =
+                    await _websiteImageService.ProcessThemeClientOImgAsync(
+                        theme.Code,
+                        request.ClientOImgFile);
+            }
+
+            if (request.ClientOImgBorderRadius.HasValue)
+                theme.Config.ContactUsImages.ClientOImg.Style.BorderRadius =
+                    request.ClientOImgBorderRadius.Value;
+
+            if (request.ClientOImgOverlayColor != null)
+                theme.Config.ContactUsImages.ClientOImg.Style.OverlayColor =
+                    request.ClientOImgOverlayColor;
+
+            if (request.ClientOImgOverlayOpacity.HasValue)
+                theme.Config.ContactUsImages.ClientOImg.Style.OverlayOpacity =
+                    request.ClientOImgOverlayOpacity.Value;
+
             // ───────── Sections ─────────
             if (request.Sections != null)
             {
@@ -162,6 +210,10 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
             theme.Config.Hero.Subtitle ??= DefaultTextContent();
             theme.Config.Hero.ButtonText ??= DefaultTextContent();
             theme.Config.Hero.BackgroundImage ??= DefaultImageContent();
+
+            theme.Config.ContactUsImages ??= new ContactUsImages();
+            theme.Config.ContactUsImages.ContactUsImg ??= DefaultImageContent();
+            theme.Config.ContactUsImages.ClientOImg ??= DefaultImageContent();
         }
 
         private static void UpdateTextContent(

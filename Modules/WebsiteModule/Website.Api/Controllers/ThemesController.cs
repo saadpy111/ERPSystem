@@ -17,7 +17,6 @@ namespace Website.Api.Controllers
     [ApiController]
     [Route("api/website/themes")]
     [ApiExplorerSettings(GroupName = "Website")]
-    [Authorize]
     public class ThemesController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -62,6 +61,8 @@ namespace Website.Api.Controllers
         [HttpPost]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(CreateThemeResponse), 201)]
+        [AllowAnonymous]
+
         [ProducesResponseType(400)]
         public async Task<IActionResult> CreateTheme([FromForm] CreateThemeCommand command)
         {
@@ -79,6 +80,8 @@ namespace Website.Api.Controllers
         [HttpPut("{id:guid}")]
         [Consumes("multipart/form-data")]
         [ProducesResponseType(typeof(UpdateThemeResponse), 200)]
+        [AllowAnonymous]
+
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateTheme(Guid id, [FromForm] UpdateThemeCommand command)
         {
@@ -96,6 +99,8 @@ namespace Website.Api.Controllers
         /// </summary>
         [HttpDelete("{id:guid}")]
         [ProducesResponseType(200)]
+        [AllowAnonymous]
+
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteTheme(Guid id)
         {

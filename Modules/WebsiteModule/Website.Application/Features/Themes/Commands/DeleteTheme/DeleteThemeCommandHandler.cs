@@ -44,6 +44,18 @@ namespace Website.Application.Features.Themes.Commands.DeleteTheme
                 await _fileService.DeleteFileAsync(theme.Config.Hero.BackgroundImage.Url);
             }
 
+            if (!string.IsNullOrEmpty(theme.Config?.ContactUsImages?.ContactUsImg?.Url))
+            {
+                await _fileService.DeleteFileAsync(
+                    theme.Config.ContactUsImages.ContactUsImg.Url);
+            }
+
+            if (!string.IsNullOrEmpty(theme.Config?.ContactUsImages?.ClientOImg?.Url))
+            {
+                await _fileService.DeleteFileAsync(
+                    theme.Config.ContactUsImages.ClientOImg.Url);
+            }
+
             // Delete Record
             await _themeRepository.DeleteAsync(request.ThemeId);
 

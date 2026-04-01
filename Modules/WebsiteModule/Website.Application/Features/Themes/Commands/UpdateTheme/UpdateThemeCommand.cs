@@ -15,6 +15,20 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
         // ── Uploaded Images ──────────────────────────────────────────────────
         public IFormFile? PreviewImageFile { get; set; }
         public IFormFile? HeroBackgroundImageFile { get; set; }
+
+        // ── ContactUs Images (optional) ───────────────────────────────────
+        public IFormFile? ContactUsImgFile { get; set; }
+        public IFormFile? ClientOImgFile { get; set; }
+
+        // ── ContactUsImg Style ───────────────────────────────────────────────
+        public int? ContactUsImgBorderRadius { get; set; }
+        public string? ContactUsImgOverlayColor { get; set; }
+        public int? ContactUsImgOverlayOpacity { get; set; }
+
+        // ── ClientOImg Style ─────────────────────────────────────────────────
+        public int? ClientOImgBorderRadius { get; set; }
+        public string? ClientOImgOverlayColor { get; set; }
+        public int? ClientOImgOverlayOpacity { get; set; }
         
         // ── Colors ──────────────────────────────────────────────────────────
         public string? PrimaryColor { get; set; }

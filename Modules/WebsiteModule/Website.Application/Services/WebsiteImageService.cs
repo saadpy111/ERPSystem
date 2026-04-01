@@ -66,5 +66,23 @@ namespace Website.Application.Services
             string folderPath = $"websites/{tenantId}/clientoverview";
             return await _fileService.SaveFileAsync(file, folderPath);
         }
+
+        public async Task<string> ProcessThemeContactUsImgAsync(string themeCode, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("Theme Contact Us image file is required", nameof(file));
+
+            string folderPath = $"themes/{themeCode}/contactus";
+            return await _fileService.SaveFileAsync(file, folderPath);
+        }
+
+        public async Task<string> ProcessThemeClientOImgAsync(string themeCode, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("Theme Client overview image file is required", nameof(file));
+
+            string folderPath = $"themes/{themeCode}/clientoverview";
+            return await _fileService.SaveFileAsync(file, folderPath);
+        }
     }
 }
