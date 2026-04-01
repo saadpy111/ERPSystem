@@ -15,6 +15,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -31,7 +32,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.JobsCreate)]
+        [HasPermission( HrPermissions.JobsCreate)]
         public async Task<IActionResult> Create([FromBody] CreateJobRequest request)
         {
             var result = await _mediator.Send(request);
@@ -43,7 +44,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllJobsRequest();
@@ -52,7 +53,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetJobsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -60,7 +61,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetJobByIdRequest { Id = id };
@@ -73,7 +74,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.JobsEdit)]
+        [HasPermission( HrPermissions.JobsEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateJobRequest request)
         {
             request.Id = id;
@@ -87,7 +88,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.JobsDelete)]
+        [HasPermission( HrPermissions.JobsDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteJobRequest { Id = id };
@@ -102,7 +103,7 @@ namespace Hr.Api.Controllers
         // Business Endpoints
 
         [HttpGet("active")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public async Task<IActionResult> GetActiveJobs()
         {
             var query = new GetActiveJobsRequest();
@@ -111,7 +112,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("department/{departmentId}")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public async Task<IActionResult> GetJobsByDepartment(int departmentId)
         {
             var query = new GetJobsByDepartmentRequest { DepartmentId = departmentId };
@@ -120,7 +121,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{jobId}/applicants")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public async Task<IActionResult> GetJobApplicants(int jobId)
         {
             var query = new GetJobApplicantsRequest { JobId = jobId };
@@ -129,7 +130,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{jobId}/activate")]
-        [Authorize(Permissions = HrPermissions.JobsActivate)]
+        [HasPermission( HrPermissions.JobsActivate)]
         public async Task<IActionResult> ActivateJob(int jobId)
         {
             var request = new ActivateJobRequest { JobId = jobId };
@@ -142,7 +143,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{jobId}/deactivate")]
-        [Authorize(Permissions = HrPermissions.JobsDeactivate)]
+        [HasPermission( HrPermissions.JobsDeactivate)]
         public async Task<IActionResult> DeactivateJob(int jobId)
         {
             var request = new DeactivateJobRequest { JobId = jobId };
@@ -157,7 +158,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public IActionResult GetJobStatuses()
         {
             var statuses = Enum.GetValues(typeof(JobStatus))
@@ -167,7 +168,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("enums/work-types")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public IActionResult GetWorkTypes()
         {
             var workTypes = Enum.GetValues(typeof(WorkType))
@@ -177,7 +178,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("JobMetadata")]
-        [Authorize(Permissions = HrPermissions.JobsView)]
+        [HasPermission( HrPermissions.JobsView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto

@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -26,7 +27,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsCreate)]
+        [HasPermission(HrPermissions.PayrollComponentsCreate)]
         public async Task<IActionResult> Create([FromBody] CreatePayrollComponentRequest request)
         {
             var result = await _mediator.Send(request);
@@ -38,7 +39,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsView)]
+        [HasPermission(HrPermissions.PayrollComponentsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllPayrollComponentsRequest();
@@ -47,7 +48,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsView)]
+        [HasPermission(HrPermissions.PayrollComponentsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetPayrollComponentsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -55,7 +56,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsView)]
+        [HasPermission(HrPermissions.PayrollComponentsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetPayrollComponentByIdRequest { Id = id };
@@ -68,7 +69,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsEdit)]
+        [HasPermission(HrPermissions.PayrollComponentsEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePayrollComponentRequest request)
         {
             request.ComponentId = id;
@@ -82,7 +83,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsDelete)]
+        [HasPermission(HrPermissions.PayrollComponentsDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeletePayrollComponentRequest { ComponentId = id };
@@ -97,7 +98,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/types")]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsView)]
+        [HasPermission(HrPermissions.PayrollComponentsView)]
         public IActionResult GetPayrollComponentTypes()
         {
             var types = Enum.GetValues(typeof(PayrollComponentType))
@@ -107,7 +108,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("PayrollComponentMetadata")]
-        [Authorize(Permissions = HrPermissions.PayrollComponentsView)]
+        [HasPermission(HrPermissions.PayrollComponentsView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -135,4 +136,5 @@ namespace Hr.Api.Controllers
         }
     }
 }
+
 

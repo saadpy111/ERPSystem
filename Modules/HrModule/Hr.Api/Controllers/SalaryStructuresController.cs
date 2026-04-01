@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -26,7 +27,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.SalaryStructuresCreate)]
+        [HasPermission(HrPermissions.SalaryStructuresCreate)]
         public async Task<IActionResult> Create([FromBody] CreateSalaryStructureRequest request)
         {
             var result = await _mediator.Send(request);
@@ -38,7 +39,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.SalaryStructuresView)]
+        [HasPermission(HrPermissions.SalaryStructuresView)]
         public async Task<IActionResult> GetAll([FromQuery] GetSalaryStructuresPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -46,7 +47,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.SalaryStructuresView)]
+        [HasPermission(HrPermissions.SalaryStructuresView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetSalaryStructureByIdRequest { Id = id };
@@ -59,7 +60,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("enums/types")]
-        [Authorize(Permissions = HrPermissions.SalaryStructuresView)]
+        [HasPermission(HrPermissions.SalaryStructuresView)]
         public IActionResult GetSalaryStructureTypes()
         {
             var types = Enum.GetValues(typeof(SalaryStructureType))
@@ -69,7 +70,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.SalaryStructuresEdit)]
+        [HasPermission(HrPermissions.SalaryStructuresEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateSalaryStructureRequest request)
         {
             request.Id = id;
@@ -83,7 +84,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.SalaryStructuresDelete)]
+        [HasPermission(HrPermissions.SalaryStructuresDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteSalaryStructureRequest { Id = id };
@@ -96,7 +97,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("SalaryStructureMetadata")]
-        [Authorize(Permissions = HrPermissions.SalaryStructuresView)]
+        [HasPermission(HrPermissions.SalaryStructuresView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto

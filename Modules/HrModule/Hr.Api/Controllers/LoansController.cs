@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -26,7 +27,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.LoansCreate)]
+        [HasPermission(HrPermissions.LoansCreate)]
         public async Task<IActionResult> Create([FromBody] CreateLoanRequest request)
         {
             var result = await _mediator.Send(request);
@@ -38,7 +39,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.LoansView)]
+        [HasPermission(HrPermissions.LoansView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllLoansRequest();
@@ -47,7 +48,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.LoansView)]
+        [HasPermission(HrPermissions.LoansView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetLoansPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -55,7 +56,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.LoansView)]
+        [HasPermission(HrPermissions.LoansView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetLoanByIdRequest { Id = id };
@@ -68,7 +69,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.LoansEdit)]
+        [HasPermission(HrPermissions.LoansEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLoanRequest request)
         {
             request.Id = id;
@@ -82,7 +83,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.LoansDelete)]
+        [HasPermission(HrPermissions.LoansDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteLoanRequest { Id = id };
@@ -97,7 +98,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
-        [Authorize(Permissions = HrPermissions.LoansView)]
+        [HasPermission(HrPermissions.LoansView)]
         public IActionResult GetLoanStatuses()
         {
             var statuses = Enum.GetValues(typeof(LoanStatus))
@@ -107,7 +108,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("LoanMetadata")]
-        [Authorize(Permissions = HrPermissions.LoansView)]
+        [HasPermission(HrPermissions.LoansView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -137,4 +138,5 @@ namespace Hr.Api.Controllers
         }
     }
 }
+
 

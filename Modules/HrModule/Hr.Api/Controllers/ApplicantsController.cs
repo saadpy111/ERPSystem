@@ -18,6 +18,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -34,7 +35,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.ApplicantsCreate)]
+        [HasPermission(HrPermissions.ApplicantsCreate)]
         public async Task<IActionResult> Create([FromForm] CreateApplicantRequest request)
         {
             var result = await _mediator.Send(request);
@@ -46,7 +47,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.ApplicantsView)]
+        [HasPermission(HrPermissions.ApplicantsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllApplicantsRequest();
@@ -55,7 +56,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.ApplicantsView)]
+        [HasPermission(HrPermissions.ApplicantsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetApplicantsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -63,7 +64,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("job/{jobId}")]
-        [Authorize(Permissions = HrPermissions.ApplicantsView)]
+        [HasPermission(HrPermissions.ApplicantsView)]
         public async Task<IActionResult> GetByJob(int jobId)
         {
             var query = new GetApplicantsByJobRequest { JobId = jobId };
@@ -72,7 +73,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("stage/{stageId}")]
-        [Authorize(Permissions = HrPermissions.ApplicantsView)]
+        [HasPermission( HrPermissions.ApplicantsView)]
         public async Task<IActionResult> GetByStage(int stageId)
         {
             var query = new GetApplicantsByStageRequest { StageId = stageId };
@@ -81,7 +82,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.ApplicantsView)]
+        [HasPermission( HrPermissions.ApplicantsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetApplicantByIdRequest { Id = id };
@@ -94,7 +95,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.ApplicantsEdit)]
+        [HasPermission( HrPermissions.ApplicantsEdit)]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateApplicantRequest request)
         {
             request.ApplicantId = id;
@@ -108,7 +109,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{id}/move-to-stage")]
-        [Authorize(Permissions = HrPermissions.ApplicantsMoveToStage)]
+        [HasPermission(HrPermissions.ApplicantsMoveToStage)]
         public async Task<IActionResult> MoveToStage(int id, [FromBody] MoveApplicantToStageRequest request)
         {
             request.ApplicantId = id;
@@ -122,7 +123,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{id}/accept")]
-        [Authorize(Permissions = HrPermissions.ApplicantsAccept)]
+        [HasPermission(HrPermissions.ApplicantsAccept)]
         public async Task<IActionResult> Accept(int id, [FromBody] AcceptApplicantRequest request)
         {
             request.ApplicantId = id;
@@ -136,7 +137,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{id}/reject")]
-        [Authorize(Permissions = HrPermissions.ApplicantsReject)]
+        [HasPermission(HrPermissions.ApplicantsReject)]
         public async Task<IActionResult> Reject(int id, [FromBody] RejectApplicantRequest request)
         {
             request.ApplicantId = id;
@@ -150,7 +151,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost("{id}/schedule-interview")]
-        [Authorize(Permissions = HrPermissions.ApplicantsScheduleInterview)]
+        [HasPermission(HrPermissions.ApplicantsScheduleInterview)]
         public async Task<IActionResult> ScheduleInterview(int id, [FromBody] ScheduleInterviewRequest request)
         {
             request.ApplicantId = id;
@@ -164,7 +165,7 @@ namespace Hr.Api.Controllers
         }
 
             [HttpDelete("{id}")]
-            [Authorize(Permissions = HrPermissions.ApplicantsDelete)]
+            [HasPermission(HrPermissions.ApplicantsDelete)]
             public async Task<IActionResult> Delete(int id)
             {
                 var request = new DeleteApplicantRequest { ApplicantId = id };
@@ -179,7 +180,7 @@ namespace Hr.Api.Controllers
             // Enum Endpoints
 
             [HttpGet("enums/statuses")]
-            [Authorize(Permissions = HrPermissions.ApplicantsView)]
+            [HasPermission(HrPermissions.ApplicantsView)]
             public IActionResult GetApplicantStatuses()
             {
                 var statuses = Enum.GetValues(typeof(ApplicantStatus))
@@ -189,7 +190,7 @@ namespace Hr.Api.Controllers
             }
 
             [HttpPost("{id}/attachments")]
-            [Authorize(Permissions = HrPermissions.ApplicantsManageAttachments)]
+            [HasPermission(HrPermissions.ApplicantsManageAttachments)]
             public async Task<IActionResult> UploadAttachment(int id, [FromForm] UploadAttachmentApplicantRequest request)
             {
                 request.ApplicantId = id;
@@ -201,7 +202,7 @@ namespace Hr.Api.Controllers
             }
 
             [HttpDelete("attachments/{attachmentId}")]
-            [Authorize(Permissions = HrPermissions.ApplicantsManageAttachments)]
+            [HasPermission(HrPermissions.ApplicantsManageAttachments)]
             public async Task<IActionResult> DeleteAttachment(int attachmentId)
             {
                 var request = new DeleteAttachmentApplicantRequest { AttachmentId = attachmentId };
@@ -213,7 +214,7 @@ namespace Hr.Api.Controllers
             }
 
             [HttpGet("ApplicantMetadata")]
-            [Authorize(Permissions = HrPermissions.ApplicantsView)]
+            [HasPermission(HrPermissions.ApplicantsView)]
             public IActionResult GetMetadata()
             {
                 var metadata = new EntityMetadataDto
@@ -245,4 +246,3 @@ namespace Hr.Api.Controllers
 }
 
     
-}

@@ -13,6 +13,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -29,7 +30,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.ContractsCreate)]
+        [HasPermission( HrPermissions.ContractsCreate)]
         public async Task<IActionResult> Create([FromForm] CreateEmployeeContractRequest request)
         {
             var result = await _mediator.Send(request);
@@ -41,7 +42,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.ContractsView)]
+        [HasPermission( HrPermissions.ContractsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllEmployeeContractsRequest();
@@ -50,7 +51,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.ContractsView)]
+        [HasPermission( HrPermissions.ContractsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetEmployeeContractsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -58,7 +59,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.ContractsView)]
+        [HasPermission( HrPermissions.ContractsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetEmployeeContractByIdRequest { Id = id };
@@ -71,7 +72,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("employee/{employeeId}")]
-        [Authorize(Permissions = HrPermissions.ContractsView)]
+        [HasPermission( HrPermissions.ContractsView)]
         public async Task<IActionResult> GetByEmployeeId(int employeeId)
         {
             var query = new GetEmployeeContractsByEmployeeIdRequest { EmployeeId = employeeId };
@@ -80,7 +81,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.ContractsEdit)]
+        [HasPermission( HrPermissions.ContractsEdit)]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateEmployeeContractRequest request)
         {
             request.Id = id;
@@ -94,7 +95,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.ContractsDelete)]
+        [HasPermission( HrPermissions.ContractsDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteEmployeeContractRequest { Id = id };
@@ -107,7 +108,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost("{id}/attachments")]
-        [Authorize(Permissions = HrPermissions.ContractsManageAttachments)]
+        [HasPermission( HrPermissions.ContractsManageAttachments)]
         public async Task<IActionResult> UploadAttachment(int id, [FromForm] UploadAttachmentContractRequest request)
         {
             request.EmployeeContractId = id;
@@ -119,7 +120,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("attachments/{attachmentId}")]
-        [Authorize(Permissions = HrPermissions.ContractsManageAttachments)]
+        [HasPermission( HrPermissions.ContractsManageAttachments)]
         public async Task<IActionResult> DeleteAttachment(int attachmentId)
         {
             var request = new DeleteAttachmentContractRequest { AttachmentId = attachmentId };
@@ -133,7 +134,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/contract-types")]
-        [Authorize(Permissions = HrPermissions.ContractsView)]
+        [HasPermission( HrPermissions.ContractsView)]
         public IActionResult GetContractTypes()
         {
             var contractTypes = Enum.GetValues(typeof(Hr.Domain.Enums.ContractType))
@@ -143,7 +144,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("EmployeeContractMetadata")]
-        [Authorize(Permissions = HrPermissions.ContractsView)]
+        [HasPermission( HrPermissions.ContractsView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto

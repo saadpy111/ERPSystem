@@ -4,6 +4,7 @@ using Procurement.Application.Features.VendorFeatures.Commands;
 using Procurement.Application.Features.VendorFeatures.Queries;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Procurement.Api.Controllers
 {
@@ -20,7 +21,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPost]
-        [Authorize(Permissions = ProcurementPermissions.VendorsCreate)]
+        [HasPermission(ProcurementPermissions.VendorsCreate)]
         public async Task<IActionResult> CreateVendor([FromForm] CreateVendorCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -31,7 +32,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPut("{id:guid}")]
-        [Authorize(Permissions = ProcurementPermissions.VendorsEdit)]
+        [HasPermission(ProcurementPermissions.VendorsEdit)]
         public async Task<IActionResult> UpdateVendor(Guid id, [FromForm] UpdateVendorCommandRequest request)
         {
             request.Vendor.Id = id;
@@ -43,7 +44,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpDelete("{id:guid}")]
-        [Authorize(Permissions = ProcurementPermissions.VendorsDelete)]
+        [HasPermission(ProcurementPermissions.VendorsDelete)]
         public async Task<IActionResult> DeleteVendor(Guid id)
         {
             var request = new DeleteVendorCommandRequest { Id = id };
@@ -55,7 +56,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet("{id:guid}")]
-        [Authorize(Permissions = ProcurementPermissions.VendorsView)]
+        [HasPermission(ProcurementPermissions.VendorsView)]
         public async Task<IActionResult> GetVendorById(Guid id)
         {
             var request = new GetVendorByIdQueryRequest { Id = id };
@@ -67,7 +68,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet]
-        [Authorize(Permissions = ProcurementPermissions.VendorsView)]
+        [HasPermission(ProcurementPermissions.VendorsView)]
         public async Task<IActionResult> GetAllVendors()
         {
             var request = new GetAllVendorsQueryRequest();

@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -26,7 +27,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsCreate)]
+        [HasPermission(HrPermissions.PayrollRecordsCreate)]
         public async Task<IActionResult> Create([FromBody] CreatePayrollRecordRequest request)
         {
             var result = await _mediator.Send(request);
@@ -38,7 +39,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsView)]
+        [HasPermission(HrPermissions.PayrollRecordsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllPayrollRecordsRequest();
@@ -47,7 +48,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsView)]
+        [HasPermission(HrPermissions.PayrollRecordsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetPayrollRecordsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -55,7 +56,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsView)]
+        [HasPermission(HrPermissions.PayrollRecordsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetPayrollRecordByIdRequest { Id = id };
@@ -68,7 +69,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsEdit)]
+        [HasPermission(HrPermissions.PayrollRecordsEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdatePayrollRecordRequest request)
         {
             request.PayrollId = id;
@@ -82,7 +83,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsDelete)]
+        [HasPermission(HrPermissions.PayrollRecordsDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeletePayrollRecordRequest { PayrollId = id };
@@ -97,7 +98,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsView)]
+        [HasPermission(HrPermissions.PayrollRecordsView)]
         public IActionResult GetPayrollStatuses()
         {
             var statuses = Enum.GetValues(typeof(PayrollStatus))
@@ -107,7 +108,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("PayrollRecordMetadata")]
-        [Authorize(Permissions = HrPermissions.PayrollRecordsView)]
+        [HasPermission(HrPermissions.PayrollRecordsView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
@@ -139,4 +140,5 @@ namespace Hr.Api.Controllers
         }
     }
 }
+
 

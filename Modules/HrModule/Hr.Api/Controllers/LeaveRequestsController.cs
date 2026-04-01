@@ -10,6 +10,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -26,7 +27,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsCreate)]
+        [HasPermission( HrPermissions.LeaveRequestsCreate)]
         public async Task<IActionResult> Create([FromBody] CreateLeaveRequestRequest request)
         {
             var result = await _mediator.Send(request);
@@ -38,7 +39,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsView)]
+        [HasPermission( HrPermissions.LeaveRequestsView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllLeaveRequestsRequest();
@@ -47,7 +48,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsView)]
+        [HasPermission( HrPermissions.LeaveRequestsView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetLeaveRequestsPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -55,7 +56,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsView)]
+        [HasPermission( HrPermissions.LeaveRequestsView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetLeaveRequestByIdRequest { Id = id };
@@ -68,7 +69,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsEdit)]
+        [HasPermission( HrPermissions.LeaveRequestsEdit)]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateLeaveRequestRequest request)
         {
             request.Id = id;
@@ -82,7 +83,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsDelete)]
+        [HasPermission( HrPermissions.LeaveRequestsDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteLeaveRequestRequest { Id = id };
@@ -97,7 +98,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsView)]
+        [HasPermission( HrPermissions.LeaveRequestsView)]
         public IActionResult GetLeaveRequestStatuses()
         {
             var statuses = Enum.GetValues(typeof(LeaveRequestStatus))
@@ -107,7 +108,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("LeaveRequestMetadata")]
-        [Authorize(Permissions = HrPermissions.LeaveRequestsView)]
+        [HasPermission( HrPermissions.LeaveRequestsView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto

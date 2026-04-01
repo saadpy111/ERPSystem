@@ -4,6 +4,7 @@ using Procurement.Application.Features.PurchaseOrderFeatures.Commands;
 using Procurement.Application.Features.PurchaseOrderFeatures.Queries;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Procurement.Api.Controllers
 {
@@ -20,7 +21,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPost]
-        [Authorize(Permissions = ProcurementPermissions.PurchaseOrdersCreate)]
+        [HasPermission(ProcurementPermissions.PurchaseOrdersCreate)]
         public async Task<IActionResult> CreatePurchaseOrder([FromBody] CreatePurchaseOrderCommandRequest request)
         {
             var response = await _mediator.Send(request);
@@ -31,7 +32,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpPut("{id:guid}")]
-        [Authorize(Permissions = ProcurementPermissions.PurchaseOrdersEdit)]
+        [HasPermission(ProcurementPermissions.PurchaseOrdersEdit)]
         public async Task<IActionResult> UpdatePurchaseOrder(Guid id, [FromBody] UpdatePurchaseOrderCommandRequest request)
         {
             request.Id = id;
@@ -43,7 +44,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpDelete("{id:guid}")]
-        [Authorize(Permissions = ProcurementPermissions.PurchaseOrdersDelete)]
+        [HasPermission(ProcurementPermissions.PurchaseOrdersDelete)]
         public async Task<IActionResult> DeletePurchaseOrder(Guid id)
         {
             var request = new DeletePurchaseOrderCommandRequest { Id = id };
@@ -55,7 +56,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet("{id:guid}")]
-        [Authorize(Permissions = ProcurementPermissions.PurchaseOrdersView)]
+        [HasPermission(ProcurementPermissions.PurchaseOrdersView)]
         public async Task<IActionResult> GetPurchaseOrderById(Guid id)
         {
             var request = new GetPurchaseOrderByIdQueryRequest { Id = id };
@@ -67,7 +68,7 @@ namespace Procurement.Api.Controllers
         }
         
         [HttpGet]
-        [Authorize(Permissions = ProcurementPermissions.PurchaseOrdersView)]
+        [HasPermission(ProcurementPermissions.PurchaseOrdersView)]
         public async Task<IActionResult> GetAllPurchaseOrders()
         {
             var request = new GetAllPurchaseOrdersQueryRequest();

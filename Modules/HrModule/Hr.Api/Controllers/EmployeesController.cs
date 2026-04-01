@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using SharedKernel.Constants.Permissions;
+using SharedKernel.Authorization;
 
 namespace Hr.Api.Controllers
 {
@@ -38,7 +39,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPost]
-        [Authorize(Permissions = HrPermissions.EmployeesCreate)]
+        [HasPermission( HrPermissions.EmployeesCreate)]
         public async Task<IActionResult> Create([FromForm] CreateEmployeeRequest request)
         {
             var result = await _mediator.Send(request);
@@ -50,7 +51,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public async Task<IActionResult> GetAll()
         {
             var query = new GetAllEmployeesRequest();
@@ -59,7 +60,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("paged")]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public async Task<IActionResult> GetPaged([FromQuery] GetEmployeesPagedRequest request)
         {
             var result = await _mediator.Send(request);
@@ -67,7 +68,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public async Task<IActionResult> GetById(int id)
         {
             var query = new GetEmployeeByIdRequest { Id = id };
@@ -80,7 +81,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Permissions = HrPermissions.EmployeesEdit)]
+        [HasPermission( HrPermissions.EmployeesEdit)]
         public async Task<IActionResult> Update(int id, [FromForm] UpdateEmployeeRequest request)
         {
             request.Id = id;
@@ -94,7 +95,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Permissions = HrPermissions.EmployeesDelete)]
+        [HasPermission( HrPermissions.EmployeesDelete)]
         public async Task<IActionResult> Delete(int id)
         {
             var request = new DeleteEmployeeRequest { Id = id };
@@ -109,7 +110,7 @@ namespace Hr.Api.Controllers
         // Business Endpoints
 
         [HttpGet("active")]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public async Task<IActionResult> GetActiveEmployees()
         {
             var query = new GetActiveEmployeesRequest();
@@ -118,7 +119,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{employeeId}/activate")]
-        [Authorize(Permissions = HrPermissions.EmployeesActivate)]
+        [HasPermission( HrPermissions.EmployeesActivate)]
         public async Task<IActionResult> ActivateEmployee(int employeeId)
         {
             var request = new ActivateEmployeeRequest { EmployeeId = employeeId };
@@ -131,7 +132,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{employeeId}/terminate")]
-        [Authorize(Permissions = HrPermissions.EmployeesTerminate)]
+        [HasPermission( HrPermissions.EmployeesTerminate)]
         public async Task<IActionResult> TerminateEmployee(int employeeId)
         {
             var request = new TerminateEmployeeRequest { EmployeeId = employeeId };
@@ -144,7 +145,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpPatch("{employeeId}/promote")]
-        [Authorize(Permissions = HrPermissions.EmployeesPromote)]
+        [HasPermission( HrPermissions.EmployeesPromote)]
         public async Task<IActionResult> PromoteEmployee(int employeeId, [FromBody] PromoteEmployeeRequest request)
         {
             if (employeeId != request.EmployeeId)
@@ -159,7 +160,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{employeeId}/salary-details")]
-        [Authorize(Permissions = HrPermissions.EmployeesViewSalary)]
+        [HasPermission( HrPermissions.EmployeesViewSalary)]
         public async Task<IActionResult> GetEmployeeSalaryDetails(int employeeId)
         {
             var query = new GetEmployeeSalaryDetailsRequest { EmployeeId = employeeId };
@@ -168,7 +169,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{employeeId}/attendance-records")]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public async Task<IActionResult> GetEmployeeAttendanceRecords(int employeeId)
         {
             var query = new GetEmployeeAttendanceRecordsRequest { EmployeeId = employeeId };
@@ -177,7 +178,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{employeeId}/leave-requests")]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public async Task<IActionResult> GetEmployeeLeaveRequests(int employeeId)
         {
             var query = new GetEmployeeLeaveRequestsRequest { EmployeeId = employeeId };
@@ -188,7 +189,7 @@ namespace Hr.Api.Controllers
         // Attachment Endpoints
 
         [HttpPost("{employeeId}/attachments")]
-        [Authorize(Permissions = HrPermissions.EmployeesManageAttachments)]
+        [HasPermission( HrPermissions.EmployeesManageAttachments)]
         public async Task<IActionResult> UploadAttachment(int employeeId, [FromForm] UploadAttachmentRequest request)
         {
             if (employeeId != request.EmployeeId)
@@ -199,7 +200,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("{employeeId}/attachments")]
-        [Authorize(Permissions = HrPermissions.EmployeesManageAttachments)]
+        [HasPermission( HrPermissions.EmployeesManageAttachments)]
         public async Task<IActionResult> GetAttachmentsByEmployeeId(int employeeId)
         {
             var query = new GetAttachmentsByEmployeeIdRequest { EmployeeId = employeeId };
@@ -208,7 +209,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("attachments/{attachmentId}")]
-        [Authorize(Permissions = HrPermissions.EmployeesManageAttachments)]
+        [HasPermission( HrPermissions.EmployeesManageAttachments)]
         public async Task<IActionResult> GetAttachmentById(int attachmentId)
         {
             var query = new GetAttachmentByIdRequest { AttachmentId = attachmentId };
@@ -217,7 +218,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpDelete("attachments/{attachmentId}")]
-        [Authorize(Permissions = HrPermissions.EmployeesManageAttachments)]
+        [HasPermission( HrPermissions.EmployeesManageAttachments)]
         public async Task<IActionResult> DeleteAttachment(int attachmentId)
         {
             var request = new DeleteAttachmentRequest { AttachmentId = attachmentId };
@@ -228,7 +229,7 @@ namespace Hr.Api.Controllers
         // Enum Endpoints
 
         [HttpGet("enums/statuses")]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public IActionResult GetEmployeeStatuses()
         {
             var statuses = Enum.GetValues(typeof(EmployeeStatus))
@@ -238,7 +239,7 @@ namespace Hr.Api.Controllers
         }
 
         [HttpGet("EmployeeMetadata")]
-        [Authorize(Permissions = HrPermissions.EmployeesView)]
+        [HasPermission( HrPermissions.EmployeesView)]
         public IActionResult GetMetadata()
         {
             var metadata = new EntityMetadataDto
