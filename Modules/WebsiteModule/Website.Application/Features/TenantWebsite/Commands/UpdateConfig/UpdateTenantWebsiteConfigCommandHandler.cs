@@ -101,6 +101,61 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                 presentationUpdated = true;
             }
 
+            // Handle Contact Us Images Upload
+            if (request.ContactUsImg != null)
+            {
+                tenantWebsite.Config.ContactUsImages.ContactUsImg.Url =
+                    await _websiteImageService.ProcessWebsiteContactUsImgAsync(request.TenantId, request.ContactUsImg);
+                presentationUpdated = true;
+            }
+
+            if (request.ClientOImg != null)
+            {
+                tenantWebsite.Config.ContactUsImages.ClientOImg.Url =
+                    await _websiteImageService.ProcessWebsiteClientOImgAsync(request.TenantId, request.ClientOImg);
+                presentationUpdated = true;
+            }
+
+            // ContactUsImg Style
+            if (request.ContactUsImgBorderRadius.HasValue)
+            {
+                tenantWebsite.Config.ContactUsImages.ContactUsImg.Style.BorderRadius =
+                    request.ContactUsImgBorderRadius.Value;
+                presentationUpdated = true;
+            }
+            if (request.ContactUsImgOverlayColor != null)
+            {
+                tenantWebsite.Config.ContactUsImages.ContactUsImg.Style.OverlayColor =
+                    request.ContactUsImgOverlayColor;
+                presentationUpdated = true;
+            }
+            if (request.ContactUsImgOverlayOpacity.HasValue)
+            {
+                tenantWebsite.Config.ContactUsImages.ContactUsImg.Style.OverlayOpacity =
+                    request.ContactUsImgOverlayOpacity.Value;
+                presentationUpdated = true;
+            }
+
+            // ClientOImg Style
+            if (request.ClientOImgBorderRadius.HasValue)
+            {
+                tenantWebsite.Config.ContactUsImages.ClientOImg.Style.BorderRadius =
+                    request.ClientOImgBorderRadius.Value;
+                presentationUpdated = true;
+            }
+            if (request.ClientOImgOverlayColor != null)
+            {
+                tenantWebsite.Config.ContactUsImages.ClientOImg.Style.OverlayColor =
+                    request.ClientOImgOverlayColor;
+                presentationUpdated = true;
+            }
+            if (request.ClientOImgOverlayOpacity.HasValue)
+            {
+                tenantWebsite.Config.ContactUsImages.ClientOImg.Style.OverlayOpacity =
+                    request.ClientOImgOverlayOpacity.Value;
+                presentationUpdated = true;
+            }
+
             // Hero Background Image Style
             if (request.HeroBackgroundBorderRadius.HasValue)
             {

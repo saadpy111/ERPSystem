@@ -221,6 +221,8 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 
                 string logoUrl = string.Empty;
                 string heroBackgroundImageUrl = string.Empty;
+                string contactUsImgUrl = string.Empty;
+                string clientOImgUrl = string.Empty;
 
                 if (request.Logo != null)
                 {
@@ -230,6 +232,16 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                 if (string.IsNullOrEmpty(request.ThemeCode) && request.HeroBackgroundImage != null)
                 {
                     heroBackgroundImageUrl = await _websiteImageService.ProcessWebsiteHeroImageAsync(tenant.Id, request.HeroBackgroundImage);
+                }
+
+                if (string.IsNullOrEmpty(request.ThemeCode) && request.ContactUsImg != null)
+                {
+                    contactUsImgUrl = await _websiteImageService.ProcessWebsiteContactUsImgAsync(tenant.Id, request.ContactUsImg);
+                }
+
+                if (string.IsNullOrEmpty(request.ThemeCode) && request.ClientOImg != null)
+                {
+                    clientOImgUrl = await _websiteImageService.ProcessWebsiteClientOImgAsync(tenant.Id, request.ClientOImg);
                 }
 
                 // ===== STEP 8: INITIALIZE WEBSITE (via WebsiteModule) =====
@@ -312,7 +324,16 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
                             }
                         }
                     },
-                    Sections = request.Sections
+                    Sections = request.Sections,
+
+                    // Contact Us Images (Custom mode only, IGNORED in Theme mode)
+                    ContactUsImages = string.IsNullOrEmpty(request.ThemeCode) && (request.ContactUsImg != null || request.ClientOImg != null)
+                        ? new WebsiteContactUsImages
+                        {
+                            ContactUsImg = string.IsNullOrEmpty(contactUsImgUrl) ? null : new WebsiteImageContent { Url = contactUsImgUrl },
+                            ClientOImg   = string.IsNullOrEmpty(clientOImgUrl)   ? null : new WebsiteImageContent { Url = clientOImgUrl }
+                        }
+                        : null
                 };
 
                 var websiteResult = await _websiteProvisioningService.InitializeTenantWebsiteAsync(

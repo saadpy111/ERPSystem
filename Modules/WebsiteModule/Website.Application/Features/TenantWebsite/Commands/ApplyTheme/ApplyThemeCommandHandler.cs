@@ -76,6 +76,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                         // Presentation snapshot
                         Colors = SnapshotColors(theme.Config?.Colors),
                         Hero = SnapshotHero(theme.Config?.Hero),
+                        ContactUsImages = SnapshotContactUsImages(theme.Config?.ContactUsImages),
                         Sections = theme.Config?.Sections?.Select(s => new SectionItem
                         {
                             Id = s.Id,
@@ -96,6 +97,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
 
                 tenantWebsite.Config.Colors = SnapshotColors(theme.Config?.Colors);
                 tenantWebsite.Config.Hero = SnapshotHero(theme.Config?.Hero);
+                tenantWebsite.Config.ContactUsImages = SnapshotContactUsImages(theme.Config?.ContactUsImages);
 
                 tenantWebsite.Config.Sections = theme.Config?.Sections?.Select(s => new SectionItem
                 {
@@ -155,6 +157,12 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                 OverlayColor = src?.Style?.OverlayColor ?? "#FFFFFF",
                 OverlayOpacity = src?.Style?.OverlayOpacity ?? 40
             }
+        };
+
+        private static ContactUsImages SnapshotContactUsImages(ContactUsImages? src) => new()
+        {
+            ContactUsImg = SnapshotImageContent(src?.ContactUsImg),
+            ClientOImg   = SnapshotImageContent(src?.ClientOImg)
         };
     }
 }

@@ -98,6 +98,7 @@ namespace Website.Application.Services
 
                         Colors = SnapshotColors(theme.Config?.Colors),
                         Hero = SnapshotHero(theme.Config?.Hero),
+                        ContactUsImages = SnapshotContactUsImages(theme.Config?.ContactUsImages),
                         Sections = sections
                     }
                 };
@@ -124,6 +125,7 @@ namespace Website.Application.Services
 
                         Colors = MapColors(request.Colors),
                         Hero = MapHero(request.Hero),
+                        ContactUsImages = MapContactUsImages(request.ContactUsImages),
                         Sections = request.Sections?.Select(s => new SectionItem
                         {
                             Id = s.Id,
@@ -191,6 +193,18 @@ namespace Website.Application.Services
                 }
             };
         }
+
+        private static ContactUsImages SnapshotContactUsImages(ContactUsImages? src) => new()
+        {
+            ContactUsImg = SnapshotImageContent(src?.ContactUsImg),
+            ClientOImg   = SnapshotImageContent(src?.ClientOImg)
+        };
+
+        private static ContactUsImages MapContactUsImages(WebsiteContactUsImages? src) => new()
+        {
+            ContactUsImg = MapImageContent(src?.ContactUsImg),
+            ClientOImg   = MapImageContent(src?.ClientOImg)
+        };
 
         private static ThemeColors MapColors(WebsiteColors? src) => new()
         {

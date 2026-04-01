@@ -31,6 +31,20 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         // ── Uploaded Images ──────────────────────────────────────────────────────
         public IFormFile? Logo { get; set; }
         public IFormFile? HeroBackgroundImage { get; set; }
+
+        // ── Contact Us Images (optional, partial updates supported) ──────────
+        public IFormFile? ContactUsImg { get; set; }
+        public IFormFile? ClientOImg { get; set; }
+
+        // ── ContactUsImg Style ───────────────────────────────────────────────────
+        public int? ContactUsImgBorderRadius { get; set; }
+        public string? ContactUsImgOverlayColor { get; set; }
+        public int? ContactUsImgOverlayOpacity { get; set; }
+
+        // ── ClientOImg Style ─────────────────────────────────────────────────────
+        public int? ClientOImgBorderRadius { get; set; }
+        public string? ClientOImgOverlayColor { get; set; }
+        public int? ClientOImgOverlayOpacity { get; set; }
         
         // ── Colors ──────────────────────────────────────────────────────────────
         public string? PrimaryColor { get; set; }

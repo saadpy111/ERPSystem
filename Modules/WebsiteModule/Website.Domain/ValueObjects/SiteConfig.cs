@@ -22,6 +22,7 @@ namespace Website.Domain.ValueObjects
         public ThemeColors Colors { get; set; } = new();
         public HeroSection Hero { get; set; } = new();
         public List<SectionItem> Sections { get; set; } = new();
+        public ContactUsImages ContactUsImages { get; set; } = new();
     }
 
 }

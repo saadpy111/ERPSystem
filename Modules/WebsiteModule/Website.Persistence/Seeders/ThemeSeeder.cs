@@ -49,6 +49,12 @@ namespace Website.Persistence.Seeders
                             BackgroundImage = Image("https://i.ibb.co/Vcsnc5jX/Desktop-13-1.png")
                         },
 
+                        ContactUsImages = new ContactUsImages
+                        {
+                            ContactUsImg = Image("https://example.com/contact.png"),
+                            ClientOImg   = Image("https://example.com/client.png")
+                        },
+
                         Sections = new()
                         {
                             new() { Id = "hero", Enabled = true, Order = 0 },
@@ -83,6 +89,12 @@ namespace Website.Persistence.Seeders
                             Subtitle = Text("مصممة بعناية لتناسب كل تفاصيل يومك إطلالات مرنة تلائمك في جميع المناسبات."),
                             ButtonText = Text("تسوق الأن"),
                             BackgroundImage = Image("https://i.ibb.co/LDjWD1Z7/clothes.png")
+                        },
+
+                        ContactUsImages = new ContactUsImages
+                        {
+                            ContactUsImg = Image("https://example.com/contact.png"),
+                            ClientOImg   = Image("https://example.com/client.png")
                         },
 
                         Sections = new()
@@ -121,6 +133,12 @@ namespace Website.Persistence.Seeders
                             BackgroundImage = Image("https://i.ibb.co/67Jx2n12/1.png")
                         },
 
+                        ContactUsImages = new ContactUsImages
+                        {
+                            ContactUsImg = Image("https://example.com/contact.png"),
+                            ClientOImg   = Image("https://example.com/client.png")
+                        },
+
                         Sections = new()
                         {
                             new() { Id = "hero", Enabled = true, Order = 0 },
@@ -157,6 +175,12 @@ namespace Website.Persistence.Seeders
                             BackgroundImage = Image("https://i.ibb.co/Z6d04N07/image.png")
                         },
 
+                        ContactUsImages = new ContactUsImages
+                        {
+                            ContactUsImg = Image("https://example.com/contact.png"),
+                            ClientOImg   = Image("https://example.com/client.png")
+                        },
+
                         Sections = new()
                         {
                             new() { Id = "hero", Enabled = true, Order = 0 },
@@ -191,6 +215,12 @@ namespace Website.Persistence.Seeders
                             Subtitle = Text("استكشف أحدث السيارات الكهربائية والتقنيات الذكية داخل معرض مصمم بعناية ليعرض لك الجيل الجديد من القيادة."),
                             ButtonText = Text("تسوق الأن"),
                             BackgroundImage = Image("https://i.ibb.co/HpfsfXjF/1.png")
+                        },
+
+                        ContactUsImages = new ContactUsImages
+                        {
+                            ContactUsImg = Image("https://example.com/contact.png"),
+                            ClientOImg   = Image("https://example.com/client.png")
                         },
 
                         Sections = new()

@@ -39,6 +39,19 @@ namespace SharedKernel.Website
         public WebsiteColors? Colors { get; set; }
         public WebsiteHero? Hero { get; set; }
         public List<WebsiteSection>? Sections { get; set; }
+
+        // ===== CONTACT US IMAGES (for Custom mode ONLY) =====
+        public WebsiteContactUsImages? ContactUsImages { get; set; }
+    }
+
+    /// <summary>
+    /// Groups the two Contact-Us page images passed in Custom mode.
+    /// IGNORED when ThemeCode is provided.
+    /// </summary>
+    public class WebsiteContactUsImages
+    {
+        public WebsiteImageContent? ContactUsImg { get; set; }
+        public WebsiteImageContent? ClientOImg   { get; set; }
     }
 
     /// <summary>
@@ -191,5 +204,17 @@ namespace SharedKernel.Website
         /// Returns the relative path to the saved image.
         /// </summary>
         Task<string> ProcessThemeHeroImageAsync(string themeCode, IFormFile heroFile);
+
+        /// <summary>
+        /// Processes and saves the Contact-Us section image for a tenant.
+        /// Returns the relative path to the saved image.
+        /// </summary>
+        Task<string> ProcessWebsiteContactUsImgAsync(string tenantId, IFormFile file);
+
+        /// <summary>
+        /// Processes and saves the Client-Overview image for a tenant.
+        /// Returns the relative path to the saved image.
+        /// </summary>
+        Task<string> ProcessWebsiteClientOImgAsync(string tenantId, IFormFile file);
     }
 }

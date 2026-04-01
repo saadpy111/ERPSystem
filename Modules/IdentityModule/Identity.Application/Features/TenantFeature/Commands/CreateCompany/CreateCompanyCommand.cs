@@ -56,6 +56,10 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         // ── Uploaded Images ──────────────────────────────────────────────────
         public IFormFile? Logo { get; set; }
         public IFormFile? HeroBackgroundImage { get; set; }
+
+        // ── Contact Us Images (Custom mode only, optional) ───────────────────
+        public IFormFile? ContactUsImg { get; set; }
+        public IFormFile? ClientOImg { get; set; }
         
         // ── Colors (required ONLY for Custom mode, ignored for Theme mode) ───
         public string? PrimaryColor { get; set; }

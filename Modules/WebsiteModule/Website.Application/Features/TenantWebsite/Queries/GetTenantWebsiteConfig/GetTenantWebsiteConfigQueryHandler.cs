@@ -138,7 +138,32 @@ namespace Website.Application.Features.TenantWebsite.Queries.GetTenantWebsiteCon
                     }
                 },
 
-                Sections = config.Sections ?? new()
+                Sections = config.Sections ?? new(),
+
+                // ── Contact Us Images ────────────────────────────────────────────
+                ContactUsImages = new ContactUsImages
+                {
+                    ContactUsImg = new ImageContent
+                    {
+                        Url = _fileUrlResolver.Resolve(config.ContactUsImages?.ContactUsImg?.Url) ?? string.Empty,
+                        Style = new ImageStyle
+                        {
+                            BorderRadius  = config.ContactUsImages?.ContactUsImg?.Style?.BorderRadius  ?? 6,
+                            OverlayColor  = config.ContactUsImages?.ContactUsImg?.Style?.OverlayColor  ?? "#FFFFFF",
+                            OverlayOpacity = config.ContactUsImages?.ContactUsImg?.Style?.OverlayOpacity ?? 40
+                        }
+                    },
+                    ClientOImg = new ImageContent
+                    {
+                        Url = _fileUrlResolver.Resolve(config.ContactUsImages?.ClientOImg?.Url) ?? string.Empty,
+                        Style = new ImageStyle
+                        {
+                            BorderRadius  = config.ContactUsImages?.ClientOImg?.Style?.BorderRadius  ?? 6,
+                            OverlayColor  = config.ContactUsImages?.ClientOImg?.Style?.OverlayColor  ?? "#FFFFFF",
+                            OverlayOpacity = config.ContactUsImages?.ClientOImg?.Style?.OverlayOpacity ?? 40
+                        }
+                    }
+                }
             };
         }
     }

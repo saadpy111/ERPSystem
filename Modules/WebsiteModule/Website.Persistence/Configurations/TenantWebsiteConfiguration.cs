@@ -59,6 +59,19 @@ namespace Website.Persistence.Configurations
 
                 // Presentation data
                 config.OwnsOne(c => c.Colors);
+
+                config.OwnsOne(c => c.ContactUsImages, contact =>
+                {
+                    contact.OwnsOne(x => x.ContactUsImg, img =>
+                    {
+                        img.OwnsOne(i => i.Style);
+                    });
+
+                    contact.OwnsOne(x => x.ClientOImg, img =>
+                    {
+                        img.OwnsOne(i => i.Style);
+                    });
+                });
                 config.OwnsOne(c => c.Hero, hero =>
                 {
                     hero.OwnsOne(h => h.Title, title =>
