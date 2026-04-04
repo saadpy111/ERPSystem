@@ -1,0 +1,35 @@
+using System.Threading;
+using System.Threading.Tasks;
+using Accounting.Application.Interfaces.Contexts;
+using Accounting.Application.Common.Exceptions;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace Accounting.Application.Features.Fiscal.Commands.OpenFiscalPeriod
+{
+    public class OpenFiscalPeriodCommand : IRequest<Unit>
+    {
+        public int Id { get; set; }
+    }
+
+    public class OpenFiscalPeriodCommandHandler : IRequestHandler<OpenFiscalPeriodCommand, Unit>
+    {
+        private readonly IAccountingDbContext _context;
+
+        public OpenFiscalPeriodCommandHandler(IAccountingDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<Unit> Handle(OpenFiscalPeriodCommand request, CancellationToken cancellationToken)
+        {
+            var period = await _context.FiscalPeriods.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+            if (period == null) throw new BusinessException("Not found");
+
+            period.IsClosed = false;
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return Unit.Value;
+        }
+    }
+}

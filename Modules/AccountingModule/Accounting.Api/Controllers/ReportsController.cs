@@ -1,10 +1,14 @@
 using Accounting.Application.Reports.DTOs;
+using Accounting.Application.Reports.Queries.GetAccountStatement;
 using Accounting.Application.Reports.Queries.GetBalanceSheet;
+using Accounting.Application.Reports.Queries.GetGeneralLedger;
 using Accounting.Application.Reports.Queries.GetIncomeStatement;
+using Accounting.Application.Reports.Queries.GetTrialBalance;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,6 +24,44 @@ namespace Accounting.Api.Controllers
         public ReportsController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        [HttpGet("trial-balance")]
+        [ProducesResponseType(typeof(IEnumerable<TrialBalanceDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetTrialBalance(
+            [FromQuery] DateTime? fromDate,
+            [FromQuery] DateTime? toDate,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetTrialBalanceQuery { FromDate = fromDate, ToDate = toDate };
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("general-ledger")]
+        [ProducesResponseType(typeof(IEnumerable<LedgerDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetGeneralLedger(
+            [FromQuery] int accountId,
+            [FromQuery] DateTime? fromDate,
+            [FromQuery] DateTime? toDate,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetGeneralLedgerQuery { AccountId = accountId, FromDate = fromDate, ToDate = toDate };
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
+        }
+
+        [HttpGet("account-statement")]
+        [ProducesResponseType(typeof(AccountStatementDto), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAccountStatement(
+            [FromQuery] int partnerId,
+            [FromQuery] DateTime? fromDate,
+            [FromQuery] DateTime? toDate,
+            CancellationToken cancellationToken)
+        {
+            var query = new GetAccountStatementQuery { PartnerId = partnerId, FromDate = fromDate, ToDate = toDate };
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
         }
 
         /// <summary>

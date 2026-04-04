@@ -1,0 +1,35 @@
+using System.Threading;
+using System.Threading.Tasks;
+using Accounting.Application.Interfaces.Contexts;
+using Accounting.Application.Common.Exceptions;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+
+namespace Accounting.Application.Features.Fiscal.Commands.CloseFiscalPeriod
+{
+    public class CloseFiscalPeriodCommand : IRequest<Unit>
+    {
+        public int Id { get; set; }
+    }
+
+    public class CloseFiscalPeriodCommandHandler : IRequestHandler<CloseFiscalPeriodCommand, Unit>
+    {
+        private readonly IAccountingDbContext _context;
+
+        public CloseFiscalPeriodCommandHandler(IAccountingDbContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<Unit> Handle(CloseFiscalPeriodCommand request, CancellationToken cancellationToken)
+        {
+            var period = await _context.FiscalPeriods.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
+            if (period == null) throw new BusinessException("Not found");
+
+            period.IsClosed = true;
+
+            await _context.SaveChangesAsync(cancellationToken);
+            return Unit.Value;
+        }
+    }
+}
