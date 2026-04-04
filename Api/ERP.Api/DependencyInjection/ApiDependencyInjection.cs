@@ -1,4 +1,5 @@
-﻿using Hr.Api.Controllers;
+﻿using Accounting.Api.DependencyInjection;
+using Hr.Api.Controllers;
 using Hr.Api.DependencyInjection;
 using Hr.Infrastructure.FileService;
 using Identity.Api.Controllers;
@@ -16,8 +17,8 @@ using Report.Api.Controllers;
 using Report.Api.DependencyInjection;
 using SharedKernel.Authorization;
 using SharedKernel.Multitenancy;
-using Subscription.Api.DependencyInjection;
 using Subscription.Api.Controllers;
+using Subscription.Api.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Website.Api.Controllers;
 using Website.Api.DependencyInjection;
@@ -44,7 +45,8 @@ namespace ERP.Api.DependencyInjection
             services.AddSubscriptionApiDependencyInjection(configuration);
             
             services.AddWebsiteApiDependencyInjection(configuration);
-            
+            services.AddAccountingModule(configuration);
+
             #endregion
 
             #region Multi-Tenancy & Authorization
