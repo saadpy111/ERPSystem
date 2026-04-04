@@ -17,6 +17,13 @@ namespace Accounting.Persistence.Configurations
             builder.Property(e => e.TotalDebit).HasColumnType("decimal(18,6)");
             builder.Property(e => e.TotalCredit).HasColumnType("decimal(18,6)");
 
+            // ── Reversal tracking columns ──────────────────────────────────────
+            builder.Property(e => e.IsReversed).HasDefaultValue(false);
+            builder.Property(e => e.ReversedAt).IsRequired(false);
+            builder.Property(e => e.ReversedBy).HasMaxLength(256).IsRequired(false);
+            builder.Property(e => e.ReversalReason).HasMaxLength(500).IsRequired(false);
+
+            // ── Relationships ──────────────────────────────────────────────────
             builder.HasOne(e => e.Currency)
                 .WithMany()
                 .HasForeignKey(e => e.CurrencyId)
@@ -27,13 +34,20 @@ namespace Accounting.Persistence.Configurations
                 .HasForeignKey(e => e.FiscalPeriodId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Indexes
+            // Self-referencing FK: reversal entry → original entry
+            builder.HasOne(e => e.ReversedEntry)
+                .WithMany(e => e.Reversals)
+                .HasForeignKey(e => e.ReversedEntryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ── Indexes ────────────────────────────────────────────────────────
             builder.HasIndex(e => new { e.TenantId, e.JournalNumber }).IsUnique();
             builder.HasIndex(e => e.TenantId);
             builder.HasIndex(e => new { e.TenantId, e.Id });
             builder.HasIndex(e => e.Date);
             builder.HasIndex(e => e.CurrencyId);
             builder.HasIndex(e => e.FiscalPeriodId);
+            builder.HasIndex(e => e.ReversedEntryId);   // FK look-ups for reversal chains
         }
     }
 }

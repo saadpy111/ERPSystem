@@ -18,6 +18,16 @@ namespace Accounting.Application.DependencyInjection
             services.AddAutoMapper(assembly);
             services.AddValidatorsFromAssembly(assembly);
 
+            // Register Posting Engine
+            services.AddScoped<Accounting.Application.Posting.Interfaces.IPostingService, Accounting.Application.Posting.Services.PostingService>();
+            services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.SalesPostingStrategy>();
+            services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.PurchasePostingStrategy>();
+            services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.InventoryPostingStrategy>();
+            services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.ManualPostingStrategy>();
+
+            // Register Mapping Service
+            services.AddScoped<Accounting.Application.Services.Interfaces.IAccountingMappingService, Accounting.Application.Services.Implementations.AccountingMappingService>();
+
             return services;
         }
     }

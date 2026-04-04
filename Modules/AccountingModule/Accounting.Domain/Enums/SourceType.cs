@@ -6,6 +6,7 @@ namespace Accounting.Domain.Enums
         Sales = 2,
         Purchases = 3,
         Inventory = 4,
-        Payroll = 5
+        Payroll = 5,
+        Reversal = 6
     }
 }

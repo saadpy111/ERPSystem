@@ -23,8 +23,17 @@ namespace Accounting.Domain.Entities
         public DateTime? PostedAt { get; set; }
         public bool IsDeleted { get; set; }
 
+        // Reversal Tracking
+        public bool IsReversed { get; set; }
+        public int? ReversedEntryId { get; set; }
+        public DateTime? ReversedAt { get; set; }
+        public string? ReversedBy { get; set; }
+        public string? ReversalReason { get; set; }
+
         public virtual Currency Currency { get; set; } = null!;
         public virtual FiscalPeriod FiscalPeriod { get; set; } = null!;
+        public virtual JournalEntry? ReversedEntry { get; set; }
+        public virtual ICollection<JournalEntry> Reversals { get; set; } = new List<JournalEntry>();
         public virtual ICollection<JournalEntryLine> Lines { get; set; } = new List<JournalEntryLine>();
         public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
     }

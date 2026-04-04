@@ -9,5 +9,12 @@ namespace Accounting.Application.Interfaces.Repositories
     {
         Task<IEnumerable<JournalEntry>> GetByDateRangeAsync(DateTime startDate, DateTime endDate);
         Task<IEnumerable<JournalEntry>> GetPostedEntriesAsync();
+
+        /// <summary>
+        /// Loads a journal entry together with its <see cref="JournalEntryLine"/> collection
+        /// and the linked <see cref="FiscalPeriod"/> in a single query.
+        /// Required by the reversal handler to validate fiscal-period status and clone lines.
+        /// </summary>
+        Task<JournalEntry?> GetByIdWithLinesAsync(int id);
     }
 }

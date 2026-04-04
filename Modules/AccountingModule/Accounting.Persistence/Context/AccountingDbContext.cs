@@ -1,11 +1,12 @@
 using Accounting.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Multitenancy;
+using Accounting.Application.Interfaces.Contexts;
 using System.Reflection;
 
 namespace Accounting.Persistence.Context
 {
-    public class AccountingDbContext : DbContext
+    public class AccountingDbContext : DbContext, IAccountingDbContext
     {
         private readonly ITenantProvider? _tenantProvider;
 
@@ -42,6 +43,8 @@ namespace Accounting.Persistence.Context
         public DbSet<CostCenter> CostCenters { get; set; }
         public DbSet<Tax> Taxes { get; set; }
         public DbSet<Sequence> Sequences { get; set; }
+        public DbSet<AccountingMapping> AccountingMappings { get; set; }
+        public DbSet<JournalEntryLine> JournalEntryLines { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -72,6 +75,7 @@ namespace Accounting.Persistence.Context
                 modelBuilder.Entity<CostCenter>().HasQueryFilter(e => e.TenantId == tenantId);
                 modelBuilder.Entity<Tax>().HasQueryFilter(e => e.TenantId == tenantId);
                 modelBuilder.Entity<Sequence>().HasQueryFilter(e => e.TenantId == tenantId);
+                modelBuilder.Entity<AccountingMapping>().HasQueryFilter(e => e.TenantId == tenantId && e.IsActive);
             }
             else
             {

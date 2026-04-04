@@ -29,6 +29,9 @@ namespace Accounting.Persistence.DependencyInjection
             services.AddScoped<IPartnerRepository, PartnerRepository>();
             services.AddScoped<ICurrencyRepository, CurrencyRepository>();
             services.AddScoped<IVoucherRepository, VoucherRepository>();
+            services.AddScoped<IAccountingMappingRepository, AccountingMappingRepository>();
+
+            services.AddScoped<Accounting.Application.Interfaces.Contexts.IAccountingDbContext>(provider => provider.GetRequiredService<AccountingDbContext>());
 
             return services;
         }

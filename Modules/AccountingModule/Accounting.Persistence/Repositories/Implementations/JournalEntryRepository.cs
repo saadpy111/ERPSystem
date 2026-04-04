@@ -32,5 +32,14 @@ namespace Accounting.Persistence.Repositories.Implementations
                 .Where(j => j.Status == JournalStatus.Posted)
                 .ToListAsync();
         }
+
+        /// <inheritdoc/>
+        public async Task<JournalEntry?> GetByIdWithLinesAsync(int id)
+        {
+            return await _dbSet
+                .Include(j => j.Lines)
+                .Include(j => j.FiscalPeriod)
+                .FirstOrDefaultAsync(j => j.Id == id);
+        }
     }
 }

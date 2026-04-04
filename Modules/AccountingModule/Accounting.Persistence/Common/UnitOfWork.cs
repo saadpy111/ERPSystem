@@ -1,7 +1,9 @@
 using Accounting.Application.Interfaces.Repositories;
 using Accounting.Persistence.Context;
 using Accounting.Persistence.Repositories.Implementations;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Accounting.Persistence.Common
@@ -14,6 +16,7 @@ namespace Accounting.Persistence.Common
         private IPartnerRepository? _partnerRepository;
         private ICurrencyRepository? _currencyRepository;
         private IVoucherRepository? _voucherRepository;
+        private IAccountingMappingRepository? _accountingMappingRepository;
 
         public UnitOfWork(AccountingDbContext context)
         {
@@ -25,10 +28,32 @@ namespace Accounting.Persistence.Common
         public IPartnerRepository Partners => _partnerRepository ??= new PartnerRepository(_context);
         public ICurrencyRepository Currencies => _currencyRepository ??= new CurrencyRepository(_context);
         public IVoucherRepository Vouchers => _voucherRepository ??= new VoucherRepository(_context);
+        public IAccountingMappingRepository AccountingMappings => _accountingMappingRepository ??= new AccountingMappingRepository(_context);
 
         public async Task<int> SaveChangesAsync()
         {
             return await _context.SaveChangesAsync();
+        }
+
+        public async Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken = default)
+        {
+            var strategy = _context.Database.CreateExecutionStrategy();
+
+            return await strategy.ExecuteAsync(async () =>
+            {
+                await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+                try
+                {
+                    var result = await operation();
+                    await transaction.CommitAsync(cancellationToken);
+                    return result;
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+                    throw;
+                }
+            });
         }
 
         public void Dispose()
