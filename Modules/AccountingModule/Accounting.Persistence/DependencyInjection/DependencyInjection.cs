@@ -2,6 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Accounting.Persistence.Context;
+using Accounting.Application.Interfaces.Repositories;
+using Accounting.Persistence.Common;
+using Accounting.Persistence.Repositories.Implementations;
 
 namespace Accounting.Persistence.DependencyInjection
 {
@@ -19,15 +22,13 @@ namespace Accounting.Persistence.DependencyInjection
             });
             #endregion
 
-            // Uncomment the following registrations once the corresponding interfaces 
-            // and repository implementations are created.
-
-            // services.AddScoped<IUnitOfWork, UnitOfWork>();
-            // services.AddScoped<IAccountRepository, AccountRepository>();
-            // services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
-            // services.AddScoped<IPartnerRepository, PartnerRepository>();
-            // services.AddScoped<ICurrencyRepository, CurrencyRepository>();
-            // services.AddScoped<IVoucherRepository, VoucherRepository>();
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
+            services.AddScoped<IJournalEntryRepository, JournalEntryRepository>();
+            services.AddScoped<IPartnerRepository, PartnerRepository>();
+            services.AddScoped<ICurrencyRepository, CurrencyRepository>();
+            services.AddScoped<IVoucherRepository, VoucherRepository>();
 
             return services;
         }
