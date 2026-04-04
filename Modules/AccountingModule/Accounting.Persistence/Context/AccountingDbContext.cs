@@ -44,7 +44,6 @@ namespace Accounting.Persistence.Context
         public DbSet<Tax> Taxes { get; set; }
         public DbSet<Sequence> Sequences { get; set; }
         public DbSet<AccountingMapping> AccountingMappings { get; set; }
-        public DbSet<JournalEntryLine> JournalEntryLines { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
