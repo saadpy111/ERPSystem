@@ -36,5 +36,9 @@ namespace SharedKernel.Constants.Permissions
         // ===== COST CENTERS =====
         public const string CostCentersView = "Permissions.Accounting.CostCenters.View";
         public const string CostCentersCreate = "Permissions.Accounting.CostCenters.Create";
+
+        // ===== CASH =====
+        public const string CashView = "Permissions.Accounting.Cash.View";
+        public const string CashCreate = "Permissions.Accounting.Cash.Create";
     }
 }

@@ -24,6 +24,7 @@ namespace Accounting.Application.DependencyInjection
             services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.PurchasePostingStrategy>();
             services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.InventoryPostingStrategy>();
             services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.ManualPostingStrategy>();
+            services.AddTransient<Accounting.Application.Posting.Interfaces.IPostingStrategy, Accounting.Application.Posting.Strategies.CashPostingStrategy>();
 
             // Register Mapping Service
             services.AddScoped<Accounting.Application.Services.Interfaces.IAccountingMappingService, Accounting.Application.Services.Implementations.AccountingMappingService>();

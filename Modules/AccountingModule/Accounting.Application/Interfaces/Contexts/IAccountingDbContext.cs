@@ -12,6 +12,8 @@ namespace Accounting.Application.Interfaces.Contexts
         DbSet<FiscalPeriod> FiscalPeriods { get; }
         DbSet<CostCenter> CostCenters { get; }
         DbSet<Partner> Partners { get; }
+        DbSet<CashAccount> CashAccounts { get; }
+        DbSet<CashTransaction> CashTransactions { get; }
         
         // Expose IQueryable for complex aggregations if preferred, or use DbSet directly
         Task<int> SaveChangesAsync(System.Threading.CancellationToken cancellationToken);

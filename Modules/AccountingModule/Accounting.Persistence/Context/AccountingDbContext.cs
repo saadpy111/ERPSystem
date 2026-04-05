@@ -44,6 +44,8 @@ namespace Accounting.Persistence.Context
         public DbSet<Tax> Taxes { get; set; }
         public DbSet<Sequence> Sequences { get; set; }
         public DbSet<AccountingMapping> AccountingMappings { get; set; }
+        public DbSet<CashAccount> CashAccounts { get; set; }
+        public DbSet<CashTransaction> CashTransactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -75,6 +77,8 @@ namespace Accounting.Persistence.Context
                 modelBuilder.Entity<Tax>().HasQueryFilter(e => e.TenantId == tenantId);
                 modelBuilder.Entity<Sequence>().HasQueryFilter(e => e.TenantId == tenantId);
                 modelBuilder.Entity<AccountingMapping>().HasQueryFilter(e => e.TenantId == tenantId && e.IsActive);
+                modelBuilder.Entity<CashAccount>().HasQueryFilter(e => e.TenantId == tenantId);
+                modelBuilder.Entity<CashTransaction>().HasQueryFilter(e => e.TenantId == tenantId);
             }
             else
             {

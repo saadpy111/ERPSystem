@@ -7,6 +7,8 @@ namespace Accounting.Domain.Enums
         Purchases = 3,
         Inventory = 4,
         Payroll = 5,
-        Reversal = 6
+        Reversal = 6,
+        CashReceipt = 7,
+        CashPayment = 8
     }
 }
