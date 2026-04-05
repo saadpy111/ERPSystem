@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 using Accounting.Application.Posting.Commands.PostTransaction;
 
 namespace Accounting.Api.Controllers
@@ -20,6 +22,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost]
+        [HasPermission(AccountingPermissions.PostingExecute)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PostTransaction([FromBody] PostTransactionCommand command, CancellationToken cancellationToken)

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.Accounts.Commands.CreateAccount;
 using Accounting.Application.Features.Accounts.Commands.UpdateAccount;
 using Accounting.Application.Features.Accounts.Queries.GetAccountById;
@@ -24,6 +26,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(AccountingPermissions.AccountsView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
@@ -33,6 +36,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("tree")]
+        [HasPermission(AccountingPermissions.AccountsView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTree(CancellationToken cancellationToken)
         {
@@ -42,6 +46,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [HasPermission(AccountingPermissions.AccountsView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
@@ -52,6 +57,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost]
+        [HasPermission(AccountingPermissions.AccountsCreate)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateAccountCommand command, CancellationToken cancellationToken)
@@ -61,6 +67,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [HasPermission(AccountingPermissions.AccountsEdit)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateAccountCommand command, CancellationToken cancellationToken)

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.Fiscal.Commands.CloseFiscalPeriod;
 using Accounting.Application.Features.Fiscal.Commands.CreateFiscalYear;
 using Accounting.Application.Features.Fiscal.Commands.OpenFiscalPeriod;
@@ -24,6 +26,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("years")]
+        [HasPermission(AccountingPermissions.FiscalView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetYears(CancellationToken cancellationToken)
         {
@@ -33,6 +36,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost("years")]
+        [HasPermission(AccountingPermissions.FiscalManage)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateYear([FromBody] CreateFiscalYearCommand command, CancellationToken cancellationToken)
@@ -42,6 +46,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("periods")]
+        [HasPermission(AccountingPermissions.FiscalView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetPeriods([FromQuery] int? fiscalYearId, CancellationToken cancellationToken)
         {
@@ -51,6 +56,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost("periods/close")]
+        [HasPermission(AccountingPermissions.FiscalManage)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ClosePeriod([FromBody] CloseFiscalPeriodCommand command, CancellationToken cancellationToken)
@@ -60,6 +66,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost("periods/open")]
+        [HasPermission(AccountingPermissions.FiscalManage)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> OpenPeriod([FromBody] OpenFiscalPeriodCommand command, CancellationToken cancellationToken)

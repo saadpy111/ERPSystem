@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.CostCenters.Commands.CreateCostCenter;
 using Accounting.Application.Features.CostCenters.Queries.GetCostCentersList;
 
@@ -21,6 +23,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(AccountingPermissions.CostCentersView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
@@ -30,6 +33,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost]
+        [HasPermission(AccountingPermissions.CostCentersCreate)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreateCostCenterCommand command, CancellationToken cancellationToken)

@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.Partners.Commands.CreatePartner;
 using Accounting.Application.Features.Partners.Commands.UpdatePartner;
 using Accounting.Application.Features.Partners.Queries.GetPartnerById;
@@ -23,6 +25,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(AccountingPermissions.PartnersView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
         {
@@ -32,6 +35,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [HasPermission(AccountingPermissions.PartnersView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
@@ -42,6 +46,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost]
+        [HasPermission(AccountingPermissions.PartnersCreate)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Create([FromBody] CreatePartnerCommand command, CancellationToken cancellationToken)
@@ -51,6 +56,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPut("{id:int}")]
+        [HasPermission(AccountingPermissions.PartnersCreate)] // Same as Create based on specific restrictions requested
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
@@ -26,6 +28,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(AccountingPermissions.JournalEntriesView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetList([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10, CancellationToken cancellationToken = default)
         {
@@ -35,6 +38,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("{id:int}")]
+        [HasPermission(AccountingPermissions.JournalEntriesView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
         {
@@ -44,6 +48,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost]
+        [HasPermission(AccountingPermissions.JournalEntriesCreate)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         public async Task<IActionResult> Create([FromBody] CreateJournalEntryCommand command, CancellationToken cancellationToken)
         {
@@ -52,6 +57,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpPost("post")]
+        [HasPermission(AccountingPermissions.JournalEntriesPost)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<IActionResult> PostEntry([FromBody] PostJournalEntryCommand command, CancellationToken cancellationToken)
         {
@@ -79,6 +85,7 @@ namespace Accounting.Api.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns>The ID of the newly created reversal journal entry.</returns>
         [HttpPost("{id:int}/reverse")]
+        [HasPermission(AccountingPermissions.JournalEntriesReverse)]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]

@@ -11,6 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
@@ -27,6 +29,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("trial-balance")]
+        [HasPermission(AccountingPermissions.ReportsTrialBalance)]
         [ProducesResponseType(typeof(IEnumerable<TrialBalanceDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetTrialBalance(
             [FromQuery] DateTime? fromDate,
@@ -39,6 +42,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("general-ledger")]
+        [HasPermission(AccountingPermissions.ReportsGeneralLedger)]
         [ProducesResponseType(typeof(IEnumerable<LedgerDto>), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetGeneralLedger(
             [FromQuery] int accountId,
@@ -52,6 +56,7 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet("account-statement")]
+        [HasPermission(AccountingPermissions.ReportsAccountStatement)]
         [ProducesResponseType(typeof(AccountStatementDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetAccountStatement(
             [FromQuery] int partnerId,
@@ -71,6 +76,7 @@ namespace Accounting.Api.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns>A Balance Sheet divided into Assets, Liabilities, and Equity</returns>
         [HttpGet("balance-sheet")]
+        [HasPermission(AccountingPermissions.ReportsBalanceSheet)]
         [ProducesResponseType(typeof(BalanceSheetDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetBalanceSheet(
             [FromQuery] DateTime asOfDate,
@@ -89,6 +95,7 @@ namespace Accounting.Api.Controllers
         /// <param name="cancellationToken"></param>
         /// <returns>An Income Statement divided into Revenues and Expenses with Net Profit</returns>
         [HttpGet("income-statement")]
+        [HasPermission(AccountingPermissions.ReportsIncomeStatement)]
         [ProducesResponseType(typeof(IncomeStatementDto), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetIncomeStatement(
             [FromQuery] DateTime fromDate,
