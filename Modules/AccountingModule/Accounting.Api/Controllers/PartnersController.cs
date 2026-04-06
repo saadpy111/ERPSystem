@@ -4,17 +4,19 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using SharedKernel.Authorization;
-using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.Partners.Commands.CreatePartner;
 using Accounting.Application.Features.Partners.Commands.UpdatePartner;
 using Accounting.Application.Features.Partners.Queries.GetPartnerById;
 using Accounting.Application.Features.Partners.Queries.GetPartnersList;
+using SharedKernel.Core.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
     [ApiController]
     [Route("api/accounting/partners")]
     [Produces("application/json")]
+    [ApiExplorerSettings(GroupName = "Accounting")]
+
     public class PartnersController : ControllerBase
     {
         private readonly IMediator _mediator;

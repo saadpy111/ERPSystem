@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Accounting.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class addInitialAccounting : Migration
+    public partial class initialAccounting : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,7 +24,12 @@ namespace Accounting.Persistence.Migrations
                     Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     ParentId = table.Column<int>(type: "int", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -45,16 +50,19 @@ namespace Accounting.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Code = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
-                    NameAr = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    NameEn = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    NameAr = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    NameEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Symbol = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     DecimalPlaces = table.Column<int>(type: "int", nullable: false),
                     IsBaseCurrency = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -68,12 +76,16 @@ namespace Accounting.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     IsClosed = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -87,11 +99,16 @@ namespace Accounting.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     Prefix = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
                     CurrentNumber = table.Column<int>(type: "int", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -105,10 +122,15 @@ namespace Accounting.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Rate = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Rate = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -131,11 +153,11 @@ namespace Accounting.Persistence.Migrations
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
                     AllowReconciliation = table.Column<bool>(type: "bit", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -166,12 +188,16 @@ namespace Accounting.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
                     EffectiveDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    BuyRate = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
-                    SellRate = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
-                    OfficialRate = table.Column<decimal>(type: "decimal(18,6)", nullable: true),
+                    BuyRate = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    SellRate = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    OfficialRate = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
                     Source = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -193,10 +219,16 @@ namespace Accounting.Persistence.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     FiscalYearId = table.Column<int>(type: "int", nullable: false),
-                    PeriodName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    PeriodName = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsClosed = table.Column<bool>(type: "bit", nullable: false)
+                    IsClosed = table.Column<bool>(type: "bit", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -207,7 +239,7 @@ namespace Accounting.Persistence.Migrations
                         principalSchema: "Accounting",
                         principalTable: "FiscalYears",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -224,19 +256,21 @@ namespace Accounting.Persistence.Migrations
                     Phone = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     TaxNumber = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    ContactPerson = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PaymentTerms = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreditLimit = table.Column<decimal>(type: "decimal(18,6)", nullable: true),
+                    ContactPerson = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    PaymentTerms = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    CreditLimit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
                     DefaultCurrencyId = table.Column<int>(type: "int", nullable: false),
                     DefaultTaxId = table.Column<int>(type: "int", nullable: true),
-                    StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Governorate = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StreetAddress = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    City = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Governorate = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    PostalCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -259,6 +293,65 @@ namespace Accounting.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AccountingMappings",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SourceType = table.Column<int>(type: "int", nullable: false),
+                    MappingKey = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AccountingMappings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AccountingMappings_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CashAccounts",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CashAccounts", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CashAccounts_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "JournalEntries",
                 schema: "Accounting",
                 columns: table => new
@@ -270,15 +363,22 @@ namespace Accounting.Persistence.Migrations
                     Reference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
                     SourceType = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    TotalDebit = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
-                    TotalCredit = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    TotalDebit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    TotalCredit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
                     FiscalPeriodId = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    CreatedBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PostedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    IsReversed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    ReversedEntryId = table.Column<int>(type: "int", nullable: true),
+                    ReversedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ReversedBy = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
+                    ReversalReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
@@ -298,6 +398,71 @@ namespace Accounting.Persistence.Migrations
                         principalTable: "FiscalPeriods",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_JournalEntries_JournalEntries_ReversedEntryId",
+                        column: x => x.ReversedEntryId,
+                        principalSchema: "Accounting",
+                        principalTable: "JournalEntries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CashTransactions",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CashAccountId = table.Column<int>(type: "int", nullable: false),
+                    Type = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    Reference = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    CurrencyId = table.Column<int>(type: "int", nullable: false),
+                    ExchangeRate = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    BaseAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    PartnerId = table.Column<int>(type: "int", nullable: true),
+                    OffsetAccountId = table.Column<int>(type: "int", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CashTransactions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CashTransactions_Accounts_OffsetAccountId",
+                        column: x => x.OffsetAccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CashTransactions_CashAccounts_CashAccountId",
+                        column: x => x.CashAccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "CashAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CashTransactions_Currencies_CurrencyId",
+                        column: x => x.CurrencyId,
+                        principalSchema: "Accounting",
+                        principalTable: "Currencies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_CashTransactions_Partners_PartnerId",
+                        column: x => x.PartnerId,
+                        principalSchema: "Accounting",
+                        principalTable: "Partners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -309,16 +474,21 @@ namespace Accounting.Persistence.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     JournalEntryId = table.Column<int>(type: "int", nullable: false),
                     AccountId = table.Column<int>(type: "int", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Debit = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
-                    Credit = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    Debit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    Credit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
                     PartnerId = table.Column<int>(type: "int", nullable: true),
                     CostCenterId = table.Column<int>(type: "int", nullable: true),
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
-                    ForeignAmount = table.Column<decimal>(type: "decimal(18,6)", nullable: true),
-                    ExchangeRate = table.Column<decimal>(type: "decimal(18,6)", nullable: true),
-                    BaseAmount = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false)
+                    ForeignAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
+                    ExchangeRate = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: true),
+                    BaseAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -350,7 +520,7 @@ namespace Accounting.Persistence.Migrations
                         principalSchema: "Accounting",
                         principalTable: "JournalEntries",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_JournalEntryLines_Partners_PartnerId",
                         column: x => x.PartnerId,
@@ -373,11 +543,15 @@ namespace Accounting.Persistence.Migrations
                     PartnerId = table.Column<int>(type: "int", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false),
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,6)", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     JournalEntryId = table.Column<int>(type: "int", nullable: false),
-                    TenantId = table.Column<int>(type: "int", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -404,6 +578,25 @@ namespace Accounting.Persistence.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountingMappings_AccountId",
+                schema: "Accounting",
+                table: "AccountingMappings",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountingMappings_TenantId",
+                schema: "Accounting",
+                table: "AccountingMappings",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccountingMappings_TenantId_SourceType_MappingKey",
+                schema: "Accounting",
+                table: "AccountingMappings",
+                columns: new[] { "TenantId", "SourceType", "MappingKey" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_CurrencyId",
@@ -435,6 +628,42 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting",
                 table: "Accounts",
                 columns: new[] { "TenantId", "Id" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashAccounts_AccountId",
+                schema: "Accounting",
+                table: "CashAccounts",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_CashAccountId",
+                schema: "Accounting",
+                table: "CashTransactions",
+                column: "CashAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_CurrencyId",
+                schema: "Accounting",
+                table: "CashTransactions",
+                column: "CurrencyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_OffsetAccountId",
+                schema: "Accounting",
+                table: "CashTransactions",
+                column: "OffsetAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_PartnerId",
+                schema: "Accounting",
+                table: "CashTransactions",
+                column: "PartnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CashTransactions_TenantId",
+                schema: "Accounting",
+                table: "CashTransactions",
+                column: "TenantId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CostCenters_ParentId",
@@ -514,6 +743,12 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting",
                 table: "JournalEntries",
                 column: "FiscalPeriodId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JournalEntries_ReversedEntryId",
+                schema: "Accounting",
+                table: "JournalEntries",
+                column: "ReversedEntryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_JournalEntries_TenantId",
@@ -667,6 +902,14 @@ namespace Accounting.Persistence.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "AccountingMappings",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
+                name: "CashTransactions",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
                 name: "CurrencyRates",
                 schema: "Accounting");
 
@@ -683,7 +926,7 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
-                name: "Accounts",
+                name: "CashAccounts",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
@@ -699,15 +942,19 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
+                name: "Accounts",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
                 name: "FiscalPeriods",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
-                name: "Currencies",
+                name: "Taxes",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
-                name: "Taxes",
+                name: "Currencies",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(

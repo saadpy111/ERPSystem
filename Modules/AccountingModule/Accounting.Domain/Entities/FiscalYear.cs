@@ -1,17 +1,14 @@
-using System;
+using Accounting.Domain.Common;
 using System.Collections.Generic;
 
 namespace Accounting.Domain.Entities
 {
-    public class FiscalYear
+    public class FiscalYear : BaseEntity
     {
-        public int Id { get; set; }
         public string Name { get; set; } = null!;
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public System.DateTime StartDate { get; set; }
+        public System.DateTime EndDate { get; set; }
         public bool IsClosed { get; set; }
-        public int TenantId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public virtual ICollection<FiscalPeriod> FiscalPeriods { get; set; } = new List<FiscalPeriod>();
     }

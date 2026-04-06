@@ -4,15 +4,17 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using SharedKernel.Authorization;
-using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.CostCenters.Commands.CreateCostCenter;
 using Accounting.Application.Features.CostCenters.Queries.GetCostCentersList;
+using SharedKernel.Core.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
     [ApiController]
     [Route("api/accounting/cost-centers")]
     [Produces("application/json")]
+    [ApiExplorerSettings(GroupName = "Accounting")]
+
     public class CostCentersController : ControllerBase
     {
         private readonly IMediator _mediator;

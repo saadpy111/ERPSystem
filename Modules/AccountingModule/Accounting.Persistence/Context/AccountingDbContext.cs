@@ -1,7 +1,10 @@
+using Accounting.Application.Interfaces.Contexts;
+using Accounting.Domain.Common.Interfaces;
 using Accounting.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using SharedKernel.Multitenancy;
-using Accounting.Application.Interfaces.Contexts;
+using System;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Accounting.Persistence.Context
@@ -12,11 +15,11 @@ namespace Accounting.Persistence.Context
 
         public string? CurrentTenantIdStr => _tenantProvider?.GetTenantId();
         
-        public int? CurrentTenantId 
+        public Guid? CurrentTenantId
         {
             get 
             {
-                if (int.TryParse(CurrentTenantIdStr, out int tenantId))
+                if (Guid.TryParse(CurrentTenantIdStr, out var tenantId))
                 {
                     return tenantId;
                 }
@@ -53,64 +56,146 @@ namespace Accounting.Persistence.Context
             modelBuilder.HasDefaultSchema("Accounting");
 
             ApplyGlobalQueryFilters(modelBuilder);
+            ApplyGlobalConfigConventions(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
 
+        private void ApplyGlobalConfigConventions(ModelBuilder modelBuilder)
+        {
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+            {
+                // 1. Prevent Cascade Delete for all Foreign Keys
+                foreach (var foreignKey in entityType.GetForeignKeys())
+                {
+                    // For accounting, strict Restrict prevents physical cascading deletion across relationships
+                    if (foreignKey.DeleteBehavior == DeleteBehavior.Cascade || foreignKey.DeleteBehavior == DeleteBehavior.ClientCascade)
+                    {
+                        foreignKey.DeleteBehavior = DeleteBehavior.Restrict;
+                    }
+                }
+
+                foreach (var property in entityType.GetProperties())
+                {
+                    // 2. Remove nvarchar(max) for Strings and apply sizing best practices
+                    if (property.ClrType == typeof(string))
+                    {
+                        var name = property.Name;
+                        if (name.Contains("Description", StringComparison.OrdinalIgnoreCase))
+                            property.SetMaxLength(500);
+                        else if (name.Contains("Note", StringComparison.OrdinalIgnoreCase))
+                            property.SetMaxLength(1000);
+                        else if (name.Contains("Secret", StringComparison.OrdinalIgnoreCase) || name.Contains("Token", StringComparison.OrdinalIgnoreCase))
+                            property.SetMaxLength(1000);
+                        else if (name.Contains("Code", StringComparison.OrdinalIgnoreCase) || name.Contains("Phone", StringComparison.OrdinalIgnoreCase))
+                            property.SetMaxLength(50);
+                        else if (name.Contains("Name", StringComparison.OrdinalIgnoreCase) || name.Contains("Email", StringComparison.OrdinalIgnoreCase))
+                            property.SetMaxLength(200);
+                        else if (property.GetMaxLength() == null)
+                            property.SetMaxLength(200); // Default bounded max-length preventing nvarchar(max)
+                    }
+
+                    // Bonus: 6. Conform to rigorous decimal precision (18, 6) across the board structurally
+                    if (property.ClrType == typeof(decimal) || property.ClrType == typeof(decimal?))
+                    {
+                        property.SetPrecision(18);
+                        property.SetScale(6);
+                    }
+                }
+            }
+        }
+
         private void ApplyGlobalQueryFilters(ModelBuilder modelBuilder)
         {
-            if (CurrentTenantId.HasValue)
+            foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                var tenantId = CurrentTenantId.Value;
+                var filter = GlobalQueryFilterBuilder.BuildFilterExpression(entityType.ClrType, this);
+                if (filter != null)
+                {
+                    modelBuilder.Entity(entityType.ClrType).HasQueryFilter(filter);
+                }
+            }
+        }
 
-                modelBuilder.Entity<Account>().HasQueryFilter(e => e.TenantId == tenantId && !e.IsDeleted);
-                modelBuilder.Entity<Currency>().HasQueryFilter(e => e.TenantId == tenantId);
-                modelBuilder.Entity<CurrencyRate>().HasQueryFilter(e => e.Currency.TenantId == tenantId); // Indirect, but useful if needed. Wait, CurrencyRate doesn't have TenantId directly.
-                modelBuilder.Entity<Partner>().HasQueryFilter(e => e.TenantId == tenantId && !e.IsDeleted);
-                modelBuilder.Entity<FiscalYear>().HasQueryFilter(e => e.TenantId == tenantId);
-                // FiscalPeriod doesn't have TenantId directly in our definition, filtering through FiscalYear could be complex for EF query filters, so we skip or enforce it properly elsewhere. 
-                // Wait, if no TenantId on FiscalPeriod, better skip its query filter and rely on FiscalYear.
-                modelBuilder.Entity<JournalEntry>().HasQueryFilter(e => e.TenantId == tenantId && !e.IsDeleted);
-                modelBuilder.Entity<JournalEntryLine>().HasQueryFilter(e => e.TenantId == tenantId);
-                modelBuilder.Entity<Voucher>().HasQueryFilter(e => e.TenantId == tenantId);
-                modelBuilder.Entity<CostCenter>().HasQueryFilter(e => e.TenantId == tenantId);
-                modelBuilder.Entity<Tax>().HasQueryFilter(e => e.TenantId == tenantId);
-                modelBuilder.Entity<Sequence>().HasQueryFilter(e => e.TenantId == tenantId);
-                modelBuilder.Entity<AccountingMapping>().HasQueryFilter(e => e.TenantId == tenantId && e.IsActive);
-                modelBuilder.Entity<CashAccount>().HasQueryFilter(e => e.TenantId == tenantId);
-                modelBuilder.Entity<CashTransaction>().HasQueryFilter(e => e.TenantId == tenantId);
-            }
-            else
-            {
-                // Soft deletes for when tenant is not resolved
-                modelBuilder.Entity<Account>().HasQueryFilter(e => !e.IsDeleted);
-                modelBuilder.Entity<Partner>().HasQueryFilter(e => !e.IsDeleted);
-                modelBuilder.Entity<JournalEntry>().HasQueryFilter(e => !e.IsDeleted);
-            }
+        public override int SaveChanges()
+        {
+            ApplyTenantAndAudit();
+            return base.SaveChanges();
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
         {
-            EnforceTenantOnInsert();
+            ApplyTenantAndAudit();
             return base.SaveChangesAsync(cancellationToken);
         }
 
-        private void EnforceTenantOnInsert()
+        private void ApplyTenantAndAudit()
         {
             var tenantId = CurrentTenantId;
-            if (!tenantId.HasValue) return;
+            var now = DateTime.UtcNow;
+            const string systemUser = "system";
 
             foreach (var entry in ChangeTracker.Entries())
             {
-                if (entry.State == EntityState.Added)
+                if (entry.Entity is IMultiTenant multiTenant && entry.State == EntityState.Added && tenantId.HasValue)
                 {
-                    var property = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "TenantId");
-                    if (property != null && property.Metadata.ClrType == typeof(int))
+                    multiTenant.TenantId = tenantId.Value;
+                }
+
+                if (entry.Entity is IAuditable auditable)
+                {
+                    if (entry.State == EntityState.Added)
                     {
-                        property.CurrentValue = tenantId.Value;
+                        auditable.CreatedAt = now;
+                        if (string.IsNullOrWhiteSpace(auditable.CreatedBy))
+                        {
+                            auditable.CreatedBy = systemUser;
+                        }
+                        auditable.UpdatedAt = null;
+                        auditable.UpdatedBy = null;
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        auditable.UpdatedAt = now;
+                        if (string.IsNullOrWhiteSpace(auditable.UpdatedBy))
+                        {
+                            auditable.UpdatedBy = systemUser;
+                        }
                     }
                 }
             }
+        }
+    }
+
+    internal static class GlobalQueryFilterBuilder
+    {
+        public static LambdaExpression? BuildFilterExpression(Type entityType, AccountingDbContext dbContext)
+        {
+            var parameter = Expression.Parameter(entityType, "e");
+            Expression? filterBody = null;
+
+            if (typeof(IMultiTenant).IsAssignableFrom(entityType))
+            {
+                var tenantProperty = Expression.Property(parameter, nameof(IMultiTenant.TenantId));
+                var currentTenant = Expression.Property(Expression.Constant(dbContext), nameof(AccountingDbContext.CurrentTenantId));
+                var hasTenant = Expression.Property(currentTenant, nameof(Nullable<Guid>.HasValue));
+                var tenantValue = Expression.Property(currentTenant, nameof(Nullable<Guid>.Value));
+                var tenantMatch = Expression.Equal(tenantProperty, tenantValue);
+                var tenantCondition = Expression.OrElse(Expression.Not(hasTenant), tenantMatch);
+
+                filterBody = tenantCondition;
+            }
+
+            if (typeof(ISoftDelete).IsAssignableFrom(entityType))
+            {
+                var isDeletedProperty = Expression.Property(parameter, nameof(ISoftDelete.IsDeleted));
+                var notDeleted = Expression.Equal(isDeletedProperty, Expression.Constant(false));
+                filterBody = filterBody == null ? notDeleted : Expression.AndAlso(filterBody, notDeleted);
+            }
+
+            return filterBody == null
+                ? null
+                : Expression.Lambda(filterBody, parameter);
         }
     }
 }

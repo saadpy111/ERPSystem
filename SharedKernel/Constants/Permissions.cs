@@ -1,3 +1,4 @@
+using SharedKernel.Core.Constants.Permissions;
 using System.Reflection;
 
 namespace SharedKernel.Constants.Permissions
@@ -24,7 +25,8 @@ namespace SharedKernel.Constants.Permissions
             typeof(AdminPermissions),
             typeof(WebsitePermissions),
             typeof(ReportPermissions),
-            typeof(SubscriptionPermissions)
+            typeof(SubscriptionPermissions),
+            typeof(AccountingPermissions)
         };
 
         /// <summary>

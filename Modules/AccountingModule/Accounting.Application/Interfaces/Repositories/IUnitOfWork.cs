@@ -10,6 +10,7 @@ namespace Accounting.Application.Interfaces.Repositories
         IJournalEntryRepository JournalEntries { get; }
         IPartnerRepository Partners { get; }
         ICurrencyRepository Currencies { get; }
+        ICurrencyRateRepository CurrencyRates { get; }
         IVoucherRepository Vouchers { get; }
         IAccountingMappingRepository AccountingMappings { get; }
 

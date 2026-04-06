@@ -6,13 +6,15 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Authorization;
-using SharedKernel.Constants.Permissions;
+using SharedKernel.Core.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
     [ApiController]
     [Route("api/accounting/cash")]
     [Produces("application/json")]
+    [ApiExplorerSettings(GroupName = "Accounting")]
+
     public class CashController : ControllerBase
     {
         private readonly IMediator _mediator;

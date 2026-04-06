@@ -22,15 +22,7 @@ namespace Accounting.Persistence.Configurations
             builder.HasIndex(e => new { e.TenantId, e.SourceType, e.MappingKey }).IsUnique();
             builder.HasIndex(e => e.TenantId);
 
-            // Seed Data
-            builder.HasData(
-                new AccountingMapping { Id = 1, TenantId = 1, SourceType = Domain.Enums.SourceType.Purchases, MappingKey = "Inventory", AccountId = 1, IsActive = true },
-                new AccountingMapping { Id = 2, TenantId = 1, SourceType = Domain.Enums.SourceType.Purchases, MappingKey = "AccountsPayable", AccountId = 2, IsActive = true },
-                new AccountingMapping { Id = 3, TenantId = 1, SourceType = Domain.Enums.SourceType.Inventory, MappingKey = "COGS", AccountId = 3, IsActive = true },
-                new AccountingMapping { Id = 4, TenantId = 1, SourceType = Domain.Enums.SourceType.Inventory, MappingKey = "Inventory", AccountId = 1, IsActive = true },
-                new AccountingMapping { Id = 5, TenantId = 1, SourceType = Domain.Enums.SourceType.Sales, MappingKey = "Cash", AccountId = 4, IsActive = true },
-                new AccountingMapping { Id = 6, TenantId = 1, SourceType = Domain.Enums.SourceType.Sales, MappingKey = "Revenue", AccountId = 5, IsActive = true }
-            );
+
         }
     }
 }

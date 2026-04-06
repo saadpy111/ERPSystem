@@ -28,6 +28,7 @@ namespace Accounting.Application.DependencyInjection
 
             // Register Mapping Service
             services.AddScoped<Accounting.Application.Services.Interfaces.IAccountingMappingService, Accounting.Application.Services.Implementations.AccountingMappingService>();
+            services.AddScoped<Accounting.Application.Services.Interfaces.IExchangeRateService, Accounting.Application.Services.Implementations.ExchangeRateService>();
 
             return services;
         }

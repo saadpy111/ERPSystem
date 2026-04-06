@@ -1,10 +1,9 @@
-using System;
+using Accounting.Domain.Common;
 
 namespace Accounting.Domain.Entities
 {
-    public class JournalEntryLine
+    public class JournalEntryLine : BaseEntity
     {
-        public int Id { get; set; }
         public int JournalEntryId { get; set; }
         public int AccountId { get; set; }
         public string? Description { get; set; }
@@ -16,8 +15,6 @@ namespace Accounting.Domain.Entities
         public decimal? ForeignAmount { get; set; }
         public decimal? ExchangeRate { get; set; }
         public decimal BaseAmount { get; set; }
-        public int TenantId { get; set; }
-
         public virtual JournalEntry JournalEntry { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
         public virtual Partner? Partner { get; set; }

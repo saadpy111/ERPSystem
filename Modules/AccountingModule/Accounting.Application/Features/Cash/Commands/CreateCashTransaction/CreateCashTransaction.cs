@@ -3,12 +3,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Accounting.Application.Common.Exceptions;
 using Accounting.Application.Interfaces.Contexts;
+using Accounting.Application.Services.Interfaces;
 using Accounting.Application.Posting.Commands.PostTransaction;
 using Accounting.Domain.Entities;
 using Accounting.Domain.Enums;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
 {
@@ -20,6 +22,7 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
         public DateTime Date { get; set; }
         public string Description { get; set; } = null!;
         public string? Reference { get; set; }
+        public int CurrencyId { get; set; }
         public int? PartnerId { get; set; }
         public int OffsetAccountId { get; set; }
     }
@@ -32,6 +35,7 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
             RuleFor(x => x.Description).NotEmpty();
             RuleFor(x => x.CashAccountId).GreaterThan(0);
             RuleFor(x => x.OffsetAccountId).GreaterThan(0);
+            RuleFor(x => x.CurrencyId).GreaterThan(0);
         }
     }
 
@@ -39,11 +43,13 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
     {
         private readonly IAccountingDbContext _context;
         private readonly IMediator _mediator;
+        private readonly IExchangeRateService _exchangeRateService;
 
-        public CreateCashTransactionCommandHandler(IAccountingDbContext context, IMediator mediator)
+        public CreateCashTransactionCommandHandler(IAccountingDbContext context, IMediator mediator, IExchangeRateService exchangeRateService)
         {
             _context = context;
             _mediator = mediator;
+            _exchangeRateService = exchangeRateService;
         }
 
         public async Task<int> Handle(CreateCashTransactionCommand request, CancellationToken cancellationToken)
@@ -54,8 +60,8 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
             // Calculate current balance if Payment to prevent negative balance
             if (request.Type == CashTransactionType.Payment)
             {
-                var receipts = await _context.CashTransactions.Where(t => t.CashAccountId == request.CashAccountId && t.Type == CashTransactionType.Receipt).SumAsync(t => t.Amount, cancellationToken);
-                var payments = await _context.CashTransactions.Where(t => t.CashAccountId == request.CashAccountId && t.Type == CashTransactionType.Payment).SumAsync(t => t.Amount, cancellationToken);
+                var receipts = await _context.CashTransactions.Where(t => t.CashAccountId == request.CashAccountId && t.Type == CashTransactionType.Receipt).SumAsync(t => t.BaseAmount, cancellationToken);
+                var payments = await _context.CashTransactions.Where(t => t.CashAccountId == request.CashAccountId && t.Type == CashTransactionType.Payment).SumAsync(t => t.BaseAmount, cancellationToken);
                 var balance = receipts - payments;
 
                 if (balance < request.Amount)
@@ -63,6 +69,8 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
                     throw new BusinessException("Insufficient balance in Cash Account.");
                 }
             }
+
+            var rate = await _exchangeRateService.GetRateAsync(request.CurrencyId, request.Date);
 
             var transaction = new CashTransaction
             {
@@ -72,9 +80,11 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
                 Date = request.Date,
                 Description = request.Description,
                 Reference = request.Reference,
+                CurrencyId = request.CurrencyId,
+                ExchangeRate = rate,
+                BaseAmount = request.Amount * rate,
                 PartnerId = request.PartnerId,
-                OffsetAccountId = request.OffsetAccountId,
-                TenantId = cashAccount.TenantId
+                OffsetAccountId = request.OffsetAccountId
             };
 
             await _context.CashTransactions.AddAsync(transaction, cancellationToken);
@@ -86,7 +96,8 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
                 SourceType = request.Type == CashTransactionType.Receipt ? SourceType.CashReceipt : SourceType.CashPayment,
                 SourceId = transaction.Id,
                 Date = transaction.Date,
-                Description = transaction.Description
+                Description = transaction.Description,
+                CurrencyId = transaction.CurrencyId
             };
 
             await _mediator.Send(postCommand, cancellationToken);

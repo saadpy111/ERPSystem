@@ -1,12 +1,11 @@
+using Accounting.Domain.Common;
 using Accounting.Domain.Enums;
-using System;
 using System.Collections.Generic;
 
 namespace Accounting.Domain.Entities
 {
-    public class Partner
+    public class Partner : BaseEntity
     {
-        public int Id { get; set; }
         public string Code { get; set; } = null!;
         public string NameAr { get; set; } = null!;
         public string NameEn { get; set; } = null!;
@@ -24,11 +23,6 @@ namespace Accounting.Domain.Entities
         public string? Governorate { get; set; }
         public string? PostalCode { get; set; }
         public bool IsActive { get; set; }
-        public int TenantId { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-        public bool IsDeleted { get; set; }
-
         public virtual Currency DefaultCurrency { get; set; } = null!;
         public virtual Tax? DefaultTax { get; set; }
         public virtual ICollection<JournalEntryLine> JournalEntryLines { get; set; } = new List<JournalEntryLine>();

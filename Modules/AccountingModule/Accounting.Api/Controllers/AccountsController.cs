@@ -4,18 +4,20 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using SharedKernel.Authorization;
-using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.Accounts.Commands.CreateAccount;
 using Accounting.Application.Features.Accounts.Commands.UpdateAccount;
 using Accounting.Application.Features.Accounts.Queries.GetAccountById;
 using Accounting.Application.Features.Accounts.Queries.GetAccountHierarchy;
 using Accounting.Application.Features.Accounts.Queries.GetAccountsList;
+using SharedKernel.Core.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
     [ApiController]
     [Route("api/accounting/accounts")]
     [Produces("application/json")]
+    [ApiExplorerSettings(GroupName = "Accounting")]
+
     public class AccountsController : ControllerBase
     {
         private readonly IMediator _mediator;

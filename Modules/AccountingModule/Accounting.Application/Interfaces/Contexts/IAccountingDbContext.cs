@@ -14,7 +14,9 @@ namespace Accounting.Application.Interfaces.Contexts
         DbSet<Partner> Partners { get; }
         DbSet<CashAccount> CashAccounts { get; }
         DbSet<CashTransaction> CashTransactions { get; }
-        
+        DbSet<Currency> Currencies { get; }
+
+        DbSet<CurrencyRate> CurrencyRates { get; }
         // Expose IQueryable for complex aggregations if preferred, or use DbSet directly
         Task<int> SaveChangesAsync(System.Threading.CancellationToken cancellationToken);
     }

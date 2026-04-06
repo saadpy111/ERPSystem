@@ -1,4 +1,4 @@
-namespace SharedKernel.Constants.Permissions
+namespace SharedKernel.Core.Constants.Permissions
 {
     public static class AccountingPermissions
     {
@@ -40,5 +40,14 @@ namespace SharedKernel.Constants.Permissions
         // ===== CASH =====
         public const string CashView = "Permissions.Accounting.Cash.View";
         public const string CashCreate = "Permissions.Accounting.Cash.Create";
+
+        // ===== CURRENCIES =====
+        public const string CurrenciesView = "Permissions.Accounting.Currencies.View";
+        public const string CurrenciesCreate = "Permissions.Accounting.Currencies.Create";
+        public const string CurrenciesEdit = "Permissions.Accounting.Currencies.Edit";
+
+        // ===== CURRENCY RATES =====
+        public const string CurrencyRatesView = "Permissions.Accounting.CurrencyRates.View";
+        public const string CurrencyRatesCreate = "Permissions.Accounting.CurrencyRates.Create";
     }
 }

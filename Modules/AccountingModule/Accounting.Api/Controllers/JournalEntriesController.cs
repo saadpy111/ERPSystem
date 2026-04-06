@@ -11,13 +11,15 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using SharedKernel.Authorization;
-using SharedKernel.Constants.Permissions;
+using SharedKernel.Core.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
     [ApiController]
     [Route("api/accounting/journal-entries")]
     [Produces("application/json")]
+    [ApiExplorerSettings(GroupName = "Accounting")]
+
     public class JournalEntriesController : ControllerBase
     {
         private readonly IMediator _mediator;

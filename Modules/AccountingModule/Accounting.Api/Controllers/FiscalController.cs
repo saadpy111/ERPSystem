@@ -4,18 +4,20 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading;
 using System.Threading.Tasks;
 using SharedKernel.Authorization;
-using SharedKernel.Constants.Permissions;
 using Accounting.Application.Features.Fiscal.Commands.CloseFiscalPeriod;
 using Accounting.Application.Features.Fiscal.Commands.CreateFiscalYear;
 using Accounting.Application.Features.Fiscal.Commands.OpenFiscalPeriod;
 using Accounting.Application.Features.Fiscal.Queries.GetFiscalPeriods;
 using Accounting.Application.Features.Fiscal.Queries.GetFiscalYears;
+using SharedKernel.Core.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
 {
     [ApiController]
     [Route("api/accounting/fiscal")]
     [Produces("application/json")]
+    [ApiExplorerSettings(GroupName = "Accounting")]
+
     public class FiscalController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -31,6 +31,11 @@ namespace Accounting.Persistence.DependencyInjection
             services.AddScoped<IVoucherRepository, VoucherRepository>();
             services.AddScoped<IAccountingMappingRepository, AccountingMappingRepository>();
 
+            // External Module Fakes (Temporary)
+            services.AddScoped<Accounting.Application.Interfaces.External.ISalesRepository, Accounting.Persistence.External.Fakes.FakeSalesRepository>();
+            services.AddScoped<Accounting.Application.Interfaces.External.IPurchaseRepository, Accounting.Persistence.External.Fakes.FakePurchaseRepository>();
+            services.AddScoped<Accounting.Application.Interfaces.External.IInventoryRepository, Accounting.Persistence.External.Fakes.FakeInventoryRepository>();
+
             services.AddScoped<Accounting.Application.Interfaces.Contexts.IAccountingDbContext>(provider => provider.GetRequiredService<AccountingDbContext>());
 
             return services;

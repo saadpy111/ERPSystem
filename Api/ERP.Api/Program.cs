@@ -72,6 +72,7 @@ namespace Inventory.Api
                 c.SwaggerEndpoint("/swagger/Report/swagger.json", "Report API");
                 c.SwaggerEndpoint("/swagger/Subscription/swagger.json", "Subscription API");
                 c.SwaggerEndpoint("/swagger/Website/swagger.json", "Website API");
+                c.SwaggerEndpoint("/swagger/Accounting/swagger.json", "Accounting API");
                 c.DefaultModelExpandDepth(2);
             });
 

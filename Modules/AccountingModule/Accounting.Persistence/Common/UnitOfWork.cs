@@ -15,6 +15,7 @@ namespace Accounting.Persistence.Common
         private IJournalEntryRepository? _journalEntryRepository;
         private IPartnerRepository? _partnerRepository;
         private ICurrencyRepository? _currencyRepository;
+        private ICurrencyRateRepository? _currencyRateRepository;
         private IVoucherRepository? _voucherRepository;
         private IAccountingMappingRepository? _accountingMappingRepository;
 
@@ -27,6 +28,7 @@ namespace Accounting.Persistence.Common
         public IJournalEntryRepository JournalEntries => _journalEntryRepository ??= new JournalEntryRepository(_context);
         public IPartnerRepository Partners => _partnerRepository ??= new PartnerRepository(_context);
         public ICurrencyRepository Currencies => _currencyRepository ??= new CurrencyRepository(_context);
+        public ICurrencyRateRepository CurrencyRates => _currencyRateRepository ??= new CurrencyRateRepository(_context);
         public IVoucherRepository Vouchers => _voucherRepository ??= new VoucherRepository(_context);
         public IAccountingMappingRepository AccountingMappings => _accountingMappingRepository ??= new AccountingMappingRepository(_context);
 

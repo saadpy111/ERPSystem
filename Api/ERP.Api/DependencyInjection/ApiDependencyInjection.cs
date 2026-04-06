@@ -81,6 +81,7 @@ namespace ERP.Api.DependencyInjection
                  options.SwaggerDoc("Report", new() { Title = "Report API", Version = "v1" });
                  options.SwaggerDoc("Subscription", new() { Title = "Subscription API", Version = "v1" });
                  options.SwaggerDoc("Website", new() { Title = "Website API", Version = "v1" });
+                 options.SwaggerDoc("Accounting", new() { Title = "Accounting API", Version = "v1" });
                  options.DocInclusionPredicate((docName, apiDesc) =>
                  {
                      if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;

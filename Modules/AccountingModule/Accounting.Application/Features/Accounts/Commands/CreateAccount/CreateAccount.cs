@@ -16,7 +16,6 @@ namespace Accounting.Application.Features.Accounts.Commands.CreateAccount
         public AccountType AccountType { get; set; }
         public int CurrencyId { get; set; }
         public bool IsGroup { get; set; }
-        public int TenantId { get; set; }
     }
 
     public class CreateAccountCommandValidator : AbstractValidator<CreateAccountCommand>
@@ -48,7 +47,6 @@ namespace Accounting.Application.Features.Accounts.Commands.CreateAccount
                 AccountType = request.AccountType,
                 CurrencyId = request.CurrencyId,
                 IsGroup = request.IsGroup,
-                TenantId = request.TenantId,
                 IsActive = true
             };
 

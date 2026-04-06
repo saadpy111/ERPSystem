@@ -51,17 +51,25 @@ namespace Accounting.Application.Features.JournalEntries.Commands.CreateJournalE
                 throw new Exception("No open fiscal period found for the specified date.");
             }
 
-            var totalDebit = request.Lines.Sum(l => l.Debit);
-            var totalCredit = request.Lines.Sum(l => l.Credit);
+            var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
+            if (currency == null || !currency.IsActive)
+                throw new Exception("Invalid or inactive currency.");
 
             var journalEntry = _mapper.Map<JournalEntry>(request);
 
             journalEntry.FiscalPeriodId = activePeriod.Id;
-            journalEntry.Status = JournalStatus.Draft; // Only Draft Journal Entries
+            journalEntry.Status = JournalStatus.Draft;
             journalEntry.SourceType = SourceType.Manual;
-            journalEntry.TotalDebit = totalDebit;
-            journalEntry.TotalCredit = totalCredit;
             journalEntry.JournalNumber = "JE-" + DateTime.Now.ToString("yyyyMMddHHmmss");
+
+            // Raw amounts as provided by user - no conversion here per goal #4
+            foreach(var line in journalEntry.Lines)
+            {
+                line.CurrencyId = request.CurrencyId;
+            }
+
+            journalEntry.TotalDebit = journalEntry.Lines.Sum(l => l.Debit);
+            journalEntry.TotalCredit = journalEntry.Lines.Sum(l => l.Credit);
 
             await _unitOfWork.JournalEntries.AddAsync(journalEntry);
             await _unitOfWork.SaveChangesAsync();

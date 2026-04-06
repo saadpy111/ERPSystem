@@ -1,12 +1,12 @@
+using Accounting.Domain.Common;
 using Accounting.Domain.Enums;
 using System;
 using System.Collections.Generic;
 
 namespace Accounting.Domain.Entities
 {
-    public class JournalEntry
+    public class JournalEntry : BaseEntity
     {
-        public int Id { get; set; }
         public string JournalNumber { get; set; } = null!;
         public DateTime Date { get; set; }
         public string? Reference { get; set; }
@@ -17,11 +17,7 @@ namespace Accounting.Domain.Entities
         public decimal TotalDebit { get; set; }
         public decimal TotalCredit { get; set; }
         public int FiscalPeriodId { get; set; }
-        public int TenantId { get; set; }
-        public string? CreatedBy { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? PostedAt { get; set; }
-        public bool IsDeleted { get; set; }
 
         // Reversal Tracking
         public bool IsReversed { get; set; }
