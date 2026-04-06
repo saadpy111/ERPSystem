@@ -49,5 +49,17 @@ namespace SharedKernel.Core.Constants.Permissions
         // ===== CURRENCY RATES =====
         public const string CurrencyRatesView = "Permissions.Accounting.CurrencyRates.View";
         public const string CurrencyRatesCreate = "Permissions.Accounting.CurrencyRates.Create";
+
+        // ===== ACCOUNTING MAPPINGS =====
+        public const string AccountingMappingsView = "Permissions.Accounting.AccountingMappings.View";
+        public const string AccountingMappingsCreate = "Permissions.Accounting.AccountingMappings.Create";
+        public const string AccountingMappingsEdit = "Permissions.Accounting.AccountingMappings.Edit";
+        public const string AccountingMappingsDelete = "Permissions.Accounting.AccountingMappings.Delete";
+
+        // ===== CASH ACCOUNTS =====
+        public const string CashAccountsView = "Permissions.Accounting.CashAccounts.View";
+        public const string CashAccountsCreate = "Permissions.Accounting.CashAccounts.Create";
+        public const string CashAccountsEdit = "Permissions.Accounting.CashAccounts.Edit";
+        public const string CashAccountsDelete = "Permissions.Accounting.CashAccounts.Delete";
     }
 }

@@ -18,6 +18,7 @@ namespace Accounting.Persistence.Common
         private ICurrencyRateRepository? _currencyRateRepository;
         private IVoucherRepository? _voucherRepository;
         private IAccountingMappingRepository? _accountingMappingRepository;
+        private ICashAccountRepository? _cashAccountRepository;
 
         public UnitOfWork(AccountingDbContext context)
         {
@@ -31,6 +32,7 @@ namespace Accounting.Persistence.Common
         public ICurrencyRateRepository CurrencyRates => _currencyRateRepository ??= new CurrencyRateRepository(_context);
         public IVoucherRepository Vouchers => _voucherRepository ??= new VoucherRepository(_context);
         public IAccountingMappingRepository AccountingMappings => _accountingMappingRepository ??= new AccountingMappingRepository(_context);
+        public ICashAccountRepository CashAccounts => _cashAccountRepository ??= new CashAccountRepository(_context);
 
         public async Task<int> SaveChangesAsync()
         {

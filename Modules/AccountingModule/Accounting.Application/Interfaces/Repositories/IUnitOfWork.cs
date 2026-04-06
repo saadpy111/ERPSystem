@@ -13,6 +13,7 @@ namespace Accounting.Application.Interfaces.Repositories
         ICurrencyRateRepository CurrencyRates { get; }
         IVoucherRepository Vouchers { get; }
         IAccountingMappingRepository AccountingMappings { get; }
+        ICashAccountRepository CashAccounts { get; }
 
         Task<int> SaveChangesAsync();
         Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken = default);
