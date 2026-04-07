@@ -30,8 +30,12 @@ namespace SharedKernel.Core.Constants.Permissions
         public const string PartnersCreate = "Permissions.Accounting.Partners.Create";
 
         // ===== FISCAL =====
-        public const string FiscalView = "Permissions.Accounting.Fiscal.View";
+        public const string FiscalView   = "Permissions.Accounting.Fiscal.View";
         public const string FiscalManage = "Permissions.Accounting.Fiscal.Manage";
+        public const string FiscalCreate = "Permissions.Accounting.Fiscal.Create";
+        public const string FiscalEdit   = "Permissions.Accounting.Fiscal.Edit";
+        public const string FiscalDelete = "Permissions.Accounting.Fiscal.Delete";
+
 
         // ===== COST CENTERS =====
         public const string CostCentersView = "Permissions.Accounting.CostCenters.View";

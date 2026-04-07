@@ -40,7 +40,6 @@ namespace Accounting.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> CreateReceipt([FromBody] CreateCashTransactionCommand command)
         {
-            command.Type = CashTransactionType.Receipt;
             var result = await _mediator.Send(command);
             return Ok(result);
         }

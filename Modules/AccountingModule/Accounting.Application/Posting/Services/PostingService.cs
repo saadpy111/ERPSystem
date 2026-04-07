@@ -33,39 +33,53 @@ namespace Accounting.Application.Posting.Services
         {
             var strategy = _strategies.FirstOrDefault(s => s.CanHandle(request.SourceType));
             if (strategy == null)
-            {
                 throw new Exception($"No posting strategy found for SourceType {request.SourceType}");
-            }
 
             var existingEntry = request.SourceType == SourceType.Manual
                 ? await _unitOfWork.JournalEntries.GetByIdAsync(request.SourceId)
                 : null;
 
-            var lines = existingEntry != null 
-                ? existingEntry.Lines.ToList() 
+            var lines = existingEntry != null
+                ? existingEntry.Lines.ToList()
                 : await strategy.GenerateLinesAsync(request);
+
+            if (lines == null || lines.Count < 2)
+                throw new Exception("Invalid journal entry lines.");
 
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (currency == null || !currency.IsActive)
                 throw new Exception("Invalid or inactive currency.");
-
-            // Resolve Exchange Rate and Convert lines to Base Currency before validation/save
             var rate = await _exchangeRateService.GetRateAsync(request.CurrencyId, request.Date);
 
             foreach (var line in lines)
             {
-                var foreignAmount = line.Debit != 0 ? line.Debit : line.Credit;
-                
+                decimal foreignAmount = 0;
+
+                if (line.Debit > 0)
+                    foreignAmount = line.Debit;
+                else if (line.Credit > 0)
+                    foreignAmount = line.Credit;
+                else
+                    throw new Exception("Invalid journal line: both debit and credit are zero.");
+
                 line.CurrencyId = request.CurrencyId;
                 line.ExchangeRate = rate;
                 line.ForeignAmount = foreignAmount;
                 line.BaseAmount = foreignAmount * rate;
 
-                if (line.Debit != 0) line.Debit = line.BaseAmount;
-                if (line.Credit != 0) line.Credit = line.BaseAmount;
+                if (line.Debit > 0)
+                {
+                    line.Debit = line.BaseAmount;
+                    line.Credit = 0;
+                }
+                else
+                {
+                    line.Credit = line.BaseAmount;
+                    line.Debit = 0;
+                }
             }
 
-            await ValidateJournalEntryAsync(lines, request.Date, request.CurrencyId);
+            await ValidateJournalEntryAsync(lines, request.Date);
 
             if (existingEntry != null)
             {
@@ -74,10 +88,10 @@ namespace Accounting.Application.Posting.Services
                 existingEntry.CurrencyId = request.CurrencyId;
                 existingEntry.TotalDebit = lines.Sum(l => l.Debit);
                 existingEntry.TotalCredit = lines.Sum(l => l.Credit);
-                
+
                 _unitOfWork.JournalEntries.Update(existingEntry);
                 await _unitOfWork.SaveChangesAsync();
-                
+
                 return existingEntry.Id;
             }
             else
@@ -102,49 +116,44 @@ namespace Accounting.Application.Posting.Services
 
                 await _unitOfWork.JournalEntries.AddAsync(newEntry);
                 await _unitOfWork.SaveChangesAsync();
-                
+
                 return newEntry.Id;
             }
         }
 
-        private async Task ValidateJournalEntryAsync(List<JournalEntryLine> lines, DateTime date, int currencyId)
+        private async Task ValidateJournalEntryAsync(List<JournalEntryLine> lines, DateTime date)
         {
-            if (lines == null || lines.Count < 2)
-                throw new Exception("Journal entry must have at least two lines.");
-
             var totalDebit = Math.Round(lines.Sum(l => l.Debit), 6);
             var totalCredit = Math.Round(lines.Sum(l => l.Credit), 6);
 
             if (totalDebit != totalCredit)
-                throw new Exception($"Total Debit ({totalDebit}) does not equal Total Credit ({totalCredit}) in Base Currency.");
+                throw new Exception($"Unbalanced entry: Debit ({totalDebit}) != Credit ({totalCredit})");
 
             if (lines.Any(l => l.Debit == 0 && l.Credit == 0))
-                throw new Exception("No zero lines allowed.");
+                throw new Exception("Zero lines are not allowed.");
 
-            // Check if accounts are leaf accounts
             var accountIds = lines.Select(l => l.AccountId).Distinct().ToList();
-            var allLeafs = await _unitOfWork.Accounts.GetLeafAccountsAsync();
-            var leafIds = allLeafs.Select(a => a.Id).ToList();
+            var leafAccounts = await _unitOfWork.Accounts.GetLeafAccountsAsync();
+            var leafIds = leafAccounts.Select(a => a.Id).ToList();
 
             foreach (var accId in accountIds)
             {
                 if (!leafIds.Contains(accId))
-                    throw new Exception($"Account {accId} is not a valid leaf account.");
+                    throw new Exception($"Account {accId} is not a leaf account.");
             }
 
-            // Verify period
             await GetOpenFiscalPeriodAsync(date);
         }
 
         private async Task<FiscalPeriod> GetOpenFiscalPeriodAsync(DateTime date)
         {
-            var openPeriods = await _fiscalPeriodRepository.FindAsync(p => !p.IsClosed && date >= p.StartDate && date <= p.EndDate);
+            var openPeriods = await _fiscalPeriodRepository
+                .FindAsync(p => !p.IsClosed && date >= p.StartDate && date <= p.EndDate);
+
             var activePeriod = openPeriods.FirstOrDefault();
 
             if (activePeriod == null)
-            {
                 throw new Exception("No open fiscal period found for the specified date.");
-            }
 
             return activePeriod;
         }
