@@ -1,11 +1,12 @@
 using Accounting.Application.Reports.DTOs;
 using MediatR;
+using Accounting.Application.Common.Models;
 using System;
 using System.Collections.Generic;
 
 namespace Accounting.Application.Reports.Queries.GetTrialBalance
 {
-    public class GetTrialBalanceQuery : IRequest<List<TrialBalanceDto>>
+    public class GetTrialBalanceQuery : IRequest<Result<List<TrialBalanceDto>>>
     {
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }

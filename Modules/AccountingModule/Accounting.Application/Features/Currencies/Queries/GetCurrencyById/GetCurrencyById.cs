@@ -5,6 +5,8 @@ using Accounting.Application.Features.Currencies.Queries.GetCurrenciesList;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Currencies.Queries.GetCurrencyById
 {
     public class GetCurrencyByIdQuery : IRequest<CurrencyDto?>

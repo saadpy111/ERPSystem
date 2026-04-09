@@ -30,7 +30,11 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> PostTransaction([FromBody] PostTransactionCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+
+            if (!result.Success)
+                return BadRequest(new { result.Message });
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

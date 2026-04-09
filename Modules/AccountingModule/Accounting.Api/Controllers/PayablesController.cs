@@ -41,7 +41,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreatePayableCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return CreatedAtAction(nameof(GetAll), new { id = result }, result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPost("{id:int}/pay")]
@@ -56,7 +62,13 @@ namespace Accounting.Api.Controllers
             }
 
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(new { PaymentId = result });
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

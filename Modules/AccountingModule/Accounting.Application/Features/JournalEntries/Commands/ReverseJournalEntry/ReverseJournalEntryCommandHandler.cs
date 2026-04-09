@@ -8,6 +8,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.JournalEntries.Commands.ReverseJournalEntry
 {
     /// <summary>
@@ -18,7 +20,7 @@ namespace Accounting.Application.Features.JournalEntries.Commands.ReverseJournal
     ///   4. Persists everything in a single atomic transaction.
     /// No data is deleted — financial integrity and auditability are preserved.
     /// </summary>
-    public class ReverseJournalEntryCommandHandler : IRequestHandler<ReverseJournalEntryCommand, int>
+    public class ReverseJournalEntryCommandHandler : IRequestHandler<ReverseJournalEntryCommand, Result<int>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -27,7 +29,7 @@ namespace Accounting.Application.Features.JournalEntries.Commands.ReverseJournal
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> Handle(ReverseJournalEntryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(ReverseJournalEntryCommand request, CancellationToken cancellationToken)
         {
             // ── A. Load original entry with Lines + FiscalPeriod ──────────────────
             //       GetByIdWithLinesAsync eagerly includes both navigations so we can

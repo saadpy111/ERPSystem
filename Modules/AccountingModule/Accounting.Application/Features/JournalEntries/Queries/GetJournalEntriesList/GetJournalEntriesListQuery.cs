@@ -5,7 +5,7 @@ using System;
 
 namespace Accounting.Application.Features.JournalEntries.Queries.GetJournalEntriesList
 {
-    public class GetJournalEntriesListQuery : IRequest<PagedResult<JournalEntryResponseDto>>
+    public class GetJournalEntriesListQuery : IRequest<Result<PagedResult<JournalEntryResponseDto>>>
     {
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }

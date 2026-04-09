@@ -36,7 +36,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetJournalEntriesListQuery { StartDate = startDate, EndDate = endDate, PageNumber = pageNumber, PageSize = pageSize };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpGet("{id:int}")]
@@ -46,7 +52,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetJournalEntryByIdQuery { Id = id };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPost]
@@ -55,7 +67,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateJournalEntryCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = result }, result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPost("post")]
@@ -64,7 +82,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> PostEntry([FromBody] PostJournalEntryCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         /// <summary>

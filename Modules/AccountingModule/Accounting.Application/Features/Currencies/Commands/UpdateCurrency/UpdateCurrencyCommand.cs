@@ -6,9 +6,11 @@ using Accounting.Application.Interfaces.Repositories;
 using FluentValidation;
 using MediatR;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Currencies.Commands.UpdateCurrency
 {
-    public class UpdateCurrencyCommand : IRequest<bool>
+    public class UpdateCurrencyCommand : IRequest<Result<bool>>
     {
         public int Id { get; set; }
         public string Code { get; set; } = null!;
@@ -32,7 +34,7 @@ namespace Accounting.Application.Features.Currencies.Commands.UpdateCurrency
         }
     }
 
-    public class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyCommand, bool>
+    public class UpdateCurrencyCommandHandler : IRequestHandler<UpdateCurrencyCommand, Result<bool>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -41,7 +43,7 @@ namespace Accounting.Application.Features.Currencies.Commands.UpdateCurrency
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> Handle(UpdateCurrencyCommand request, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(UpdateCurrencyCommand request, CancellationToken cancellationToken)
         {
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.Id);
             if (currency == null)

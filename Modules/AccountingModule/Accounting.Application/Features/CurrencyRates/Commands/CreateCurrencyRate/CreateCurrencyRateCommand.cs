@@ -7,9 +7,11 @@ using Accounting.Domain.Entities;
 using FluentValidation;
 using MediatR;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.CurrencyRates.Commands.CreateCurrencyRate
 {
-    public class CreateCurrencyRateCommand : IRequest<int>
+    public class CreateCurrencyRateCommand : IRequest<Result<int>>
     {
         public int CurrencyId { get; set; }
         public DateTime EffectiveDate { get; set; }
@@ -31,7 +33,7 @@ namespace Accounting.Application.Features.CurrencyRates.Commands.CreateCurrencyR
         }
     }
 
-    public class CreateCurrencyRateCommandHandler : IRequestHandler<CreateCurrencyRateCommand, int>
+    public class CreateCurrencyRateCommandHandler : IRequestHandler<CreateCurrencyRateCommand, Result<int>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -40,7 +42,7 @@ namespace Accounting.Application.Features.CurrencyRates.Commands.CreateCurrencyR
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> Handle(CreateCurrencyRateCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateCurrencyRateCommand request, CancellationToken cancellationToken)
         {
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (currency == null)

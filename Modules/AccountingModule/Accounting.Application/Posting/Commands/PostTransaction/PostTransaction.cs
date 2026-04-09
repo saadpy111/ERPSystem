@@ -3,11 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 using Accounting.Application.Posting.Interfaces;
 
 namespace Accounting.Application.Posting.Commands.PostTransaction
 {
-    public class PostTransactionCommand : IRequest<string>, IPostingRequest
+    public class PostTransactionCommand : IRequest<Result<int>>, IPostingRequest
     {
         public SourceType SourceType { get; set; }
         public int SourceId { get; set; }
@@ -17,7 +18,7 @@ namespace Accounting.Application.Posting.Commands.PostTransaction
         public int CurrencyId { get; set; }
     }
 
-    public class PostTransactionCommandHandler : IRequestHandler<PostTransactionCommand, string>
+    public class PostTransactionCommandHandler : IRequestHandler<PostTransactionCommand, Result<int>>
     {
         private readonly IPostingService _postingService;
 
@@ -26,10 +27,10 @@ namespace Accounting.Application.Posting.Commands.PostTransaction
             _postingService = postingService;
         }
 
-        public async Task<string> Handle(PostTransactionCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(PostTransactionCommand request, CancellationToken cancellationToken)
         {
             var resultId = await _postingService.PostAsync(request);
-            return resultId.ToString();
+            return Result<int>.IsSuccess(resultId, "Transaction posted successfully.");
         }
     }
 }

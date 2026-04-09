@@ -12,9 +12,11 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
 {
-    public class CreateCashTransactionCommand : IRequest<int>
+    public class CreateCashTransactionCommand : IRequest<Result<int>>
     {
         public int CashAccountId { get; set; }
         public CashTransactionType Type { get; set; }
@@ -39,7 +41,7 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
         }
     }
 
-    public class CreateCashTransactionCommandHandler : IRequestHandler<CreateCashTransactionCommand, int>
+    public class CreateCashTransactionCommandHandler : IRequestHandler<CreateCashTransactionCommand, Result<int>>
     {
         private readonly IAccountingDbContext _context;
         private readonly IMediator _mediator;
@@ -52,7 +54,7 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
             _exchangeRateService = exchangeRateService;
         }
 
-        public async Task<int> Handle(CreateCashTransactionCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateCashTransactionCommand request, CancellationToken cancellationToken)
         {
             var cashAccount = await _context.CashAccounts.FirstOrDefaultAsync(c => c.Id == request.CashAccountId, cancellationToken);
             if (cashAccount == null) throw new BusinessException("Cash Account not found.");

@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Features.JournalEntries.Queries.GetJournalEntriesList
 {
-    public class GetJournalEntriesListQueryHandler : IRequestHandler<GetJournalEntriesListQuery, PagedResult<JournalEntryResponseDto>>
+    public class GetJournalEntriesListQueryHandler : IRequestHandler<GetJournalEntriesListQuery, Result<PagedResult<JournalEntryResponseDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -21,7 +21,7 @@ namespace Accounting.Application.Features.JournalEntries.Queries.GetJournalEntri
             _mapper = mapper;
         }
 
-        public async Task<PagedResult<JournalEntryResponseDto>> Handle(GetJournalEntriesListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PagedResult<JournalEntryResponseDto>>> Handle(GetJournalEntriesListQuery request, CancellationToken cancellationToken)
         {
             // Execute filter safely returning matches
             var entries = await _unitOfWork.JournalEntries.FindAsync(j => 

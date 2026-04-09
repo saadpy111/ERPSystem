@@ -8,14 +8,16 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.AccountingMappings.Queries.GetAccountingMappings
 {
-    public class GetAccountingMappingsQuery : IRequest<List<AccountingMappingDto>>
+    public class GetAccountingMappingsQuery : IRequest<Result<List<AccountingMappingDto>>>
     {
         public SourceType? SourceType { get; set; }
     }
 
-    public class GetAccountingMappingsQueryHandler : IRequestHandler<GetAccountingMappingsQuery, List<AccountingMappingDto>>
+    public class GetAccountingMappingsQueryHandler : IRequestHandler<GetAccountingMappingsQuery, Result<List<AccountingMappingDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -24,7 +26,7 @@ namespace Accounting.Application.Features.AccountingMappings.Queries.GetAccounti
             _context = context;
         }
 
-        public async Task<List<AccountingMappingDto>> Handle(GetAccountingMappingsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<AccountingMappingDto>>> Handle(GetAccountingMappingsQuery request, CancellationToken cancellationToken)
         {
             var query = _context.AccountingMappings
                 .AsNoTracking()

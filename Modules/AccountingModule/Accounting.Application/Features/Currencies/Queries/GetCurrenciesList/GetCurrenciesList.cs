@@ -6,6 +6,8 @@ using Accounting.Application.Interfaces.Contexts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Currencies.Queries.GetCurrenciesList
 {
     public class CurrencyDto
@@ -20,11 +22,11 @@ namespace Accounting.Application.Features.Currencies.Queries.GetCurrenciesList
         public bool IsActive { get; set; }
     }
 
-    public class GetCurrenciesQuery : IRequest<List<CurrencyDto>>
+    public class GetCurrenciesQuery : IRequest<Result<List<CurrencyDto>>>
     {
     }
 
-    public class GetCurrenciesQueryHandler : IRequestHandler<GetCurrenciesQuery, List<CurrencyDto>>
+    public class GetCurrenciesQueryHandler : IRequestHandler<GetCurrenciesQuery, Result<List<CurrencyDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -33,7 +35,7 @@ namespace Accounting.Application.Features.Currencies.Queries.GetCurrenciesList
             _context = context;
         }
 
-        public async Task<List<CurrencyDto>> Handle(GetCurrenciesQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<CurrencyDto>>> Handle(GetCurrenciesQuery request, CancellationToken cancellationToken)
         {
             return await _context.Currencies
                 .AsNoTracking()

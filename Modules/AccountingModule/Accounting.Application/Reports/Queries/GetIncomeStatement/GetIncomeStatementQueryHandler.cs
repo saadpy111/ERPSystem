@@ -3,6 +3,7 @@ using Accounting.Application.Interfaces.Contexts;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetIncomeStatement
 {
-    public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatementQuery, IncomeStatementDto>
+    public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatementQuery, Result<IncomeStatementDto>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -20,11 +21,11 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
             _context = context;
         }
 
-        public async Task<IncomeStatementDto> Handle(GetIncomeStatementQuery request, CancellationToken cancellationToken)
+        public async Task<Result<IncomeStatementDto>> Handle(GetIncomeStatementQuery request, CancellationToken cancellationToken)
         {
             if (request.FromDate > request.ToDate)
             {
-                throw new BusinessException("FromDate cannot be later than ToDate.");
+                return Result<IncomeStatementDto>.Failure("FromDate cannot be later than ToDate.");
             }
 
             // 3. DATA SOURCE: Only Posted entries, between FromDate and ToDate
@@ -99,7 +100,7 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
             // A more thorough validation might check if NetProfit calculations missed any odd entries,
             // but the structured separation handled that mathematically already.
 
-            return new IncomeStatementDto
+            return Result<IncomeStatementDto>.IsSuccess(new IncomeStatementDto
             {
                 Revenues = revenues,
                 Expenses = expenses,
@@ -108,7 +109,7 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
                 NetProfit = netProfit,
                 FromDate = request.FromDate,
                 ToDate = request.ToDate
-            };
+            });
         }
     }
 }

@@ -7,9 +7,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.JournalEntries.Commands.PostJournalEntry
 {
-    public class PostJournalEntryCommandHandler : IRequestHandler<PostJournalEntryCommand, int>
+    public class PostJournalEntryCommandHandler : IRequestHandler<PostJournalEntryCommand, Result<int>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPostingService _postingService;
@@ -20,7 +22,7 @@ namespace Accounting.Application.Features.JournalEntries.Commands.PostJournalEnt
             _postingService = postingService;
         }
 
-        public async Task<int> Handle(PostJournalEntryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(PostJournalEntryCommand request, CancellationToken cancellationToken)
         {
             var journalEntry = await _unitOfWork.JournalEntries.GetByIdAsync(request.JournalEntryId);
             

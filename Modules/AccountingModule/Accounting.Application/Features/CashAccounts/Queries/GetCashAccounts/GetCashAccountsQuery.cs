@@ -6,13 +6,15 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.CashAccounts.Queries.GetCashAccounts
 {
-    public class GetCashAccountsQuery : IRequest<List<CashAccountDto>>
+    public class GetCashAccountsQuery : IRequest<Result<List<CashAccountDto>>>
     {
     }
 
-    public class GetCashAccountsQueryHandler : IRequestHandler<GetCashAccountsQuery, List<CashAccountDto>>
+    public class GetCashAccountsQueryHandler : IRequestHandler<GetCashAccountsQuery, Result<List<CashAccountDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -21,7 +23,7 @@ namespace Accounting.Application.Features.CashAccounts.Queries.GetCashAccounts
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<CashAccountDto>> Handle(GetCashAccountsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<CashAccountDto>>> Handle(GetCashAccountsQuery request, CancellationToken cancellationToken)
         {
             var entities = await _unitOfWork.CashAccounts.GetAllWithAccountAsync();
 

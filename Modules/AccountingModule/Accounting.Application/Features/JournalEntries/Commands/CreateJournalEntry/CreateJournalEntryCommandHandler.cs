@@ -9,9 +9,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.JournalEntries.Commands.CreateJournalEntry
 {
-    public class CreateJournalEntryCommandHandler : IRequestHandler<CreateJournalEntryCommand, JournalEntryResponseDto>
+    public class CreateJournalEntryCommandHandler : IRequestHandler<CreateJournalEntryCommand, Result<JournalEntryResponseDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<FiscalPeriod> _fiscalPeriodRepository;
@@ -27,7 +29,7 @@ namespace Accounting.Application.Features.JournalEntries.Commands.CreateJournalE
             _mapper = mapper;
         }
 
-        public async Task<JournalEntryResponseDto> Handle(CreateJournalEntryCommand request, CancellationToken cancellationToken)
+        public async Task<Result<JournalEntryResponseDto>> Handle(CreateJournalEntryCommand request, CancellationToken cancellationToken)
         {
             // Ensure accounts are leaf accounts
             var accountIds = request.Lines.Select(l => l.AccountId).Distinct().ToList();

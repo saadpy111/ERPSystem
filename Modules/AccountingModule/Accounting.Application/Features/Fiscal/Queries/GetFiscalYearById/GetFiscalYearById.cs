@@ -6,6 +6,8 @@ using Accounting.Application.Interfaces.Contexts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalYearById
 {
     public class FiscalYearDetailDto
@@ -17,12 +19,12 @@ namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalYearById
         public bool IsClosed { get; set; }
     }
 
-    public class GetFiscalYearByIdQuery : IRequest<FiscalYearDetailDto>
+    public class GetFiscalYearByIdQuery : IRequest<Result<FiscalYearDetailDto>>
     {
         public int Id { get; set; }
     }
 
-    public class GetFiscalYearByIdQueryHandler : IRequestHandler<GetFiscalYearByIdQuery, FiscalYearDetailDto>
+    public class GetFiscalYearByIdQueryHandler : IRequestHandler<GetFiscalYearByIdQuery, Result<FiscalYearDetailDto>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -31,7 +33,7 @@ namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalYearById
             _context = context;
         }
 
-        public async Task<FiscalYearDetailDto> Handle(GetFiscalYearByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<FiscalYearDetailDto>> Handle(GetFiscalYearByIdQuery request, CancellationToken cancellationToken)
         {
             var dto = await _context.FiscalYears
                 .AsNoTracking()

@@ -1,11 +1,12 @@
 using Accounting.Application.Reports.DTOs;
 using MediatR;
+using Accounting.Application.Common.Models;
 using System;
 using System.Collections.Generic;
 
 namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 {
-    public class GetGeneralLedgerQuery : IRequest<List<LedgerDto>>
+    public class GetGeneralLedgerQuery : IRequest<Result<List<LedgerDto>>>
     {
         public int AccountId { get; set; }
         public DateTime? FromDate { get; set; }

@@ -8,9 +8,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalPeriod
 {
-    public class UpdateFiscalPeriodCommand : IRequest<Unit>
+    public class UpdateFiscalPeriodCommand : IRequest<Result>
     {
         public int Id { get; set; }
         public string PeriodName { get; set; } = null!;
@@ -29,7 +31,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalPeriod
         }
     }
 
-    public class UpdateFiscalPeriodCommandHandler : IRequestHandler<UpdateFiscalPeriodCommand, Unit>
+    public class UpdateFiscalPeriodCommandHandler : IRequestHandler<UpdateFiscalPeriodCommand, Result>
     {
         private readonly IAccountingDbContext _context;
 
@@ -38,7 +40,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalPeriod
             _context = context;
         }
 
-        public async Task<Unit> Handle(UpdateFiscalPeriodCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateFiscalPeriodCommand request, CancellationToken cancellationToken)
         {
             var period = await _context.FiscalPeriods
                 .Include(p => p.FiscalYear)

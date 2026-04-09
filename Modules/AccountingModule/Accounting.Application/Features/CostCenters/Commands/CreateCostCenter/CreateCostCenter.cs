@@ -5,9 +5,11 @@ using Accounting.Domain.Entities;
 using FluentValidation;
 using MediatR;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.CostCenters.Commands.CreateCostCenter
 {
-    public class CreateCostCenterCommand : IRequest<int>
+    public class CreateCostCenterCommand : IRequest<Result<int>>
     {
         public string NameAr { get; set; } = null!;
     }
@@ -20,7 +22,7 @@ namespace Accounting.Application.Features.CostCenters.Commands.CreateCostCenter
         }
     }
 
-    public class CreateCostCenterCommandHandler : IRequestHandler<CreateCostCenterCommand, int>
+    public class CreateCostCenterCommandHandler : IRequestHandler<CreateCostCenterCommand, Result<int>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -29,7 +31,7 @@ namespace Accounting.Application.Features.CostCenters.Commands.CreateCostCenter
             _context = context;
         }
 
-        public async Task<int> Handle(CreateCostCenterCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateCostCenterCommand request, CancellationToken cancellationToken)
         {
             var cc = new CostCenter
             {

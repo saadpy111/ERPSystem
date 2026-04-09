@@ -6,9 +6,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalYear
 {
-    public class UpdateFiscalYearCommand : IRequest<Unit>
+    public class UpdateFiscalYearCommand : IRequest<Result>
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
@@ -27,7 +29,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalYear
         }
     }
 
-    public class UpdateFiscalYearCommandHandler : IRequestHandler<UpdateFiscalYearCommand, Unit>
+    public class UpdateFiscalYearCommandHandler : IRequestHandler<UpdateFiscalYearCommand, Result>
     {
         private readonly IAccountingDbContext _context;
 
@@ -36,7 +38,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalYear
             _context = context;
         }
 
-        public async Task<Unit> Handle(UpdateFiscalYearCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateFiscalYearCommand request, CancellationToken cancellationToken)
         {
             var year = await _context.FiscalYears
                 .FirstOrDefaultAsync(y => y.Id == request.Id && !y.IsDeleted, cancellationToken);

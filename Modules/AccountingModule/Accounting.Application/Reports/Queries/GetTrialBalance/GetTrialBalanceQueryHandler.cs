@@ -2,6 +2,7 @@ using Accounting.Application.Interfaces.Contexts;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetTrialBalance
 {
-    public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery, List<TrialBalanceDto>>
+    public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery, Result<List<TrialBalanceDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -19,7 +20,7 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
             _context = context;
         }
 
-        public async Task<List<TrialBalanceDto>> Handle(GetTrialBalanceQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<TrialBalanceDto>>> Handle(GetTrialBalanceQuery request, CancellationToken cancellationToken)
         {
             var query = _context.JournalEntryLines
                 .AsNoTracking()
@@ -77,7 +78,7 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
                 .OrderBy(x => x.AccountCode)
                 .ToList();
 
-            return result;
+            return Result<List<TrialBalanceDto>>.IsSuccess(result);
         }
     }
 }

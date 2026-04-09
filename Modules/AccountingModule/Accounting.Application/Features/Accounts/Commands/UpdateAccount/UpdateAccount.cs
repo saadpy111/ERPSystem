@@ -5,26 +5,18 @@ using Accounting.Application.Common.Exceptions;
 using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Accounting.Application.Common.Models;
 
 namespace Accounting.Application.Features.Accounts.Commands.UpdateAccount
 {
-    public class UpdateAccountCommand : IRequest<Unit>
+    public class UpdateAccountCommand : IRequest<Result>
     {
         public int Id { get; set; }
         public string NameAr { get; set; } = null!;
         public string? NameEn { get; set; }
     }
 
-    public class UpdateAccountCommandValidator : AbstractValidator<UpdateAccountCommand>
-    {
-        public UpdateAccountCommandValidator()
-        {
-            RuleFor(x => x.Id).GreaterThan(0);
-            RuleFor(x => x.NameAr).NotEmpty().MaximumLength(100);
-        }
-    }
-
-    public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand, Unit>
+    public class UpdateAccountCommandHandler : IRequestHandler<UpdateAccountCommand, Result>
     {
         private readonly IAccountingDbContext _context;
 
@@ -33,16 +25,16 @@ namespace Accounting.Application.Features.Accounts.Commands.UpdateAccount
             _context = context;
         }
 
-        public async Task<Unit> Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdateAccountCommand request, CancellationToken cancellationToken)
         {
             var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Id == request.Id, cancellationToken);
-            if (account == null) throw new BusinessException("Not found");
+            if (account == null) return Result.Failure("Account not found");
 
             account.NameAr = request.NameAr;
             account.NameEn = request.NameEn;
 
             await _context.SaveChangesAsync(cancellationToken);
-            return Unit.Value;
+            return Result.IsSuccess("Account updated successfully");
         }
     }
 }

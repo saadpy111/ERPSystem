@@ -8,6 +8,8 @@ using Accounting.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Cash.Queries.GetCashTransactions
 {
     public class CashTransactionDto
@@ -19,12 +21,12 @@ namespace Accounting.Application.Features.Cash.Queries.GetCashTransactions
         public string Description { get; set; } = null!;
     }
 
-    public class GetCashTransactionsQuery : IRequest<List<CashTransactionDto>>
+    public class GetCashTransactionsQuery : IRequest<Result<List<CashTransactionDto>>>
     {
         public int? CashAccountId { get; set; }
     }
 
-    public class GetCashTransactionsQueryHandler : IRequestHandler<GetCashTransactionsQuery, List<CashTransactionDto>>
+    public class GetCashTransactionsQueryHandler : IRequestHandler<GetCashTransactionsQuery, Result<List<CashTransactionDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -33,7 +35,7 @@ namespace Accounting.Application.Features.Cash.Queries.GetCashTransactions
             _context = context;
         }
 
-        public async Task<List<CashTransactionDto>> Handle(GetCashTransactionsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<CashTransactionDto>>> Handle(GetCashTransactionsQuery request, CancellationToken cancellationToken)
         {
             var q = _context.CashTransactions.AsNoTracking();
 

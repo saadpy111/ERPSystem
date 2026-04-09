@@ -7,9 +7,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Commands.DeleteFiscalPeriod
 {
-    public class DeleteFiscalPeriodCommand : IRequest<Unit>
+    public class DeleteFiscalPeriodCommand : IRequest<Result>
     {
         public int Id { get; set; }
     }
@@ -22,7 +24,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.DeleteFiscalPeriod
         }
     }
 
-    public class DeleteFiscalPeriodCommandHandler : IRequestHandler<DeleteFiscalPeriodCommand, Unit>
+    public class DeleteFiscalPeriodCommandHandler : IRequestHandler<DeleteFiscalPeriodCommand, Result>
     {
         private readonly IAccountingDbContext _context;
 
@@ -31,7 +33,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.DeleteFiscalPeriod
             _context = context;
         }
 
-        public async Task<Unit> Handle(DeleteFiscalPeriodCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteFiscalPeriodCommand request, CancellationToken cancellationToken)
         {
             var period = await _context.FiscalPeriods
                 .FirstOrDefaultAsync(p => p.Id == request.Id && !p.IsDeleted, cancellationToken);

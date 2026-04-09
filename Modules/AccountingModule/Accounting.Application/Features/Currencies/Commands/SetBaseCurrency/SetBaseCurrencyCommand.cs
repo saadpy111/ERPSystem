@@ -4,14 +4,16 @@ using Accounting.Application.Common.Exceptions;
 using Accounting.Application.Interfaces.Repositories;
 using MediatR;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Currencies.Commands.SetBaseCurrency
 {
-    public class SetBaseCurrencyCommand : IRequest<bool>
+    public class SetBaseCurrencyCommand : IRequest<Result<bool>>
     {
         public int CurrencyId { get; set; }
     }
 
-    public class SetBaseCurrencyCommandHandler : IRequestHandler<SetBaseCurrencyCommand, bool>
+    public class SetBaseCurrencyCommandHandler : IRequestHandler<SetBaseCurrencyCommand, Result<bool>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -20,7 +22,7 @@ namespace Accounting.Application.Features.Currencies.Commands.SetBaseCurrency
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<bool> Handle(SetBaseCurrencyCommand request, CancellationToken cancellationToken)
+        public async Task<Result<bool>> Handle(SetBaseCurrencyCommand request, CancellationToken cancellationToken)
         {
             var newBase = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (newBase == null)

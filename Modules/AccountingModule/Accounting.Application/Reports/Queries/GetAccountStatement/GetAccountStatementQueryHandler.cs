@@ -4,6 +4,7 @@ using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetAccountStatement
 {
-    public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStatementQuery, List<AccountStatementDto>>
+    public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStatementQuery, Result<List<AccountStatementDto>>>
     {
         private readonly IAccountingDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
@@ -24,12 +25,12 @@ namespace Accounting.Application.Reports.Queries.GetAccountStatement
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<List<AccountStatementDto>> Handle(GetAccountStatementQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<AccountStatementDto>>> Handle(GetAccountStatementQuery request, CancellationToken cancellationToken)
         {
             var partner = await _unitOfWork.Partners.GetByIdAsync(request.PartnerId);
             if (partner == null)
             {
-                throw new BusinessException($"Partner with ID {request.PartnerId} not found.");
+                return Result<List<AccountStatementDto>>.Failure($"Partner with ID {request.PartnerId} not found.");
             }
 
             decimal openingBalance = 0m;
@@ -135,7 +136,7 @@ namespace Accounting.Application.Reports.Queries.GetAccountStatement
                 });
             }
 
-            return result;
+            return Result<List<AccountStatementDto>>.IsSuccess(result);
         }
     }
 }

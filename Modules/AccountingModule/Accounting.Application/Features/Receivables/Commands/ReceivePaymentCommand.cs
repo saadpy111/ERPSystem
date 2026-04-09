@@ -6,10 +6,11 @@ using Accounting.Application.Posting.Commands.PostTransaction;
 using Accounting.Domain.Entities;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 
 namespace Accounting.Application.Features.Receivables.Commands
 {
-    public class ReceivePaymentCommand : IRequest<int>
+    public class ReceivePaymentCommand : IRequest<Result<int>>
     {
         public int ReceivableId { get; set; }
         public decimal Amount { get; set; }
@@ -19,7 +20,7 @@ namespace Accounting.Application.Features.Receivables.Commands
         public int CurrencyId { get; set; }
     }
 
-    public class ReceivePaymentCommandHandler : IRequestHandler<ReceivePaymentCommand, int>
+    public class ReceivePaymentCommandHandler : IRequestHandler<ReceivePaymentCommand, Result<int>>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMediator _mediator;
@@ -30,21 +31,10 @@ namespace Accounting.Application.Features.Receivables.Commands
             _mediator = mediator;
         }
 
-        public async Task<int> Handle(ReceivePaymentCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(ReceivePaymentCommand request, CancellationToken cancellationToken)
         {
-            if (request.Amount <= 0)
-                throw new ArgumentException("Amount must be greater than zero");
-
             var receivable = await _uow.Receivables.GetByIdAsync(request.ReceivableId);
-            if (receivable == null)
-                throw new ArgumentException("Receivable not found");
-
-            if (request.Amount > receivable.RemainingAmount)
-                throw new ArgumentException("Payment cannot exceed remaining amount");
-
             var cashAccount = await _uow.CashAccounts.GetByIdAsync(request.CashAccountId);
-            if (cashAccount == null)
-                throw new ArgumentException("CashAccount not found");
 
             var payment = new ReceivablePayment
             {
@@ -82,9 +72,9 @@ namespace Accounting.Application.Features.Receivables.Commands
                 CurrencyId = request.CurrencyId
             };
             
-            await _mediator.Send(postCommand, cancellationToken);
+            var postResult = await _mediator.Send(postCommand, cancellationToken);
 
-            return payment.Id;
+            return Result<int>.IsSuccess(payment.Id, "Payment received successfully");
         }
     }
 }

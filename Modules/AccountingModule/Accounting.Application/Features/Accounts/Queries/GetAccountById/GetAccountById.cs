@@ -5,6 +5,8 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Accounting.Application.Common.Exceptions;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Accounts.Queries.GetAccountById
 {
     public class AccountDetailDto
@@ -15,12 +17,12 @@ namespace Accounting.Application.Features.Accounts.Queries.GetAccountById
         public int AccountType { get; set; }
     }
 
-    public class GetAccountByIdQuery : IRequest<AccountDetailDto>
+    public class GetAccountByIdQuery : IRequest<Result<AccountDetailDto>>
     {
         public int Id { get; set; }
     }
 
-    public class GetAccountByIdQueryHandler : IRequestHandler<GetAccountByIdQuery, AccountDetailDto>
+    public class GetAccountByIdQueryHandler : IRequestHandler<GetAccountByIdQuery, Result<AccountDetailDto>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -29,7 +31,7 @@ namespace Accounting.Application.Features.Accounts.Queries.GetAccountById
             _context = context;
         }
 
-        public async Task<AccountDetailDto> Handle(GetAccountByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<AccountDetailDto>> Handle(GetAccountByIdQuery request, CancellationToken cancellationToken)
         {
             var account = await _context.Accounts
                 .AsNoTracking()

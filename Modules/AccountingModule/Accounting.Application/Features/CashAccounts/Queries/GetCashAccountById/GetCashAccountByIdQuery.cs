@@ -4,6 +4,8 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.CashAccounts.Queries.GetCashAccountById
 {
     public class GetCashAccountByIdQuery : IRequest<CashAccountDto?>

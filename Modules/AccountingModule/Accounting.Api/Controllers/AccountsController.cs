@@ -34,7 +34,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetAccountsListQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpGet("tree")]
@@ -44,7 +50,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetAccountHierarchyQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpGet("{id:int}")]
@@ -55,7 +67,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetAccountByIdQuery { Id = id };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPost]
@@ -65,7 +83,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateAccountCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = result }, result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPut("{id:int}")]

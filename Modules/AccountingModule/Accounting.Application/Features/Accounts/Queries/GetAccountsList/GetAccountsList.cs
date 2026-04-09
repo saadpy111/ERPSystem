@@ -6,6 +6,8 @@ using Accounting.Application.Interfaces.Contexts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Accounts.Queries.GetAccountsList
 {
     public class AccountDto
@@ -15,11 +17,11 @@ namespace Accounting.Application.Features.Accounts.Queries.GetAccountsList
         public string NameAr { get; set; } = null!;
     }
 
-    public class GetAccountsListQuery : IRequest<List<AccountDto>>
+    public class GetAccountsListQuery : IRequest<Result<List<AccountDto>>>
     {
     }
 
-    public class GetAccountsListQueryHandler : IRequestHandler<GetAccountsListQuery, List<AccountDto>>
+    public class GetAccountsListQueryHandler : IRequestHandler<GetAccountsListQuery, Result<List<AccountDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -28,7 +30,7 @@ namespace Accounting.Application.Features.Accounts.Queries.GetAccountsList
             _context = context;
         }
 
-        public async Task<List<AccountDto>> Handle(GetAccountsListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<AccountDto>>> Handle(GetAccountsListQuery request, CancellationToken cancellationToken)
         {
             return await _context.Accounts
                 .AsNoTracking()

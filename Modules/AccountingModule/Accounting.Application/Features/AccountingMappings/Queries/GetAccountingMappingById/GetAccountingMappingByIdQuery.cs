@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.AccountingMappings.Queries.GetAccountingMappingById
 {
     public class GetAccountingMappingByIdQuery : IRequest<AccountingMappingDto?>

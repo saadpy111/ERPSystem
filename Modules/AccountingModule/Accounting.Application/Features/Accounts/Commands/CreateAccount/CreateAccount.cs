@@ -5,10 +5,11 @@ using Accounting.Domain.Entities;
 using FluentValidation;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 
 namespace Accounting.Application.Features.Accounts.Commands.CreateAccount
 {
-    public class CreateAccountCommand : IRequest<int>
+    public class CreateAccountCommand : IRequest<Result<int>>
     {
         public string Code { get; set; } = null!;
         public string NameAr { get; set; } = null!;
@@ -18,17 +19,7 @@ namespace Accounting.Application.Features.Accounts.Commands.CreateAccount
         public bool IsGroup { get; set; }
     }
 
-    public class CreateAccountCommandValidator : AbstractValidator<CreateAccountCommand>
-    {
-        public CreateAccountCommandValidator()
-        {
-            RuleFor(x => x.Code).NotEmpty().MaximumLength(50);
-            RuleFor(x => x.NameAr).NotEmpty().MaximumLength(100);
-            RuleFor(x => x.CurrencyId).GreaterThan(0);
-        }
-    }
-
-    public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, int>
+    public class CreateAccountCommandHandler : IRequestHandler<CreateAccountCommand, Result<int>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -37,7 +28,7 @@ namespace Accounting.Application.Features.Accounts.Commands.CreateAccount
             _context = context;
         }
 
-        public async Task<int> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateAccountCommand request, CancellationToken cancellationToken)
         {
             var account = new Account
             {
@@ -53,7 +44,7 @@ namespace Accounting.Application.Features.Accounts.Commands.CreateAccount
             await _context.Accounts.AddAsync(account, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return account.Id;
+            return Result<int>.IsSuccess(account.Id, "Account created successfully");
         }
     }
 }

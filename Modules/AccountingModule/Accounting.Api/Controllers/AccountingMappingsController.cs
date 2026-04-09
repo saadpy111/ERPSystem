@@ -33,7 +33,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Get([FromQuery] SourceType? sourceType, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new GetAccountingMappingsQuery { SourceType = sourceType }, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpGet("{id:int}")]
@@ -53,7 +59,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateAccountingMappingCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPut("{id:int}")]
@@ -63,7 +75,13 @@ namespace Accounting.Api.Controllers
         {
             command.Id = id;
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpDelete("{id:int}")]

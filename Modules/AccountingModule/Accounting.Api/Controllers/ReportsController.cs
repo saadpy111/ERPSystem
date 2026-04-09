@@ -40,7 +40,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetTrialBalanceQuery { FromDate = fromDate, ToDate = toDate };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpGet("general-ledger")]
@@ -54,7 +60,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetGeneralLedgerQuery { AccountId = accountId, FromDate = fromDate, ToDate = toDate };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpGet("account-statement")]
@@ -68,7 +80,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetAccountStatementQuery { PartnerId = partnerId, FromDate = fromDate, ToDate = toDate };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         /// <summary>
@@ -86,7 +104,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetBalanceSheetQuery { AsOfDate = asOfDate };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         /// <summary>
@@ -106,7 +130,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetIncomeStatementQuery { FromDate = fromDate, ToDate = toDate };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

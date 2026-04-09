@@ -7,6 +7,8 @@ using Accounting.Application.Interfaces.Contexts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalPeriods
 {
     public class FiscalPeriodDto
@@ -16,12 +18,12 @@ namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalPeriods
         public bool IsClosed { get; set; }
     }
 
-    public class GetFiscalPeriodsQuery : IRequest<List<FiscalPeriodDto>>
+    public class GetFiscalPeriodsQuery : IRequest<Result<List<FiscalPeriodDto>>>
     {
         public int? FiscalYearId { get; set; }
     }
 
-    public class GetFiscalPeriodsQueryHandler : IRequestHandler<GetFiscalPeriodsQuery, List<FiscalPeriodDto>>
+    public class GetFiscalPeriodsQueryHandler : IRequestHandler<GetFiscalPeriodsQuery, Result<List<FiscalPeriodDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -30,7 +32,7 @@ namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalPeriods
             _context = context;
         }
 
-        public async Task<List<FiscalPeriodDto>> Handle(GetFiscalPeriodsQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<FiscalPeriodDto>>> Handle(GetFiscalPeriodsQuery request, CancellationToken cancellationToken)
         {
             var q = _context.FiscalPeriods.AsNoTracking();
 

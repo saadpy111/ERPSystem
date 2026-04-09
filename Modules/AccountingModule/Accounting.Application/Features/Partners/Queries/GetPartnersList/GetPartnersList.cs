@@ -6,6 +6,8 @@ using Accounting.Application.Interfaces.Contexts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Partners.Queries.GetPartnersList
 {
     public class PartnerDto
@@ -14,11 +16,11 @@ namespace Accounting.Application.Features.Partners.Queries.GetPartnersList
         public string Name { get; set; } = null!;
     }
 
-    public class GetPartnersListQuery : IRequest<List<PartnerDto>>
+    public class GetPartnersListQuery : IRequest<Result<List<PartnerDto>>>
     {
     }
 
-    public class GetPartnersListQueryHandler : IRequestHandler<GetPartnersListQuery, List<PartnerDto>>
+    public class GetPartnersListQueryHandler : IRequestHandler<GetPartnersListQuery, Result<List<PartnerDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -27,7 +29,7 @@ namespace Accounting.Application.Features.Partners.Queries.GetPartnersList
             _context = context;
         }
 
-        public async Task<List<PartnerDto>> Handle(GetPartnersListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<PartnerDto>>> Handle(GetPartnersListQuery request, CancellationToken cancellationToken)
         {
             return await _context.Partners
                 .AsNoTracking()

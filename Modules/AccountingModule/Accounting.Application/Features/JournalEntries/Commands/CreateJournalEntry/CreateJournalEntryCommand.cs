@@ -3,9 +3,11 @@ using MediatR;
 using System;
 using System.Collections.Generic;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.JournalEntries.Commands.CreateJournalEntry
 {
-    public class CreateJournalEntryCommand : IRequest<JournalEntryResponseDto>
+    public class CreateJournalEntryCommand : IRequest<Result<JournalEntryResponseDto>>
     {
         public DateTime Date { get; set; }
         public string? Description { get; set; }

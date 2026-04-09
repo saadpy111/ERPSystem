@@ -5,9 +5,11 @@ using Accounting.Domain.Entities;
 using FluentValidation;
 using MediatR;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Partners.Commands.CreatePartner
 {
-    public class CreatePartnerCommand : IRequest<int>
+    public class CreatePartnerCommand : IRequest<Result<int>>
     {
         public string NameAr { get; set; } = null!;
     }
@@ -20,7 +22,7 @@ namespace Accounting.Application.Features.Partners.Commands.CreatePartner
         }
     }
 
-    public class CreatePartnerCommandHandler : IRequestHandler<CreatePartnerCommand, int>
+    public class CreatePartnerCommandHandler : IRequestHandler<CreatePartnerCommand, Result<int>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -29,7 +31,7 @@ namespace Accounting.Application.Features.Partners.Commands.CreatePartner
             _context = context;
         }
 
-        public async Task<int> Handle(CreatePartnerCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreatePartnerCommand request, CancellationToken cancellationToken)
         {
             var partner = new Partner
             {

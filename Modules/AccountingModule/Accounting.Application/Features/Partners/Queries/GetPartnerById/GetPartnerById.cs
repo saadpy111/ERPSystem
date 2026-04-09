@@ -5,6 +5,8 @@ using Accounting.Application.Common.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Partners.Queries.GetPartnerById
 {
     public class PartnerDetailDto
@@ -13,12 +15,12 @@ namespace Accounting.Application.Features.Partners.Queries.GetPartnerById
         public string Name { get; set; } = null!;
     }
 
-    public class GetPartnerByIdQuery : IRequest<PartnerDetailDto>
+    public class GetPartnerByIdQuery : IRequest<Result<PartnerDetailDto>>
     {
         public int Id { get; set; }
     }
 
-    public class GetPartnerByIdQueryHandler : IRequestHandler<GetPartnerByIdQuery, PartnerDetailDto>
+    public class GetPartnerByIdQueryHandler : IRequestHandler<GetPartnerByIdQuery, Result<PartnerDetailDto>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -27,7 +29,7 @@ namespace Accounting.Application.Features.Partners.Queries.GetPartnerById
             _context = context;
         }
 
-        public async Task<PartnerDetailDto> Handle(GetPartnerByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<PartnerDetailDto>> Handle(GetPartnerByIdQuery request, CancellationToken cancellationToken)
         {
             var partner = await _context.Partners
                 .AsNoTracking()

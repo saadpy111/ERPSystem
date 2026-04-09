@@ -6,9 +6,11 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Currencies.Commands.CreateCurrency
 {
-    public class CreateCurrencyCommand : IRequest<int>
+    public class CreateCurrencyCommand : IRequest<Result<int>>
     {
         public string Code { get; set; } = null!;
         public string NameAr { get; set; } = null!;
@@ -29,7 +31,7 @@ namespace Accounting.Application.Features.Currencies.Commands.CreateCurrency
         }
     }
 
-    public class CreateCurrencyCommandHandler : IRequestHandler<CreateCurrencyCommand, int>
+    public class CreateCurrencyCommandHandler : IRequestHandler<CreateCurrencyCommand, Result<int>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -38,7 +40,7 @@ namespace Accounting.Application.Features.Currencies.Commands.CreateCurrency
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<int> Handle(CreateCurrencyCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateCurrencyCommand request, CancellationToken cancellationToken)
         {
             if (!await _unitOfWork.Currencies.IsCodeUniqueAsync(request.Code))
             {

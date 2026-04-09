@@ -9,9 +9,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalYear
 {
-    public class CreateFiscalYearCommand : IRequest<int>
+    public class CreateFiscalYearCommand : IRequest<Result<int>>
     {
         public string YearName { get; set; } = null!;
         public DateTime StartDate { get; set; }
@@ -28,7 +30,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalYear
         }
     }
 
-    public class CreateFiscalYearCommandHandler : IRequestHandler<CreateFiscalYearCommand, int>
+    public class CreateFiscalYearCommandHandler : IRequestHandler<CreateFiscalYearCommand, Result<int>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -37,7 +39,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalYear
             _context = context;
         }
 
-        public async Task<int> Handle(CreateFiscalYearCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateFiscalYearCommand request, CancellationToken cancellationToken)
         {
             // Business Rule: no overlapping fiscal years per tenant
             bool overlaps = await _context.FiscalYears

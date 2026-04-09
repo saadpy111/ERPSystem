@@ -32,7 +32,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Get(CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new GetCurrenciesQuery(), cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpGet("{id:int}")]
@@ -52,7 +58,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCurrencyCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = result }, result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPut("{id:int}")]

@@ -7,9 +7,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Commands.CloseFiscalYear
 {
-    public class CloseFiscalYearCommand : IRequest<Unit>
+    public class CloseFiscalYearCommand : IRequest<Result>
     {
         public int Id { get; set; }
     }
@@ -22,7 +24,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CloseFiscalYear
         }
     }
 
-    public class CloseFiscalYearCommandHandler : IRequestHandler<CloseFiscalYearCommand, Unit>
+    public class CloseFiscalYearCommandHandler : IRequestHandler<CloseFiscalYearCommand, Result>
     {
         private readonly IAccountingDbContext _context;
 
@@ -31,7 +33,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CloseFiscalYear
             _context = context;
         }
 
-        public async Task<Unit> Handle(CloseFiscalYearCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(CloseFiscalYearCommand request, CancellationToken cancellationToken)
         {
             var year = await _context.FiscalYears
                 .Include(y => y.FiscalPeriods)

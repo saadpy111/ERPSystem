@@ -13,6 +13,7 @@ namespace Accounting.Application.DependencyInjection
             services.AddMediatR(config =>
             {
                 config.RegisterServicesFromAssembly(assembly);
+                config.AddBehavior(typeof(MediatR.IPipelineBehavior<,>), typeof(Accounting.Application.Common.Behaviors.ValidationBehavior<,>));
             });
 
             services.AddAutoMapper(assembly);

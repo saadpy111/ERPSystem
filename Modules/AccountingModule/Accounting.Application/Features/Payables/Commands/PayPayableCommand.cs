@@ -7,9 +7,11 @@ using Accounting.Domain.Entities;
 using Accounting.Domain.Enums;
 using MediatR;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Payables.Commands
 {
-    public class PayPayableCommand : IRequest<int>
+    public class PayPayableCommand : IRequest<Result<int>>
     {
         public int PayableId { get; set; }
         public decimal Amount { get; set; }
@@ -19,7 +21,7 @@ namespace Accounting.Application.Features.Payables.Commands
         public int CurrencyId { get; set; }
     }
 
-    public class PayPayableCommandHandler : IRequestHandler<PayPayableCommand, int>
+    public class PayPayableCommandHandler : IRequestHandler<PayPayableCommand, Result<int>>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMediator _mediator;
@@ -30,7 +32,7 @@ namespace Accounting.Application.Features.Payables.Commands
             _mediator = mediator;
         }
 
-        public async Task<int> Handle(PayPayableCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(PayPayableCommand request, CancellationToken cancellationToken)
         {
             if (request.Amount <= 0)
                 throw new ArgumentException("Amount must be greater than zero");

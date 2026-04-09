@@ -6,6 +6,8 @@ using Accounting.Application.Interfaces.Contexts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.CostCenters.Queries.GetCostCentersList
 {
     public class CostCenterDto
@@ -14,11 +16,11 @@ namespace Accounting.Application.Features.CostCenters.Queries.GetCostCentersList
         public string NameAr { get; set; } = null!;
     }
 
-    public class GetCostCentersListQuery : IRequest<List<CostCenterDto>>
+    public class GetCostCentersListQuery : IRequest<Result<List<CostCenterDto>>>
     {
     }
 
-    public class GetCostCentersListQueryHandler : IRequestHandler<GetCostCentersListQuery, List<CostCenterDto>>
+    public class GetCostCentersListQueryHandler : IRequestHandler<GetCostCentersListQuery, Result<List<CostCenterDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -27,7 +29,7 @@ namespace Accounting.Application.Features.CostCenters.Queries.GetCostCentersList
             _context = context;
         }
 
-        public async Task<List<CostCenterDto>> Handle(GetCostCentersListQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<CostCenterDto>>> Handle(GetCostCentersListQuery request, CancellationToken cancellationToken)
         {
             return await _context.CostCenters
                 .AsNoTracking()

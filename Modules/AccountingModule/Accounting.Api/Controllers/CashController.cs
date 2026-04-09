@@ -31,7 +31,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetCashTransactionsQuery { CashAccountId = accountId };
             var result = await _mediator.Send(query);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPost("receipt")]
@@ -41,7 +47,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> CreateReceipt([FromBody] CreateCashTransactionCommand command)
         {
             var result = await _mediator.Send(command);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPost("payment")]
@@ -52,7 +64,13 @@ namespace Accounting.Api.Controllers
         {
             command.Type = CashTransactionType.Payment;
             var result = await _mediator.Send(command);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

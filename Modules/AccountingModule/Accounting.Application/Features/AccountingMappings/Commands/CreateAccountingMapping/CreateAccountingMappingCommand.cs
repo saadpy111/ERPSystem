@@ -7,9 +7,11 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.AccountingMappings.Commands.CreateAccountingMapping
 {
-    public class CreateAccountingMappingCommand : IRequest<AccountingMappingDto>
+    public class CreateAccountingMappingCommand : IRequest<Result<AccountingMappingDto>>
     {
         public SourceType SourceType { get; set; }
         public string MappingKey { get; set; } = null!;
@@ -27,7 +29,7 @@ namespace Accounting.Application.Features.AccountingMappings.Commands.CreateAcco
         }
     }
 
-    public class CreateAccountingMappingCommandHandler : IRequestHandler<CreateAccountingMappingCommand, AccountingMappingDto>
+    public class CreateAccountingMappingCommandHandler : IRequestHandler<CreateAccountingMappingCommand, Result<AccountingMappingDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -36,7 +38,7 @@ namespace Accounting.Application.Features.AccountingMappings.Commands.CreateAcco
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<AccountingMappingDto> Handle(CreateAccountingMappingCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AccountingMappingDto>> Handle(CreateAccountingMappingCommand request, CancellationToken cancellationToken)
         {
             var account = await _unitOfWork.Accounts.GetByIdAsync(request.AccountId);
             if (account == null)

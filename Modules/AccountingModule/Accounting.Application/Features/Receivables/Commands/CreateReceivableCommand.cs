@@ -6,10 +6,11 @@ using Accounting.Application.Posting.Commands.PostTransaction;
 using Accounting.Domain.Entities;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 
 namespace Accounting.Application.Features.Receivables.Commands
 {
-    public class CreateReceivableCommand : IRequest<int>
+    public class CreateReceivableCommand : IRequest<Result<int>>
     {
         public int PartnerId { get; set; }
         public decimal Amount { get; set; }
@@ -19,7 +20,7 @@ namespace Accounting.Application.Features.Receivables.Commands
         public int CurrencyId { get; set; }
     }
 
-    public class CreateReceivableCommandHandler : IRequestHandler<CreateReceivableCommand, int>
+    public class CreateReceivableCommandHandler : IRequestHandler<CreateReceivableCommand, Result<int>>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMediator _mediator;
@@ -30,15 +31,10 @@ namespace Accounting.Application.Features.Receivables.Commands
             _mediator = mediator;
         }
 
-        public async Task<int> Handle(CreateReceivableCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateReceivableCommand request, CancellationToken cancellationToken)
         {
-            if (request.Amount <= 0)
-                throw new ArgumentException("Amount must be greater than zero");
-
             var partner = await _uow.Partners.GetByIdAsync(request.PartnerId);
-            if (partner == null)
-                throw new ArgumentException("Partner not found");
-
+            
             var receivable = new Receivable
             {
                 PartnerId = request.PartnerId,
@@ -64,9 +60,9 @@ namespace Accounting.Application.Features.Receivables.Commands
                 CurrencyId = request.CurrencyId
             };
             
-            await _mediator.Send(postCommand, cancellationToken);
-
-            return receivable.Id;
+            var postResult = await _mediator.Send(postCommand, cancellationToken);
+            
+            return Result<int>.IsSuccess(receivable.Id, "Receivable created successfully");
         }
     }
 }

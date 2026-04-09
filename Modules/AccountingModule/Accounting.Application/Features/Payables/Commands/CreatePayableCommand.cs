@@ -4,12 +4,13 @@ using System.Threading.Tasks;
 using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Posting.Commands.PostTransaction;
 using Accounting.Domain.Entities;
-using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
+using Accounting.Domain.Enums;
 
 namespace Accounting.Application.Features.Payables.Commands
 {
-    public class CreatePayableCommand : IRequest<int>
+    public class CreatePayableCommand : IRequest<Result<int>>
     {
         public int PartnerId { get; set; }
         public decimal Amount { get; set; }
@@ -19,7 +20,7 @@ namespace Accounting.Application.Features.Payables.Commands
         public int CurrencyId { get; set; }
     }
 
-    public class CreatePayableCommandHandler : IRequestHandler<CreatePayableCommand, int>
+    public class CreatePayableCommandHandler : IRequestHandler<CreatePayableCommand, Result<int>>
     {
         private readonly IUnitOfWork _uow;
         private readonly IMediator _mediator;
@@ -30,14 +31,9 @@ namespace Accounting.Application.Features.Payables.Commands
             _mediator = mediator;
         }
 
-        public async Task<int> Handle(CreatePayableCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreatePayableCommand request, CancellationToken cancellationToken)
         {
-            if (request.Amount <= 0)
-                throw new ArgumentException("Amount must be greater than zero");
-
             var partner = await _uow.Partners.GetByIdAsync(request.PartnerId);
-            if (partner == null)
-                throw new ArgumentException("Partner not found");
 
             var payable = new Payable
             {
@@ -64,9 +60,11 @@ namespace Accounting.Application.Features.Payables.Commands
                 CurrencyId = request.CurrencyId
             };
             
-            await _mediator.Send(postCommand, cancellationToken);
+            
+            var postResult = await _mediator.Send(postCommand, cancellationToken);
+             if (!postResult.Success) return Result<int>.Failure(postResult.Message);
 
-            return payable.Id;
+            return Result<int>.IsSuccess(payable.Id, "Payable created successfully");
         }
     }
 }

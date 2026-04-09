@@ -9,9 +9,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalPeriod
 {
-    public class CreateFiscalPeriodCommand : IRequest<int>
+    public class CreateFiscalPeriodCommand : IRequest<Result<int>>
     {
         public int FiscalYearId { get; set; }
         public string PeriodName { get; set; } = null!;
@@ -30,7 +32,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalPeriod
         }
     }
 
-    public class CreateFiscalPeriodCommandHandler : IRequestHandler<CreateFiscalPeriodCommand, int>
+    public class CreateFiscalPeriodCommandHandler : IRequestHandler<CreateFiscalPeriodCommand, Result<int>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -39,7 +41,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalPeriod
             _context = context;
         }
 
-        public async Task<int> Handle(CreateFiscalPeriodCommand request, CancellationToken cancellationToken)
+        public async Task<Result<int>> Handle(CreateFiscalPeriodCommand request, CancellationToken cancellationToken)
         {
             // 1. Verify fiscal year exists and is open
             var year = await _context.FiscalYears

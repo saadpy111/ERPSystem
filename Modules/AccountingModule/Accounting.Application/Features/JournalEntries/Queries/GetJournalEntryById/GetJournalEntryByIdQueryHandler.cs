@@ -6,9 +6,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.JournalEntries.Queries.GetJournalEntryById
 {
-    public class GetJournalEntryByIdQueryHandler : IRequestHandler<GetJournalEntryByIdQuery, JournalEntryResponseDto>
+    public class GetJournalEntryByIdQueryHandler : IRequestHandler<GetJournalEntryByIdQuery, Result<JournalEntryResponseDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -19,7 +21,7 @@ namespace Accounting.Application.Features.JournalEntries.Queries.GetJournalEntry
             _mapper = mapper;
         }
 
-        public async Task<JournalEntryResponseDto> Handle(GetJournalEntryByIdQuery request, CancellationToken cancellationToken)
+        public async Task<Result<JournalEntryResponseDto>> Handle(GetJournalEntryByIdQuery request, CancellationToken cancellationToken)
         {
             var journalEntry = await _unitOfWork.JournalEntries.GetByIdAsync(request.Id);
             

@@ -3,6 +3,7 @@ using Accounting.Application.Interfaces.Contexts;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetBalanceSheet
 {
-    public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, BalanceSheetDto>
+    public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, Result<BalanceSheetDto>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -20,7 +21,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
             _context = context;
         }
 
-        public async Task<BalanceSheetDto> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
+        public async Task<Result<BalanceSheetDto>> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
         {
             // 3. DATA SOURCE: Only Posted entries, Date <= AsOfDate
             // 11. PERFORMANCE: AsNoTracking(), Select, no Include, group in DB directly
@@ -128,12 +129,11 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
             // 10. VALIDATION
             if (Math.Abs(totalAssets - (totalLiabilities + totalEquity)) > 0.01m)
             {
-                // This will fail the operation directly, ensuring accuracy.
-                throw new BusinessException($"Balance Sheet mismatch: Total Assets ({totalAssets}) != Total Liabilities ({totalLiabilities}) + Total Equity ({totalEquity}).");
+                return Result<BalanceSheetDto>.Failure($"Balance Sheet mismatch: Total Assets ({totalAssets}) != Total Liabilities ({totalLiabilities}) + Total Equity ({totalEquity}).");
             }
 
             // 8. STRUCTURE OUTPUT
-            return new BalanceSheetDto
+            return Result<BalanceSheetDto>.IsSuccess(new BalanceSheetDto
             {
                 Assets = assets,
                 Liabilities = liabilities,
@@ -143,7 +143,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                 TotalEquity = totalEquity,
                 IsBalanced = true,
                 AsOfDate = request.AsOfDate
-            };
+            });
         }
     }
 }

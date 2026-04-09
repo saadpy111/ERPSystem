@@ -29,7 +29,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Get([FromQuery] int currencyId, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(new GetCurrencyRatesQuery { CurrencyId = currencyId }, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPost]
@@ -38,7 +44,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Create([FromBody] CreateCurrencyRateCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
     }
 }

@@ -2,6 +2,7 @@ using Accounting.Application.Interfaces.Contexts;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
+using Accounting.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 {
-    public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuery, List<LedgerDto>>
+    public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuery, Result<List<LedgerDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -20,7 +21,7 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
             _context = context;
         }
 
-        public async Task<List<LedgerDto>> Handle(GetGeneralLedgerQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<LedgerDto>>> Handle(GetGeneralLedgerQuery request, CancellationToken cancellationToken)
         {
             decimal openingBalance = 0m;
 
@@ -104,7 +105,7 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
                 });
             }
 
-            return result;
+            return Result<List<LedgerDto>>.IsSuccess(result);
         }
     }
 }

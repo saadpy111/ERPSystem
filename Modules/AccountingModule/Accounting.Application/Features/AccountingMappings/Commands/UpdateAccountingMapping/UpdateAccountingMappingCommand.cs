@@ -6,9 +6,11 @@ using MediatR;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.AccountingMappings.Commands.UpdateAccountingMapping
 {
-    public class UpdateAccountingMappingCommand : IRequest<AccountingMappingDto>
+    public class UpdateAccountingMappingCommand : IRequest<Result<AccountingMappingDto>>
     {
         public int Id { get; set; }
         public SourceType SourceType { get; set; }
@@ -28,7 +30,7 @@ namespace Accounting.Application.Features.AccountingMappings.Commands.UpdateAcco
         }
     }
 
-    public class UpdateAccountingMappingCommandHandler : IRequestHandler<UpdateAccountingMappingCommand, AccountingMappingDto>
+    public class UpdateAccountingMappingCommandHandler : IRequestHandler<UpdateAccountingMappingCommand, Result<AccountingMappingDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -37,7 +39,7 @@ namespace Accounting.Application.Features.AccountingMappings.Commands.UpdateAcco
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<AccountingMappingDto> Handle(UpdateAccountingMappingCommand request, CancellationToken cancellationToken)
+        public async Task<Result<AccountingMappingDto>> Handle(UpdateAccountingMappingCommand request, CancellationToken cancellationToken)
         {
             var entity = await _unitOfWork.AccountingMappings.GetByIdAsync(request.Id);
             if (entity == null)

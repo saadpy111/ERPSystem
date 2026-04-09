@@ -6,9 +6,11 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Partners.Commands.UpdatePartner
 {
-    public class UpdatePartnerCommand : IRequest<Unit>
+    public class UpdatePartnerCommand : IRequest<Result>
     {
         public int Id { get; set; }
         public string NameAr { get; set; } = null!;
@@ -23,7 +25,7 @@ namespace Accounting.Application.Features.Partners.Commands.UpdatePartner
         }
     }
 
-    public class UpdatePartnerCommandHandler : IRequestHandler<UpdatePartnerCommand, Unit>
+    public class UpdatePartnerCommandHandler : IRequestHandler<UpdatePartnerCommand, Result>
     {
         private readonly IAccountingDbContext _context;
 
@@ -32,7 +34,7 @@ namespace Accounting.Application.Features.Partners.Commands.UpdatePartner
             _context = context;
         }
 
-        public async Task<Unit> Handle(UpdatePartnerCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(UpdatePartnerCommand request, CancellationToken cancellationToken)
         {
             var partner = await _context.Partners.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
             if (partner == null) throw new BusinessException("Not found");

@@ -54,7 +54,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetFiscalYearsQuery();
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         /// <summary>Returns a single fiscal year by its ID.</summary>
@@ -66,7 +72,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetFiscalYearByIdQuery { Id = id };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         /// <summary>Creates a new fiscal year and auto-generates 12 monthly periods.</summary>
@@ -127,7 +139,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetFiscalPeriodsQuery { FiscalYearId = fiscalYearId };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         /// <summary>Returns a single fiscal period by its ID.</summary>
@@ -139,7 +157,13 @@ namespace Accounting.Api.Controllers
         {
             var query = new GetFiscalPeriodByIdQuery { Id = id };
             var result = await _mediator.Send(query, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
         /// <summary>Manually creates a fiscal period within an existing open fiscal year.</summary>
@@ -174,7 +198,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> ClosePeriod([FromBody] CloseFiscalPeriodCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message });
         }
 
         /// <summary>Re-opens a previously closed fiscal period.</summary>
@@ -185,7 +215,13 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> OpenPeriod([FromBody] OpenFiscalPeriodCommand command, CancellationToken cancellationToken)
         {
             var result = await _mediator.Send(command, cancellationToken);
-            return Ok(result);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message });
         }
 
         /// <summary>Soft-deletes an open fiscal period.</summary>

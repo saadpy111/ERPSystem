@@ -6,6 +6,8 @@ using Accounting.Application.Interfaces.Contexts;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.Accounts.Queries.GetAccountHierarchy
 {
     public class AccountTreeNodeDto
@@ -17,11 +19,11 @@ namespace Accounting.Application.Features.Accounts.Queries.GetAccountHierarchy
         public List<AccountTreeNodeDto> Children { get; set; } = new();
     }
 
-    public class GetAccountHierarchyQuery : IRequest<List<AccountTreeNodeDto>>
+    public class GetAccountHierarchyQuery : IRequest<Result<List<AccountTreeNodeDto>>>
     {
     }
 
-    public class GetAccountHierarchyQueryHandler : IRequestHandler<GetAccountHierarchyQuery, List<AccountTreeNodeDto>>
+    public class GetAccountHierarchyQueryHandler : IRequestHandler<GetAccountHierarchyQuery, Result<List<AccountTreeNodeDto>>>
     {
         private readonly IAccountingDbContext _context;
 
@@ -30,7 +32,7 @@ namespace Accounting.Application.Features.Accounts.Queries.GetAccountHierarchy
             _context = context;
         }
 
-        public async Task<List<AccountTreeNodeDto>> Handle(GetAccountHierarchyQuery request, CancellationToken cancellationToken)
+        public async Task<Result<List<AccountTreeNodeDto>>> Handle(GetAccountHierarchyQuery request, CancellationToken cancellationToken)
         {
             var accounts = await _context.Accounts
                 .AsNoTracking()

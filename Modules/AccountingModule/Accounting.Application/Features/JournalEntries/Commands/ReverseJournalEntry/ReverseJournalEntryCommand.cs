@@ -1,8 +1,10 @@
 using MediatR;
 
+using Accounting.Application.Common.Models;
+
 namespace Accounting.Application.Features.JournalEntries.Commands.ReverseJournalEntry
 {
-    public class ReverseJournalEntryCommand : IRequest<int>
+    public class ReverseJournalEntryCommand : IRequest<Result<int>>
     {
         /// <summary>The ID of the Posted journal entry to be reversed.</summary>
         public int JournalEntryId { get; set; }
