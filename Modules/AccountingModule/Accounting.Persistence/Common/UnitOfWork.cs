@@ -1,4 +1,5 @@
 using Accounting.Application.Interfaces.Repositories;
+using Accounting.Domain.Entities;
 using Accounting.Persistence.Context;
 using Accounting.Persistence.Repositories.Implementations;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,10 @@ namespace Accounting.Persistence.Common
         private IVoucherRepository? _voucherRepository;
         private IAccountingMappingRepository? _accountingMappingRepository;
         private ICashAccountRepository? _cashAccountRepository;
+        private IReceivableRepository? _receivableRepository;
+        private IGenericRepository<ReceivablePayment>? _receivablePaymentRepository;
+        private IPayableRepository? _payableRepository;
+        private IGenericRepository<PayablePayment>? _payablePaymentRepository;
 
         public UnitOfWork(AccountingDbContext context)
         {
@@ -33,6 +38,10 @@ namespace Accounting.Persistence.Common
         public IVoucherRepository Vouchers => _voucherRepository ??= new VoucherRepository(_context);
         public IAccountingMappingRepository AccountingMappings => _accountingMappingRepository ??= new AccountingMappingRepository(_context);
         public ICashAccountRepository CashAccounts => _cashAccountRepository ??= new CashAccountRepository(_context);
+        public IReceivableRepository Receivables => _receivableRepository ??= new ReceivableRepository(_context);
+        public IGenericRepository<ReceivablePayment> ReceivablePayments => _receivablePaymentRepository ??= new GenericRepository<ReceivablePayment>(_context);
+        public IPayableRepository Payables => _payableRepository ??= new PayableRepository(_context);
+        public IGenericRepository<PayablePayment> PayablePayments => _payablePaymentRepository ??= new GenericRepository<PayablePayment>(_context);
 
         public async Task<int> SaveChangesAsync()
         {

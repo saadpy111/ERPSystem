@@ -65,5 +65,15 @@ namespace SharedKernel.Core.Constants.Permissions
         public const string CashAccountsCreate = "Permissions.Accounting.CashAccounts.Create";
         public const string CashAccountsEdit = "Permissions.Accounting.CashAccounts.Edit";
         public const string CashAccountsDelete = "Permissions.Accounting.CashAccounts.Delete";
+
+        // ===== RECEIVABLES =====
+        public const string ReceivablesView = "Permissions.Accounting.Receivables.View";
+        public const string ReceivablesCreate = "Permissions.Accounting.Receivables.Create";
+        public const string ReceivablesPay = "Permissions.Accounting.Receivables.Pay";
+
+        // ===== PAYABLES =====
+        public const string PayablesView = "Permissions.Accounting.Payables.View";
+        public const string PayablesCreate = "Permissions.Accounting.Payables.Create";
+        public const string PayablesPay = "Permissions.Accounting.Payables.Pay";
     }
 }

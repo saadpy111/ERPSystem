@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using System.Threading;
+using Accounting.Domain.Entities;
 
 namespace Accounting.Application.Interfaces.Repositories
 {
@@ -14,6 +15,10 @@ namespace Accounting.Application.Interfaces.Repositories
         IVoucherRepository Vouchers { get; }
         IAccountingMappingRepository AccountingMappings { get; }
         ICashAccountRepository CashAccounts { get; }
+        IReceivableRepository Receivables { get; }
+        IGenericRepository<ReceivablePayment> ReceivablePayments { get; }
+        IPayableRepository Payables { get; }
+        IGenericRepository<PayablePayment> PayablePayments { get; }
 
         Task<int> SaveChangesAsync();
         Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken = default);

@@ -45,6 +45,10 @@ namespace Accounting.Persistence.Context
         public DbSet<Voucher> Vouchers { get; set; }
         public DbSet<CostCenter> CostCenters { get; set; }
         public DbSet<Tax> Taxes { get; set; }
+        public DbSet<Payable>  Payables { get; set; }
+        public DbSet<PayablePayment>  PayablePayments { get; set; }
+        public DbSet<Receivable>  Receivables { get; set; }
+        public DbSet<ReceivablePayment>  ReceivablePayments { get; set; }
         public DbSet<Sequence> Sequences { get; set; }
         public DbSet<AccountingMapping> AccountingMappings { get; set; }
         public DbSet<CashAccount> CashAccounts { get; set; }
