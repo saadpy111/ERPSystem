@@ -41,5 +41,24 @@ namespace Accounting.Persistence.Repositories.Implementations
                 .Include(j => j.FiscalPeriod)
                 .FirstOrDefaultAsync(j => j.Id == id);
         }
+
+        /// <inheritdoc/>
+        public async Task<decimal> GetActualAmountAsync(
+            int accountId,
+            int? costCenterId,
+            DateTime startDate,
+            DateTime endDate)
+        {
+            return await _context.Set<JournalEntryLine>()
+                .AsNoTracking()
+                .Where(l =>
+                    l.JournalEntry.Status == JournalStatus.Posted &&
+                    l.AccountId == accountId &&
+                    l.CostCenterId == costCenterId &&
+                    l.JournalEntry.Date >= startDate &&
+                    l.JournalEntry.Date <= endDate)
+                .SumAsync(l => (decimal?)l.BaseAmount) ?? 0m;
+        }
     }
 }
+

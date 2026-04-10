@@ -32,6 +32,9 @@ namespace Accounting.Application.DependencyInjection
             services.AddScoped<Accounting.Application.Services.Interfaces.IAccountingMappingService, Accounting.Application.Services.Implementations.AccountingMappingService>();
             services.AddScoped<Accounting.Application.Services.Interfaces.IExchangeRateService, Accounting.Application.Services.Implementations.ExchangeRateService>();
 
+            // Register Budget Control
+            services.AddScoped<Accounting.Application.Services.Interfaces.IBudgetControlService, Accounting.Application.Services.Implementations.BudgetControlService>();
+
             return services;
         }
     }

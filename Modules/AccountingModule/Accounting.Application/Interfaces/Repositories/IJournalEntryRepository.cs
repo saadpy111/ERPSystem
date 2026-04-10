@@ -16,5 +16,13 @@ namespace Accounting.Application.Interfaces.Repositories
         /// Required by the reversal handler to validate fiscal-period status and clone lines.
         /// </summary>
         Task<JournalEntry?> GetByIdWithLinesAsync(int id);
+
+        /// <summary>
+        /// Returns the SUM of BaseAmount for all POSTED journal entry lines that match
+        /// the given account, cost center and fall within the specified date range.
+        /// Used by BudgetControlService to calculate actuals efficiently without
+        /// loading navigation properties.
+        /// </summary>
+        Task<decimal> GetActualAmountAsync(int accountId, int? costCenterId, DateTime startDate, DateTime endDate);
     }
 }

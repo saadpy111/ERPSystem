@@ -17,17 +17,20 @@ namespace Accounting.Application.Posting.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IGenericRepository<FiscalPeriod> _fiscalPeriodRepository;
         private readonly IExchangeRateService _exchangeRateService;
+        private readonly IBudgetControlService _budgetControl;
 
         public PostingService(
             IEnumerable<IPostingStrategy> strategies,
             IUnitOfWork unitOfWork,
             IGenericRepository<FiscalPeriod> fiscalPeriodRepository,
-            IExchangeRateService exchangeRateService)
+            IExchangeRateService exchangeRateService,
+            IBudgetControlService budgetControl)
         {
-            _strategies = strategies;
-            _unitOfWork = unitOfWork;
+            _strategies             = strategies;
+            _unitOfWork             = unitOfWork;
             _fiscalPeriodRepository = fiscalPeriodRepository;
-            _exchangeRateService = exchangeRateService;
+            _exchangeRateService    = exchangeRateService;
+            _budgetControl          = budgetControl;
         }
 
         public async Task<Result<int>> PostAsync(IPostingRequest request)
@@ -50,7 +53,7 @@ namespace Accounting.Application.Posting.Services
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (currency == null || !currency.IsActive)
                 return Result<int>.Failure("Invalid or inactive currency.");
-            
+
             var rate = await _exchangeRateService.GetRateAsync(request.CurrencyId, request.Date);
 
             foreach (var line in lines)
@@ -64,20 +67,20 @@ namespace Accounting.Application.Posting.Services
                 else
                     return Result<int>.Failure("Invalid journal line: both debit and credit are zero.");
 
-                line.CurrencyId = request.CurrencyId;
-                line.ExchangeRate = rate;
+                line.CurrencyId    = request.CurrencyId;
+                line.ExchangeRate  = rate;
                 line.ForeignAmount = foreignAmount;
-                line.BaseAmount = foreignAmount * rate;
+                line.BaseAmount    = foreignAmount * rate;
 
                 if (line.Debit > 0)
                 {
-                    line.Debit = line.BaseAmount;
+                    line.Debit  = line.BaseAmount;
                     line.Credit = 0;
                 }
                 else
                 {
                     line.Credit = line.BaseAmount;
-                    line.Debit = 0;
+                    line.Debit  = 0;
                 }
             }
 
@@ -87,10 +90,10 @@ namespace Accounting.Application.Posting.Services
 
             if (existingEntry != null)
             {
-                existingEntry.Status = JournalStatus.Posted;
-                existingEntry.PostedAt = DateTime.UtcNow;
-                existingEntry.CurrencyId = request.CurrencyId;
-                existingEntry.TotalDebit = lines.Sum(l => l.Debit);
+                existingEntry.Status      = JournalStatus.Posted;
+                existingEntry.PostedAt    = DateTime.UtcNow;
+                existingEntry.CurrencyId  = request.CurrencyId;
+                existingEntry.TotalDebit  = lines.Sum(l => l.Debit);
                 existingEntry.TotalCredit = lines.Sum(l => l.Credit);
 
                 _unitOfWork.JournalEntries.Update(existingEntry);
@@ -107,17 +110,17 @@ namespace Accounting.Application.Posting.Services
                 var newEntry = new JournalEntry
                 {
                     JournalNumber = "JE-" + DateTime.Now.ToString("yyyyMMddHHmmssfff"),
-                    Date = request.Date,
-                    Reference = request.Reference,
-                    CurrencyId = request.CurrencyId,
-                    SourceType = request.SourceType,
-                    Description = request.Description,
-                    Status = JournalStatus.Posted,
-                    TotalDebit = lines.Sum(l => l.Debit),
-                    TotalCredit = lines.Sum(l => l.Credit),
-                    PostedAt = DateTime.UtcNow,
+                    Date          = request.Date,
+                    Reference     = request.Reference,
+                    CurrencyId    = request.CurrencyId,
+                    SourceType    = request.SourceType,
+                    Description   = request.Description,
+                    Status        = JournalStatus.Posted,
+                    TotalDebit    = lines.Sum(l => l.Debit),
+                    TotalCredit   = lines.Sum(l => l.Credit),
+                    PostedAt      = DateTime.UtcNow,
                     FiscalPeriodId = activePeriod.Id,
-                    Lines = lines
+                    Lines         = lines
                 };
 
                 await _unitOfWork.JournalEntries.AddAsync(newEntry);
@@ -127,7 +130,7 @@ namespace Accounting.Application.Posting.Services
 
         private async Task<Result> ValidateJournalEntryAsync(List<JournalEntryLine> lines, DateTime date)
         {
-            var totalDebit = Math.Round(lines.Sum(l => l.Debit), 6);
+            var totalDebit  = Math.Round(lines.Sum(l => l.Debit),  6);
             var totalCredit = Math.Round(lines.Sum(l => l.Credit), 6);
 
             if (totalDebit != totalCredit)
@@ -136,9 +139,9 @@ namespace Accounting.Application.Posting.Services
             if (lines.Any(l => l.Debit == 0 && l.Credit == 0))
                 return Result.Failure("Zero lines are not allowed.");
 
-            var accountIds = lines.Select(l => l.AccountId).Distinct().ToList();
+            var accountIds  = lines.Select(l => l.AccountId).Distinct().ToList();
             var leafAccounts = await _unitOfWork.Accounts.GetLeafAccountsAsync();
-            var leafIds = leafAccounts.Select(a => a.Id).ToList();
+            var leafIds     = leafAccounts.Select(a => a.Id).ToList();
 
             foreach (var accId in accountIds)
             {
@@ -147,7 +150,29 @@ namespace Accounting.Application.Posting.Services
             }
 
             var periodRes = await GetOpenFiscalPeriodAsync(date);
-            return periodRes.Success ? Result.Ok() : Result.Failure(periodRes.Message);
+            if (!periodRes.Success)
+                return Result.Failure(periodRes.Message);
+
+            // ── Final budget revalidation inside the transaction (concurrency safety) ──
+            var debitItems = lines
+                .Where(l => l.Debit > 0)
+                .GroupBy(l => new { l.AccountId, l.CostCenterId })
+                .Select(g => new BudgetCheckItem
+                {
+                    AccountId    = g.Key.AccountId,
+                    CostCenterId = g.Key.CostCenterId,
+                    Amount       = g.Sum(l => l.Debit)
+                })
+                .ToList();
+
+            if (debitItems.Count > 0)
+            {
+                var budgetResult = await _budgetControl.CheckBudgetListAsync(debitItems, date);
+                if (!budgetResult.Success)
+                    return Result.Failure(budgetResult.Message);
+            }
+
+            return Result.Ok();
         }
 
         private async Task<Result<FiscalPeriod>> GetOpenFiscalPeriodAsync(DateTime date)
