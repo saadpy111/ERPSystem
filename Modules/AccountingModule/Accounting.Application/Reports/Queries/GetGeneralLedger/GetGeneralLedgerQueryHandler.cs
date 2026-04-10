@@ -105,7 +105,7 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
                 });
             }
 
-            return Result<List<LedgerDto>>.IsSuccess(result);
+            return Result<List<LedgerDto>>.Ok(result);
         }
     }
 }

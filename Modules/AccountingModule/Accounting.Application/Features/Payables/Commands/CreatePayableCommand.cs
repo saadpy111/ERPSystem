@@ -64,7 +64,7 @@ namespace Accounting.Application.Features.Payables.Commands
             var postResult = await _mediator.Send(postCommand, cancellationToken);
              if (!postResult.Success) return Result<int>.Failure(postResult.Message);
 
-            return Result<int>.IsSuccess(payable.Id, "Payable created successfully");
+            return Result<int>.Ok(payable.Id, "Payable created successfully");
         }
     }
 }

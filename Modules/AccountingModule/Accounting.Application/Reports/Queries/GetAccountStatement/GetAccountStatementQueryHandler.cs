@@ -136,7 +136,7 @@ namespace Accounting.Application.Reports.Queries.GetAccountStatement
                 });
             }
 
-            return Result<List<AccountStatementDto>>.IsSuccess(result);
+            return Result<List<AccountStatementDto>>.Ok(result);
         }
     }
 }

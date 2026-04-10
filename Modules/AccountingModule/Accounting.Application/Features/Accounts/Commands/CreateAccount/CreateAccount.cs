@@ -44,7 +44,7 @@ namespace Accounting.Application.Features.Accounts.Commands.CreateAccount
             await _context.Accounts.AddAsync(account, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
 
-            return Result<int>.IsSuccess(account.Id, "Account created successfully");
+            return Result<int>.Ok(account.Id, "Account created successfully");
         }
     }
 }

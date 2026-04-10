@@ -74,7 +74,7 @@ namespace Accounting.Application.Features.Receivables.Commands
             
             var postResult = await _mediator.Send(postCommand, cancellationToken);
 
-            return Result<int>.IsSuccess(payment.Id, "Payment received successfully");
+            return Result<int>.Ok(payment.Id, "Payment received successfully");
         }
     }
 }

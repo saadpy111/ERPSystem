@@ -15,6 +15,12 @@ namespace SharedKernel.Core.Constants.Permissions
         public const string JournalEntriesPost = "Permissions.Accounting.JournalEntries.Post";
         public const string JournalEntriesReverse = "Permissions.Accounting.JournalEntries.Reverse";
 
+        // ===== VOUCHERS =====
+        public const string VouchersView = "Permissions.Accounting.Vouchers.View";
+        public const string VouchersCreate = "Permissions.Accounting.Vouchers.Create";
+        public const string VouchersApprove = "Permissions.Accounting.Vouchers.Approve";
+        public const string VouchersPost = "Permissions.Accounting.Vouchers.Post";
+
         // ===== POSTING =====
         public const string PostingExecute = "Permissions.Accounting.Posting.Execute";
 

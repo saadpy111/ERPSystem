@@ -100,7 +100,7 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
             // A more thorough validation might check if NetProfit calculations missed any odd entries,
             // but the structured separation handled that mathematically already.
 
-            return Result<IncomeStatementDto>.IsSuccess(new IncomeStatementDto
+            return Result<IncomeStatementDto>.Ok(new IncomeStatementDto
             {
                 Revenues = revenues,
                 Expenses = expenses,

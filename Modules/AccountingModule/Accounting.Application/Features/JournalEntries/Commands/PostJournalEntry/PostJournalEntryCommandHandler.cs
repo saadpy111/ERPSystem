@@ -1,13 +1,11 @@
+using Accounting.Application.Common.Models;
 using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Posting.Interfaces;
 using Accounting.Application.Posting.Requests;
 using Accounting.Domain.Enums;
 using MediatR;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-
-using Accounting.Application.Common.Models;
 
 namespace Accounting.Application.Features.JournalEntries.Commands.PostJournalEntry
 {
@@ -28,12 +26,12 @@ namespace Accounting.Application.Features.JournalEntries.Commands.PostJournalEnt
             
             if (journalEntry == null)
             {
-                throw new Exception($"Journal entry {request.JournalEntryId} not found.");
+                return Result<int>.Failure($"Journal entry {request.JournalEntryId} not found.");
             }
 
             if (journalEntry.Status == JournalStatus.Posted)
             {
-                throw new Exception($"Journal entry is already posted.");
+                return Result<int>.Failure("Journal entry is already posted.");
             }
 
             var postingRequest = new PostingRequest
@@ -46,7 +44,15 @@ namespace Accounting.Application.Features.JournalEntries.Commands.PostJournalEnt
                 Reference = journalEntry.Reference
             };
 
-            return await _postingService.PostAsync(postingRequest);
+            var postResult = await _postingService.PostAsync(postingRequest);
+            
+            if (postResult == null)
+                return Result<int>.Failure("Unexpected null result from posting service.");
+
+            if (!postResult.Success)
+                return Result<int>.Failure(postResult.Message);
+
+            return Result<int>.Ok(postResult.Data, "Journal entry posted successfully.");
         }
     }
 }

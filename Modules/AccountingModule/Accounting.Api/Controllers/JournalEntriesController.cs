@@ -126,8 +126,14 @@ namespace Accounting.Api.Controllers
                 Reason         = request.Reason,
             };
 
-            var newReversalId = await _mediator.Send(command, cancellationToken);
-            return Ok(newReversalId);
+            var result = await _mediator.Send(command, cancellationToken);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
         }
     }
 

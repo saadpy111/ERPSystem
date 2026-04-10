@@ -62,7 +62,7 @@ namespace Accounting.Application.Features.Receivables.Commands
             
             var postResult = await _mediator.Send(postCommand, cancellationToken);
             
-            return Result<int>.IsSuccess(receivable.Id, "Receivable created successfully");
+            return Result<int>.Ok(receivable.Id, "Receivable created successfully");
         }
     }
 }

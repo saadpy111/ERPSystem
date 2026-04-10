@@ -39,7 +39,7 @@ namespace Accounting.Application.Features.CashAccounts.Commands.UpdateCashAccoun
             _unitOfWork.CashAccounts.Update(entity);
             await _unitOfWork.SaveChangesAsync();
 
-            return Result<CashAccountDto>.IsSuccess(new CashAccountDto
+            return Result<CashAccountDto>.Ok(new CashAccountDto
             {
                 Id = entity.Id,
                 Name = entity.Name,

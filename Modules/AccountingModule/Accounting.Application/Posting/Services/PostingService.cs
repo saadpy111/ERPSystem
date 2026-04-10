@@ -1,3 +1,4 @@
+using Accounting.Application.Common.Models;
 using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Posting.Interfaces;
 using Accounting.Application.Services.Interfaces;
@@ -29,11 +30,11 @@ namespace Accounting.Application.Posting.Services
             _exchangeRateService = exchangeRateService;
         }
 
-        public async Task<int> PostAsync(IPostingRequest request)
+        public async Task<Result<int>> PostAsync(IPostingRequest request)
         {
             var strategy = _strategies.FirstOrDefault(s => s.CanHandle(request.SourceType));
             if (strategy == null)
-                throw new Exception($"No posting strategy found for SourceType {request.SourceType}");
+                return Result<int>.Failure($"No posting strategy found for SourceType {request.SourceType}");
 
             var existingEntry = request.SourceType == SourceType.Manual
                 ? await _unitOfWork.JournalEntries.GetByIdAsync(request.SourceId)
@@ -44,11 +45,12 @@ namespace Accounting.Application.Posting.Services
                 : await strategy.GenerateLinesAsync(request);
 
             if (lines == null || lines.Count < 2)
-                throw new Exception("Invalid journal entry lines.");
+                return Result<int>.Failure("Invalid journal entry lines.");
 
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (currency == null || !currency.IsActive)
-                throw new Exception("Invalid or inactive currency.");
+                return Result<int>.Failure("Invalid or inactive currency.");
+            
             var rate = await _exchangeRateService.GetRateAsync(request.CurrencyId, request.Date);
 
             foreach (var line in lines)
@@ -60,7 +62,7 @@ namespace Accounting.Application.Posting.Services
                 else if (line.Credit > 0)
                     foreignAmount = line.Credit;
                 else
-                    throw new Exception("Invalid journal line: both debit and credit are zero.");
+                    return Result<int>.Failure("Invalid journal line: both debit and credit are zero.");
 
                 line.CurrencyId = request.CurrencyId;
                 line.ExchangeRate = rate;
@@ -79,7 +81,9 @@ namespace Accounting.Application.Posting.Services
                 }
             }
 
-            await ValidateJournalEntryAsync(lines, request.Date);
+            var validationResult = await ValidateJournalEntryAsync(lines, request.Date);
+            if (!validationResult.Success)
+                return Result<int>.Failure(validationResult.Message);
 
             if (existingEntry != null)
             {
@@ -90,13 +94,15 @@ namespace Accounting.Application.Posting.Services
                 existingEntry.TotalCredit = lines.Sum(l => l.Credit);
 
                 _unitOfWork.JournalEntries.Update(existingEntry);
-                await _unitOfWork.SaveChangesAsync();
-
-                return existingEntry.Id;
+                return Result<int>.Ok(existingEntry.Id);
             }
             else
             {
-                var activePeriod = await GetOpenFiscalPeriodAsync(request.Date);
+                var activePeriodResult = await GetOpenFiscalPeriodAsync(request.Date);
+                if (!activePeriodResult.Success)
+                    return Result<int>.Failure(activePeriodResult.Message);
+
+                var activePeriod = activePeriodResult.Data!;
 
                 var newEntry = new JournalEntry
                 {
@@ -115,22 +121,20 @@ namespace Accounting.Application.Posting.Services
                 };
 
                 await _unitOfWork.JournalEntries.AddAsync(newEntry);
-                await _unitOfWork.SaveChangesAsync();
-
-                return newEntry.Id;
+                return Result<int>.Ok(newEntry.Id);
             }
         }
 
-        private async Task ValidateJournalEntryAsync(List<JournalEntryLine> lines, DateTime date)
+        private async Task<Result> ValidateJournalEntryAsync(List<JournalEntryLine> lines, DateTime date)
         {
             var totalDebit = Math.Round(lines.Sum(l => l.Debit), 6);
             var totalCredit = Math.Round(lines.Sum(l => l.Credit), 6);
 
             if (totalDebit != totalCredit)
-                throw new Exception($"Unbalanced entry: Debit ({totalDebit}) != Credit ({totalCredit})");
+                return Result.Failure($"Unbalanced entry: Debit ({totalDebit}) != Credit ({totalCredit})");
 
             if (lines.Any(l => l.Debit == 0 && l.Credit == 0))
-                throw new Exception("Zero lines are not allowed.");
+                return Result.Failure("Zero lines are not allowed.");
 
             var accountIds = lines.Select(l => l.AccountId).Distinct().ToList();
             var leafAccounts = await _unitOfWork.Accounts.GetLeafAccountsAsync();
@@ -139,13 +143,14 @@ namespace Accounting.Application.Posting.Services
             foreach (var accId in accountIds)
             {
                 if (!leafIds.Contains(accId))
-                    throw new Exception($"Account {accId} is not a leaf account.");
+                    return Result.Failure($"Account {accId} is not a leaf account.");
             }
 
-            await GetOpenFiscalPeriodAsync(date);
+            var periodRes = await GetOpenFiscalPeriodAsync(date);
+            return periodRes.Success ? Result.Ok() : Result.Failure(periodRes.Message);
         }
 
-        private async Task<FiscalPeriod> GetOpenFiscalPeriodAsync(DateTime date)
+        private async Task<Result<FiscalPeriod>> GetOpenFiscalPeriodAsync(DateTime date)
         {
             var openPeriods = await _fiscalPeriodRepository
                 .FindAsync(p => !p.IsClosed && date >= p.StartDate && date <= p.EndDate);
@@ -153,9 +158,9 @@ namespace Accounting.Application.Posting.Services
             var activePeriod = openPeriods.FirstOrDefault();
 
             if (activePeriod == null)
-                throw new Exception("No open fiscal period found for the specified date.");
+                return Result<FiscalPeriod>.Failure("No open fiscal period found for the specified date.");
 
-            return activePeriod;
+            return Result<FiscalPeriod>.Ok(activePeriod);
         }
     }
 }

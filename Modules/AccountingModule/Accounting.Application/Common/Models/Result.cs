@@ -19,7 +19,7 @@ namespace Accounting.Application.Common.Models
             Message = message;
         }
 
-        public static Result IsSuccess(string message = "") => new Result(true, message);
+        public static Result Ok(string message = "") => new Result(true, message);
         public static Result Failure(string message) => new Result(false, message);
         public static implicit operator Result(MediatR.Unit _) => new Result(true, string.Empty);
     }
@@ -35,7 +35,7 @@ namespace Accounting.Application.Common.Models
             Data = data;
         }
 
-        public static Result<T> IsSuccess(T data, string message = "") => new Result<T>(true, message, data);
+        public static Result<T> Ok(T data, string message = "") => new Result<T>(true, message, data);
         public new static Result<T> Failure(string message) => new Result<T>(false, message, default);
 
         public static implicit operator Result<T>(T data) => new Result<T>(true, string.Empty, data);

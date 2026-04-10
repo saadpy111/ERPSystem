@@ -43,6 +43,7 @@ namespace Accounting.Persistence.Context
         public DbSet<JournalEntry> JournalEntries { get; set; }
         public DbSet<JournalEntryLine> JournalEntryLines { get; set; }
         public DbSet<Voucher> Vouchers { get; set; }
+        public DbSet<VoucherLine> VoucherLines { get; set; }
         public DbSet<CostCenter> CostCenters { get; set; }
         public DbSet<Tax> Taxes { get; set; }
         public DbSet<Payable>  Payables { get; set; }

@@ -28,7 +28,7 @@ namespace Accounting.Application.Features.CashAccounts.Commands.DeleteCashAccoun
             entity.IsDeleted = true;
             _unitOfWork.CashAccounts.Update(entity);
             await _unitOfWork.SaveChangesAsync();
-            return Result.IsSuccess("Cash account deleted successfully.");
+            return Result.Ok("Cash account deleted successfully.");
         }
     }
 }

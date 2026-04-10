@@ -13,6 +13,7 @@ namespace Accounting.Domain.Enums
         Receivable = 9,
         ReceivablePayment = 10,
         Payable = 11,
-        PayablePayment = 12
+        PayablePayment = 12,
+        Voucher = 13
     }
 }

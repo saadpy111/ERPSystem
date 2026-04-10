@@ -78,7 +78,7 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
                 .OrderBy(x => x.AccountCode)
                 .ToList();
 
-            return Result<List<TrialBalanceDto>>.IsSuccess(result);
+            return Result<List<TrialBalanceDto>>.Ok(result);
         }
     }
 }

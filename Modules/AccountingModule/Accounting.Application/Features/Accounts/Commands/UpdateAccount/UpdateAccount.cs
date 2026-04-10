@@ -34,7 +34,7 @@ namespace Accounting.Application.Features.Accounts.Commands.UpdateAccount
             account.NameEn = request.NameEn;
 
             await _context.SaveChangesAsync(cancellationToken);
-            return Result.IsSuccess("Account updated successfully");
+            return Result.Ok("Account updated successfully");
         }
     }
 }

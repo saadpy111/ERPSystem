@@ -29,8 +29,15 @@ namespace Accounting.Application.Posting.Commands.PostTransaction
 
         public async Task<Result<int>> Handle(PostTransactionCommand request, CancellationToken cancellationToken)
         {
-            var resultId = await _postingService.PostAsync(request);
-            return Result<int>.IsSuccess(resultId, "Transaction posted successfully.");
+            var postResult = await _postingService.PostAsync(request);
+            
+            if (postResult == null)
+                return Result<int>.Failure("Unexpected null result from posting service.");
+
+            if (!postResult.Success)
+                return Result<int>.Failure(postResult.Message);
+
+            return Result<int>.Ok(postResult.Data, "Transaction posted successfully.");
         }
     }
 }

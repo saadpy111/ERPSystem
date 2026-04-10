@@ -1,12 +1,12 @@
-using Accounting.Domain.Common;
 using Accounting.Domain.Enums;
 using System;
 using System.Collections.Generic;
 
-namespace Accounting.Domain.Entities
+namespace Accounting.Application.Features.Vouchers.DTOs
 {
-    public class Voucher : BaseEntity
+    public class VoucherDto
     {
+        public int Id { get; set; }
         public string VoucherNumber { get; set; } = null!;
         public VoucherType VoucherType { get; set; }
         public DateTime Date { get; set; }
@@ -18,10 +18,15 @@ namespace Accounting.Domain.Entities
         public string? Reference { get; set; }
         public string? Description { get; set; }
         public int? JournalEntryId { get; set; }
+        public List<VoucherLineDto> Lines { get; set; } = new();
+    }
 
-        public virtual Partner? Partner { get; set; }
-        public virtual Currency Currency { get; set; } = null!;
-        public virtual JournalEntry? JournalEntry { get; set; }
-        public virtual ICollection<VoucherLine> Lines { get; set; } = new List<VoucherLine>();
+    public class VoucherLineDto
+    {
+        public int Id { get; set; }
+        public int AccountId { get; set; }
+        public decimal Debit { get; set; }
+        public decimal Credit { get; set; }
+        public int CurrencyId { get; set; }
     }
 }

@@ -24,6 +24,7 @@ namespace Accounting.Persistence.Common
         private IGenericRepository<ReceivablePayment>? _receivablePaymentRepository;
         private IPayableRepository? _payableRepository;
         private IGenericRepository<PayablePayment>? _payablePaymentRepository;
+        private IGenericRepository<VoucherLine>? _voucherLineRepository;
 
         public UnitOfWork(AccountingDbContext context)
         {
@@ -42,6 +43,7 @@ namespace Accounting.Persistence.Common
         public IGenericRepository<ReceivablePayment> ReceivablePayments => _receivablePaymentRepository ??= new GenericRepository<ReceivablePayment>(_context);
         public IPayableRepository Payables => _payableRepository ??= new PayableRepository(_context);
         public IGenericRepository<PayablePayment> PayablePayments => _payablePaymentRepository ??= new GenericRepository<PayablePayment>(_context);
+        public IGenericRepository<VoucherLine> VoucherLines => _voucherLineRepository ??= new GenericRepository<VoucherLine>(_context);
 
         public async Task<int> SaveChangesAsync()
         {

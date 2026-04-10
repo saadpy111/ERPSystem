@@ -133,7 +133,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
             }
 
             // 8. STRUCTURE OUTPUT
-            return Result<BalanceSheetDto>.IsSuccess(new BalanceSheetDto
+            return Result<BalanceSheetDto>.Ok(new BalanceSheetDto
             {
                 Assets = assets,
                 Liabilities = liabilities,
