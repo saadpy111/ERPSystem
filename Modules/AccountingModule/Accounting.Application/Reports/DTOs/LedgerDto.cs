@@ -11,5 +11,7 @@ namespace Accounting.Application.Reports.DTOs
         public decimal Credit { get; set; }
         public decimal RunningBalance { get; set; }
         public int? PartnerId { get; set; }
+        public int? CostCenterId { get; set; }
+        public string? CostCenterName { get; set; }
     }
 }

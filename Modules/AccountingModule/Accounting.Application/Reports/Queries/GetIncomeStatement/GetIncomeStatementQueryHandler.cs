@@ -1,5 +1,4 @@
-using Accounting.Application.Common.Exceptions;
-using Accounting.Application.Interfaces.Contexts;
+using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
@@ -14,11 +13,11 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
 {
     public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatementQuery, Result<IncomeStatementDto>>
     {
-        private readonly IAccountingDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetIncomeStatementQueryHandler(IAccountingDbContext context)
+        public GetIncomeStatementQueryHandler(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<IncomeStatementDto>> Handle(GetIncomeStatementQuery request, CancellationToken cancellationToken)
@@ -28,29 +27,44 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
                 return Result<IncomeStatementDto>.Failure("FromDate cannot be later than ToDate.");
             }
 
-            // 3. DATA SOURCE: Only Posted entries, between FromDate and ToDate
-            // 11. PERFORMANCE: AsNoTracking(), Select, no Include
-            var rawData = await _context.JournalEntryLines
-                .AsNoTracking()
+            var query = _unitOfWork.JournalEntryLines.Query()
                 .Where(l => l.JournalEntry.Status == JournalStatus.Posted 
                          && l.JournalEntry.Date >= request.FromDate 
-                         && l.JournalEntry.Date <= request.ToDate)
-                .GroupBy(l => new { l.AccountId, l.Account.Code, l.Account.NameAr, l.Account.NameEn, l.Account.AccountType })
+                         && l.JournalEntry.Date <= request.ToDate);
+
+            if (request.CostCenterId.HasValue)
+            {
+                query = query.Where(l => l.CostCenterId == request.CostCenterId.Value);
+            }
+
+            var resultsQuery = query
+                .GroupBy(l => new 
+                { 
+                    l.AccountId, 
+                    l.Account.Code, 
+                    l.Account.NameAr, 
+                    l.Account.NameEn, 
+                    l.Account.AccountType,
+                    CostCenterId = request.GroupByCostCenter ? l.CostCenterId : (int?)null,
+                    CostCenterName = request.GroupByCostCenter ? (l.CostCenter != null ? l.CostCenter.NameAr : null) : null
+                })
                 .Select(g => new
                 {
                     AccountId = g.Key.AccountId,
                     AccountCode = g.Key.Code,
                     AccountName = g.Key.NameEn ?? g.Key.NameAr,
                     AccountType = g.Key.AccountType,
+                    CostCenterId = g.Key.CostCenterId,
+                    CostCenterName = g.Key.CostCenterName,
                     TotalDebit = g.Sum(x => x.Debit),
                     TotalCredit = g.Sum(x => x.Credit)
-                })
-                .ToListAsync(cancellationToken);
+                });
+
+            var rawData = await resultsQuery.ToListAsync(cancellationToken);
 
             var revenues = new List<IncomeStatementItemDto>();
             var expenses = new List<IncomeStatementItemDto>();
 
-            // 5. CALCULATE VALUES & 6. CLASSIFICATION & 7. FILTER ZERO ACCOUNTS
             foreach (var item in rawData)
             {
                 if (item.AccountType == AccountType.Revenue)
@@ -63,7 +77,9 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
-                            Amount = amount
+                            Amount = amount,
+                            CostCenterId = item.CostCenterId,
+                            CostCenterName = item.CostCenterName
                         });
                     }
                 }
@@ -77,28 +93,20 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
-                            Amount = amount
+                            Amount = amount,
+                            CostCenterId = item.CostCenterId,
+                            CostCenterName = item.CostCenterName
                         });
                     }
                 }
-                // Balance sheet accounts (Asset, Liability, Equity) are ignored for P&L
             }
 
-            // 12. ORDERING
             revenues = revenues.OrderBy(r => r.AccountCode).ToList();
             expenses = expenses.OrderBy(e => e.AccountCode).ToList();
 
-            // 8. TOTALS
             decimal totalRevenue = revenues.Sum(r => r.Amount);
             decimal totalExpenses = expenses.Sum(e => e.Amount);
-
-            // 9. NET PROFIT
             decimal netProfit = totalRevenue - totalExpenses;
-
-            // 10. VALIDATION
-            // We just ensure calculation logic holds (handled implicitly by math above).
-            // A more thorough validation might check if NetProfit calculations missed any odd entries,
-            // but the structured separation handled that mathematically already.
 
             return Result<IncomeStatementDto>.Ok(new IncomeStatementDto
             {

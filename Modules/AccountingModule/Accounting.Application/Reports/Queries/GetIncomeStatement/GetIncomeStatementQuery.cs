@@ -9,5 +9,7 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
     {
         public DateTime FromDate { get; set; }
         public DateTime ToDate { get; set; }
+        public int? CostCenterId { get; set; }
+        public bool GroupByCostCenter { get; set; }
     }
 }

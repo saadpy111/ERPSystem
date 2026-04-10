@@ -13,5 +13,6 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
     {
         /// <summary>Cut-off date for the report (inclusive).</summary>
         public DateTime AsOfDate { get; set; }
+        public int? CostCenterId { get; set; }
     }
 }

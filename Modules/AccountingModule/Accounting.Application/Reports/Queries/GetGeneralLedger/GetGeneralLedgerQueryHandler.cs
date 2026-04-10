@@ -1,4 +1,4 @@
-using Accounting.Application.Interfaces.Contexts;
+using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
@@ -14,11 +14,11 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 {
     public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuery, Result<List<LedgerDto>>>
     {
-        private readonly IAccountingDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetGeneralLedgerQueryHandler(IAccountingDbContext context)
+        public GetGeneralLedgerQueryHandler(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<List<LedgerDto>>> Handle(GetGeneralLedgerQuery request, CancellationToken cancellationToken)
@@ -28,11 +28,17 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
             // Fetch running balance mathematically for prior entries
             if (request.FromDate.HasValue)
             {
-                var priorEntries = await _context.JournalEntryLines
-                    .AsNoTracking()
+                var priorQuery = _unitOfWork.JournalEntryLines.Query()
                     .Where(l => l.AccountId == request.AccountId && 
                                 l.JournalEntry.Status == JournalStatus.Posted && 
-                                l.JournalEntry.Date < request.FromDate.Value)
+                                l.JournalEntry.Date < request.FromDate.Value);
+
+                if (request.CostCenterId.HasValue)
+                {
+                    priorQuery = priorQuery.Where(l => l.CostCenterId == request.CostCenterId.Value);
+                }
+
+                var priorEntries = await priorQuery
                     .GroupBy(l => l.AccountId)
                     .Select(g => new { Balance = g.Sum(x => x.Debit) - g.Sum(x => x.Credit) })
                     .FirstOrDefaultAsync(cancellationToken);
@@ -40,9 +46,13 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
                 openingBalance = priorEntries?.Balance ?? 0m;
             }
 
-            var query = _context.JournalEntryLines
-                .AsNoTracking()
+            var query = _unitOfWork.JournalEntryLines.Query()
                 .Where(l => l.AccountId == request.AccountId && l.JournalEntry.Status == JournalStatus.Posted);
+
+            if (request.CostCenterId.HasValue)
+            {
+                query = query.Where(l => l.CostCenterId == request.CostCenterId.Value);
+            }
 
             if (request.FromDate.HasValue)
             {
@@ -54,17 +64,18 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
                 query = query.Where(l => l.JournalEntry.Date <= request.ToDate.Value);
             }
 
-            // Using straight projection natively explicitly avoiding standard includes resolving nested trees natively
             var entries = await query
                 .Select(l => new
                 {
                     Date = l.JournalEntry.Date,
-                    JournalEntryId = l.JournalEntryId, // needed for deterministic sorting
+                    JournalEntryId = l.JournalEntryId,
                     Reference = l.JournalEntry.Reference,
                     Description = l.Description ?? l.JournalEntry.Description ?? "N/A",
                     Debit = l.Debit,
                     Credit = l.Credit,
-                    PartnerId = l.PartnerId
+                    PartnerId = l.PartnerId,
+                    CostCenterId = l.CostCenterId,
+                    CostCenterName = l.CostCenter != null ? l.CostCenter.NameAr : null
                 })
                 .OrderBy(x => x.Date)
                 .ThenBy(x => x.JournalEntryId)
@@ -72,7 +83,6 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 
             var result = new List<LedgerDto>();
             
-            // Push Opening Balance entry intelligently if it exists natively protecting precision issues securely
             if (request.FromDate.HasValue && openingBalance != 0m)
             {
                 result.Add(new LedgerDto
@@ -83,7 +93,8 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
                     Debit = openingBalance > 0m ? openingBalance : 0m,
                     Credit = openingBalance < 0m ? Math.Abs(openingBalance) : 0m,
                     RunningBalance = openingBalance,
-                    PartnerId = null
+                    PartnerId = null,
+                    CostCenterId = request.CostCenterId
                 });
             }
 
@@ -101,7 +112,9 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
                     Debit = entry.Debit,
                     Credit = entry.Credit,
                     RunningBalance = runningBalance,
-                    PartnerId = entry.PartnerId
+                    PartnerId = entry.PartnerId,
+                    CostCenterId = entry.CostCenterId,
+                    CostCenterName = entry.CostCenterName
                 });
             }
 

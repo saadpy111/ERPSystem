@@ -33,7 +33,7 @@ namespace Accounting.Application.Features.CostCenters.Queries.GetCostCentersList
         {
             return await _context.CostCenters
                 .AsNoTracking()
-                .Select(c => new CostCenterDto { Id = c.Id, NameAr = c.Name })
+                .Select(c => new CostCenterDto { Id = c.Id, NameAr = c.NameAr })
                 .ToListAsync(cancellationToken);
         }
     }

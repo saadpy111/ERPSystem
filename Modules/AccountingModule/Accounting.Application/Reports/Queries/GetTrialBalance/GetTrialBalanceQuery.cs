@@ -10,5 +10,6 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
     {
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public int? CostCenterId { get; set; }
     }
 }

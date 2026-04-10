@@ -11,5 +11,6 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
         public int AccountId { get; set; }
         public DateTime? FromDate { get; set; }
         public DateTime? ToDate { get; set; }
+        public int? CostCenterId { get; set; }
     }
 }

@@ -25,5 +25,6 @@ namespace Accounting.Application.Features.Vouchers.Commands.CreateVoucher
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public int CurrencyId { get; set; }
+        public int? CostCenterId { get; set; }
     }
 }

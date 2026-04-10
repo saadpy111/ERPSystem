@@ -76,5 +76,13 @@ namespace Accounting.Persistence.Common
         {
             return await _dbSet.CountAsync(predicate);
         }
+
+        /// <summary>
+        /// Query() is exposed for reporting purposes only and should not be used in domain/business logic.
+        /// </summary>
+        public virtual IQueryable<T> Query()
+        {
+            return _dbSet.AsNoTracking();
+        }
     }
 }

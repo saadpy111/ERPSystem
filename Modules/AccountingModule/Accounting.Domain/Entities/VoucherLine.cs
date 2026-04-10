@@ -9,9 +9,11 @@ namespace Accounting.Domain.Entities
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public int CurrencyId { get; set; }
+        public int? CostCenterId { get; set; }
 
         public virtual Voucher Voucher { get; set; } = null!;
         public virtual Account Account { get; set; } = null!;
         public virtual Currency Currency { get; set; } = null!;
+        public virtual CostCenter? CostCenter { get; set; }
     }
 }

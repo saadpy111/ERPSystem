@@ -12,7 +12,9 @@ namespace Accounting.Persistence.Configurations
 
             builder.HasKey(e => e.Id);
             
-            builder.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.Code).HasMaxLength(50).IsRequired();
+            builder.Property(e => e.NameAr).HasMaxLength(200).IsRequired();
+            builder.Property(e => e.NameEn).HasMaxLength(200);
 
             builder.HasOne(e => e.Parent)
                 .WithMany(e => e.Children)
@@ -20,6 +22,7 @@ namespace Accounting.Persistence.Configurations
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasIndex(e => e.TenantId);
+            builder.HasIndex(e => new { e.TenantId, e.Code }).IsUnique();
             builder.HasIndex(e => new { e.TenantId, e.Id });
             builder.HasIndex(e => e.ParentId);
         }

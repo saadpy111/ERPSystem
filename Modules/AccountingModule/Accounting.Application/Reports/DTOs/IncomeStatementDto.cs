@@ -20,7 +20,9 @@ namespace Accounting.Application.Reports.DTOs
     {
         public int AccountId { get; init; }
         public string AccountCode { get; init; } = null!;
-        public string AccountName { get; init; } = null!;
-        public decimal Amount { get; init; }
+        public string AccountName { get; set; } = null!;
+        public decimal Amount { get; set; }
+        public int? CostCenterId { get; init; }
+        public string? CostCenterName { get; init; }
     }
 }

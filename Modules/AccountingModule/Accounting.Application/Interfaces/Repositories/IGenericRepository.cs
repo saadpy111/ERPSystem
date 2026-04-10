@@ -16,5 +16,12 @@ namespace Accounting.Application.Interfaces.Repositories
         Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate);
         Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
         Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+
+        /// <summary>
+        /// Provides access to the underlying IQueryable for reporting purposes.
+        /// WARNING: This should only be used in the Reporting/Queries layer.
+        /// DO NOT use this in Commands or domain business logic.
+        /// </summary>
+        System.Linq.IQueryable<T> Query();
     }
 }

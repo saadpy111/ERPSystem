@@ -44,7 +44,8 @@ namespace Accounting.Application.Features.Vouchers.Commands.CreateVoucher
                     AccountId = lineDto.AccountId,
                     Debit = lineDto.Debit,
                     Credit = lineDto.Credit,
-                    CurrencyId = lineDto.CurrencyId
+                    CurrencyId = lineDto.CurrencyId,
+                    CostCenterId = lineDto.CostCenterId
                 });
             }
 

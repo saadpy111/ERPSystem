@@ -31,6 +31,7 @@ namespace Accounting.Application.Posting.Strategies
                 AccountId = line.AccountId,
                 Debit = line.Debit,
                 Credit = line.Credit,
+                CostCenterId = line.CostCenterId,
                 Description = voucher.Description
             }).ToList();
         }

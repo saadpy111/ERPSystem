@@ -1,10 +1,10 @@
-using Accounting.Application.Common.Exceptions;
-using Accounting.Application.Interfaces.Contexts;
+using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
 using Accounting.Application.Common.Models;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,20 +14,26 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
 {
     public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, Result<BalanceSheetDto>>
     {
-        private readonly IAccountingDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetBalanceSheetQueryHandler(IAccountingDbContext context)
+        public GetBalanceSheetQueryHandler(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<BalanceSheetDto>> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
         {
-            // 3. DATA SOURCE: Only Posted entries, Date <= AsOfDate
-            // 11. PERFORMANCE: AsNoTracking(), Select, no Include, group in DB directly
-            var rawData = await _context.JournalEntryLines
-                .AsNoTracking()
-                .Where(l => l.JournalEntry.Status == JournalStatus.Posted && l.JournalEntry.Date <= request.AsOfDate)
+            // Note: Cost Center filtering may produce unbalanced results because Balance Sheet is cumulative across all transactions.
+            
+            var query = _unitOfWork.JournalEntryLines.Query()
+                .Where(l => l.JournalEntry.Status == JournalStatus.Posted && l.JournalEntry.Date <= request.AsOfDate);
+
+            if (request.CostCenterId.HasValue)
+            {
+                query = query.Where(l => l.CostCenterId == request.CostCenterId.Value);
+            }
+
+            var rawData = await query
                 .GroupBy(l => new { l.AccountId, l.Account.Code, l.Account.NameAr, l.Account.NameEn, l.Account.AccountType })
                 .Select(g => new
                 {
@@ -46,7 +52,6 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
 
             decimal netIncome = 0;
 
-            // 5. CALCULATE BALANCE & 6. CLASSIFICATION & 7. FILTER ZERO ACCOUNTS
             foreach (var item in rawData)
             {
                 if (item.AccountType == AccountType.Asset)
@@ -59,7 +64,8 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
-                            Amount = balance
+                            Amount = balance,
+                            CostCenterId = request.CostCenterId
                         });
                     }
                 }
@@ -73,7 +79,8 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
-                            Amount = balance
+                            Amount = balance,
+                            CostCenterId = request.CostCenterId
                         });
                     }
                 }
@@ -87,52 +94,49 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
-                            Amount = balance
+                            Amount = balance,
+                            CostCenterId = request.CostCenterId
                         });
                     }
                 }
                 else if (item.AccountType == AccountType.Revenue)
                 {
-                    // Revenue adds to Retained Earnings (Equity)
                     netIncome += (item.TotalCredit - item.TotalDebit);
                 }
                 else if (item.AccountType == AccountType.Expense)
                 {
-                    // Expense reduces Retained Earnings (Equity)
                     netIncome -= (item.TotalDebit - item.TotalCredit);
                 }
             }
 
-            // In order to make Assets = Liabilities + Equity balance, we must include the current year's
-            // Net Income into the Equity section (Calculated Retained Earnings).
             if (netIncome != 0)
             {
                 equity.Add(new BalanceSheetItemDto
                 {
-                    AccountId = 0, // Virtual Account
+                    AccountId = 0,
                     AccountCode = "-",
                     AccountName = "Calculated Net Income",
-                    Amount = netIncome
+                    Amount = netIncome,
+                    CostCenterId = request.CostCenterId
                 });
             }
 
-            // 12. ORDERING
             assets = assets.OrderBy(a => a.AccountCode).ToList();
             liabilities = liabilities.OrderBy(l => l.AccountCode).ToList();
             equity = equity.OrderBy(e => e.AccountCode).ToList();
 
-            // 9. TOTALS
             decimal totalAssets = assets.Sum(a => a.Amount);
             decimal totalLiabilities = liabilities.Sum(l => l.Amount);
             decimal totalEquity = equity.Sum(e => e.Amount);
 
-            // 10. VALIDATION
-            if (Math.Abs(totalAssets - (totalLiabilities + totalEquity)) > 0.01m)
+            // Validation logic: Skip if filtered by Cost Center
+            bool isBalanced = Math.Abs(totalAssets - (totalLiabilities + totalEquity)) <= 0.01m;
+            
+            if (!request.CostCenterId.HasValue && !isBalanced)
             {
                 return Result<BalanceSheetDto>.Failure($"Balance Sheet mismatch: Total Assets ({totalAssets}) != Total Liabilities ({totalLiabilities}) + Total Equity ({totalEquity}).");
             }
 
-            // 8. STRUCTURE OUTPUT
             return Result<BalanceSheetDto>.Ok(new BalanceSheetDto
             {
                 Assets = assets,
@@ -141,7 +145,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                 TotalAssets = totalAssets,
                 TotalLiabilities = totalLiabilities,
                 TotalEquity = totalEquity,
-                IsBalanced = true,
+                IsBalanced = isBalanced,
                 AsOfDate = request.AsOfDate
             });
         }

@@ -34,5 +34,7 @@ namespace Accounting.Application.Reports.DTOs
         public string  AccountCode { get; init; } = null!;
         public string  AccountName { get; init; } = null!;
         public decimal Amount      { get; init; }
+        public int?    CostCenterId   { get; init; }
+        public string? CostCenterName { get; init; }
     }
 }

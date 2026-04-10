@@ -1,4 +1,4 @@
-using Accounting.Application.Interfaces.Contexts;
+using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Reports.DTOs;
 using Accounting.Domain.Enums;
 using MediatR;
@@ -13,18 +13,22 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
 {
     public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery, Result<List<TrialBalanceDto>>>
     {
-        private readonly IAccountingDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public GetTrialBalanceQueryHandler(IAccountingDbContext context)
+        public GetTrialBalanceQueryHandler(IUnitOfWork unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<List<TrialBalanceDto>>> Handle(GetTrialBalanceQuery request, CancellationToken cancellationToken)
         {
-            var query = _context.JournalEntryLines
-                .AsNoTracking()
-                .Where(l => l.JournalEntry.Status == JournalStatus.Posted); // Only Posted entries
+            var query = _unitOfWork.JournalEntryLines.Query()
+                .Where(l => l.JournalEntry.Status == JournalStatus.Posted);
+
+            if (request.CostCenterId.HasValue)
+            {
+                query = query.Where(l => l.CostCenterId == request.CostCenterId.Value);
+            }
 
             if (request.FromDate.HasValue)
             {
@@ -55,7 +59,6 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
                 {
                     decimal balance = 0m;
                     
-                    // Natural balances calculation based on account type
                     if (x.AccountType == AccountType.Asset || x.AccountType == AccountType.Expense)
                     {
                         balance = x.TotalDebit - x.TotalCredit;
@@ -72,7 +75,8 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
                         AccountName = x.AccountName,
                         Debit = x.TotalDebit,
                         Credit = x.TotalCredit,
-                        Balance = balance
+                        Balance = balance,
+                        CostCenterId = request.CostCenterId
                     };
                 })
                 .OrderBy(x => x.AccountCode)

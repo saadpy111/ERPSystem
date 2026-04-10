@@ -30,6 +30,11 @@ namespace Accounting.Persistence.Configurations
                 .HasForeignKey(e => e.CurrencyId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne(e => e.CostCenter)
+                .WithMany()
+                .HasForeignKey(e => e.CostCenterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Indexes
             builder.HasIndex(e => e.TenantId);
             builder.HasIndex(e => new { e.TenantId, e.Id });

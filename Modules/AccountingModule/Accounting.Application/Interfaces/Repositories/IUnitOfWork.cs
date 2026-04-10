@@ -20,6 +20,8 @@ namespace Accounting.Application.Interfaces.Repositories
         IPayableRepository Payables { get; }
         IGenericRepository<PayablePayment> PayablePayments { get; }
         IGenericRepository<VoucherLine> VoucherLines { get; }
+        ICostCenterRepository CostCenters { get; }
+        IGenericRepository<JournalEntryLine> JournalEntryLines { get; }
 
         Task<int> SaveChangesAsync();
         Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken = default);
