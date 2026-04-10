@@ -83,5 +83,13 @@ namespace SharedKernel.Core.Constants.Permissions
         public const string PayablesView = "Permissions.Accounting.Payables.View";
         public const string PayablesCreate = "Permissions.Accounting.Payables.Create";
         public const string PayablesPay = "Permissions.Accounting.Payables.Pay";
+
+        // ===== BUDGETS =====
+        public const string BudgetsView = "Permissions.Accounting.Budgets.View";
+        public const string BudgetsCreate = "Permissions.Accounting.Budgets.Create";
+        public const string BudgetsEdit = "Permissions.Accounting.Budgets.Edit";
+        public const string BudgetsDelete = "Permissions.Accounting.Budgets.Delete";
+        public const string BudgetsReport = "Permissions.Accounting.Budgets.Report";
     }
 }
+

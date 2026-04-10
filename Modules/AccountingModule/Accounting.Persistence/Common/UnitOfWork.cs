@@ -27,6 +27,11 @@ namespace Accounting.Persistence.Common
         private IGenericRepository<VoucherLine>? _voucherLineRepository;
         private ICostCenterRepository? _costCenterRepository;
         private IGenericRepository<JournalEntryLine>? _journalEntryLineRepository;
+        private IBudgetRepository? _budgetRepository;
+        private IBudgetLineRepository? _budgetLineRepository;
+        private IFiscalYearRepository? _fiscalYearRepository;
+
+
 
         public UnitOfWork(AccountingDbContext context)
         {
@@ -48,6 +53,11 @@ namespace Accounting.Persistence.Common
         public IGenericRepository<VoucherLine> VoucherLines => _voucherLineRepository ??= new GenericRepository<VoucherLine>(_context);
         public ICostCenterRepository CostCenters => _costCenterRepository ??= new CostCenterRepository(_context);
         public IGenericRepository<JournalEntryLine> JournalEntryLines => _journalEntryLineRepository ??= new GenericRepository<JournalEntryLine>(_context);
+        public IBudgetRepository Budgets => _budgetRepository ??= new BudgetRepository(_context);
+        public IBudgetLineRepository BudgetLines => _budgetLineRepository ??= new BudgetLineRepository(_context);
+        public IFiscalYearRepository FiscalYears => _fiscalYearRepository ??= new FiscalYearRepository(_context);
+
+
 
         public async Task<int> SaveChangesAsync()
         {

@@ -47,8 +47,10 @@ namespace Accounting.Persistence.Configurations
             builder.HasIndex(e => e.AccountId);
             builder.HasIndex(e => e.PartnerId);
             builder.HasIndex(e => e.CostCenterId);
+            builder.HasIndex(e => new { e.AccountId, e.CostCenterId });
             builder.HasIndex(e => e.CurrencyId);
             builder.HasIndex(e => e.TenantId);
         }
     }
 }
+

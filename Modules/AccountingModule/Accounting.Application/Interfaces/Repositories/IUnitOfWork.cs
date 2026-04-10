@@ -22,8 +22,13 @@ namespace Accounting.Application.Interfaces.Repositories
         IGenericRepository<VoucherLine> VoucherLines { get; }
         ICostCenterRepository CostCenters { get; }
         IGenericRepository<JournalEntryLine> JournalEntryLines { get; }
+        IBudgetRepository Budgets { get; }
+        IBudgetLineRepository BudgetLines { get; }
+        IFiscalYearRepository FiscalYears { get; }
 
         Task<int> SaveChangesAsync();
+
+
         Task<T> ExecuteTransactionAsync<T>(Func<Task<T>> operation, CancellationToken cancellationToken = default);
     }
 }
