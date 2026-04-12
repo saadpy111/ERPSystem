@@ -17,7 +17,7 @@ namespace Accounting.Application.Services.Implementations
     {
         private readonly IUnitOfWork _unitOfWork;
 
-        public BudgetControlService(IUnitOfWork unitOfWork)
+    public BudgetControlService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -44,10 +44,10 @@ namespace Accounting.Application.Services.Implementations
                 var result = await CheckSingleAsync(item.AccountId, item.CostCenterId, item.Amount, date);
 
                 if (!result.Success)
-                    return result;               // hard failure — stop immediately
+                    return result;
 
                 if (result.HasWarning)
-                    warning = result;            // keep the first warning; keep checking
+                    warning = result;
             }
 
             return warning ?? Result.Ok();
@@ -66,26 +66,30 @@ namespace Accounting.Application.Services.Implementations
             if (!budgetResult.Success)
                 return budgetResult;
 
-            var budget = budgetResult.Data!;
+            var budget = budgetResult.Data;
 
-            // 2. Resolve the matching BudgetLine (exact → global fallback)
+            //  FIX: No budget → allow
+            if (budget == null)
+                return Result.Ok();
+
+            // 2. Resolve the matching BudgetLine
             var lineResult = ResolveBudgetLine(budget, accountId, costCenterId, date);
             if (!lineResult.Success)
                 return lineResult;
 
-            // 3. No BudgetLine found → allow transaction
+            // 3. No BudgetLine → allow
             if (lineResult.Data == null)
                 return Result.Ok();
 
             var line = lineResult.Data;
 
-            // 4. Calculate actuals from posted journal entry lines
+            // 4. Calculate actuals
             decimal actual = await _unitOfWork.JournalEntries
                 .GetActualAmountAsync(accountId, line.CostCenterId, line.StartDate, line.EndDate);
 
             decimal newAmount = actual + amount;
 
-            // 5. Enforce decision
+            // 5. Enforce
             if (newAmount > line.PlannedAmount)
             {
                 string msg = $"Budget exceeded for Account {accountId}" +
@@ -102,10 +106,6 @@ namespace Accounting.Application.Services.Implementations
 
         // ─── Budget Selection ──────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Loads all Active budgets whose FiscalYear contains <paramref name="date"/>
-        /// and enforces the rule that EXACTLY ONE Active budget exists per period.
-        /// </summary>
         private async Task<Result<Budget>> ResolveBudgetAsync(DateTime date)
         {
             var activeBudgets = (await _unitOfWork.Budgets.GetActiveBudgetsForDateAsync(date)).ToList();
@@ -115,26 +115,23 @@ namespace Accounting.Application.Services.Implementations
 
             if (activeBudgets.Count > 1)
                 return Result<Budget>.Failure(
-                    $"Multiple active budgets found for the fiscal year containing {date:yyyy-MM-dd}. " +
-                    "Only one active budget is permitted per fiscal year.");
+                    $"Multiple active budgets found for {date:yyyy-MM-dd}. Only one is allowed.");
 
             return Result<Budget>.Ok(activeBudgets[0]);
         }
 
         // ─── BudgetLine Resolution ─────────────────────────────────────────────────
 
-        /// <summary>
-        /// Tries to find EXACTLY ONE matching BudgetLine.
-        /// Priority: Exact (AccountId + CostCenterId) → Global (AccountId + null).
-        /// <para>Returns null Data if no line exists (allow).</para>
-        /// <para>Returns Failure if more than one line is found (data issue).</para>
-        /// </summary>
         private Result<BudgetLine?> ResolveBudgetLine(
             Budget budget,
             int accountId,
             int? costCenterId,
             DateTime date)
         {
+            //  FIX: Null safety
+            if (budget == null || budget.Lines == null || !budget.Lines.Any())
+                return Result<BudgetLine?>.Ok(null);
+
             // --- Exact match ---
             var exactMatches = budget.Lines
                 .Where(l =>
@@ -146,13 +143,12 @@ namespace Accounting.Application.Services.Implementations
 
             if (exactMatches.Count > 1)
                 return Result<BudgetLine?>.Failure(
-                    $"Multiple budget lines found for Account {accountId} / CostCenter {costCenterId}. " +
-                    "This is a data integrity issue — please correct the budget configuration.");
+                    $"Multiple budget lines for Account {accountId} / CostCenter {costCenterId}.");
 
             if (exactMatches.Count == 1)
                 return Result<BudgetLine?>.Ok(exactMatches[0]);
 
-            // --- Global fallback (only if a specific cost center was requested) ---
+            // --- Global fallback ---
             if (costCenterId.HasValue)
             {
                 var globalMatches = budget.Lines
@@ -165,15 +161,14 @@ namespace Accounting.Application.Services.Implementations
 
                 if (globalMatches.Count > 1)
                     return Result<BudgetLine?>.Failure(
-                        $"Multiple global budget lines found for Account {accountId} (null CostCenter). " +
-                        "This is a data integrity issue — please correct the budget configuration.");
+                        $"Multiple global budget lines for Account {accountId}.");
 
                 if (globalMatches.Count == 1)
                     return Result<BudgetLine?>.Ok(globalMatches[0]);
             }
 
-            // --- No line found → allow ---
             return Result<BudgetLine?>.Ok(null);
         }
     }
+
 }

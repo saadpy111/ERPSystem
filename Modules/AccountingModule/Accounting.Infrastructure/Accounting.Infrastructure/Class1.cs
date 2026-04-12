@@ -1,4 +1,4 @@
-﻿namespace Accounting.Application
+﻿namespace Accounting.Infrastructure
 {
     public class Class1
     {

@@ -97,6 +97,9 @@ namespace Accounting.Application.Posting.Services
                 existingEntry.TotalCredit = lines.Sum(l => l.Credit);
 
                 _unitOfWork.JournalEntries.Update(existingEntry);
+
+                await _unitOfWork.SaveChangesAsync();
+
                 return Result<int>.Ok(existingEntry.Id);
             }
             else
@@ -124,6 +127,8 @@ namespace Accounting.Application.Posting.Services
                 };
 
                 await _unitOfWork.JournalEntries.AddAsync(newEntry);
+                await _unitOfWork.SaveChangesAsync();
+
                 return Result<int>.Ok(newEntry.Id);
             }
         }

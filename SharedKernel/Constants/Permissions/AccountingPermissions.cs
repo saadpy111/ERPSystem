@@ -30,6 +30,12 @@ namespace SharedKernel.Core.Constants.Permissions
         public const string ReportsAccountStatement = "Permissions.Accounting.Reports.AccountStatement";
         public const string ReportsBalanceSheet = "Permissions.Accounting.Reports.BalanceSheet";
         public const string ReportsIncomeStatement = "Permissions.Accounting.Reports.IncomeStatement";
+        public const string ReportsBudgetVsActual = "Permissions.Accounting.Reports.BudgetVsActual";
+        public const string ReportsExpenseAnalysis = "Permissions.Accounting.Reports.ExpenseAnalysis";
+        public const string ReportsProfitability = "Permissions.Accounting.Reports.Profitability";
+
+        // ===== DASHBOARD =====
+        public const string DashboardView = "Permissions.Accounting.Dashboard.View";
 
         // ===== PARTNERS =====
         public const string PartnersView = "Permissions.Accounting.Partners.View";

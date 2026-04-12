@@ -38,6 +38,7 @@ namespace Accounting.Persistence.DependencyInjection
             services.AddScoped<Accounting.Application.Interfaces.External.IInventoryRepository, Accounting.Persistence.External.Fakes.FakeInventoryRepository>();
 
             services.AddScoped<Accounting.Application.Interfaces.Contexts.IAccountingDbContext>(provider => provider.GetRequiredService<AccountingDbContext>());
+            services.AddScoped<Accounting.Application.Interfaces.Services.IReportExportService, Accounting.Persistence.External.Services.ReportExportService>();
 
             return services;
         }

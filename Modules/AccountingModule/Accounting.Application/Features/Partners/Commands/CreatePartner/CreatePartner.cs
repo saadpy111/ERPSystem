@@ -35,6 +35,7 @@ namespace Accounting.Application.Features.Partners.Commands.CreatePartner
         {
             var partner = new Partner
             {
+                  
                 NameAr = request.NameAr,
                 IsActive = true
             };
