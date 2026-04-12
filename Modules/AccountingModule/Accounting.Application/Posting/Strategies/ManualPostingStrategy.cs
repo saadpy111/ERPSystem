@@ -1,3 +1,4 @@
+using Accounting.Application.Common.Models;
 using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Posting.Interfaces;
 using Accounting.Domain.Entities;
@@ -20,13 +21,13 @@ namespace Accounting.Application.Posting.Strategies
 
         public bool CanHandle(SourceType type) => type == SourceType.Manual;
 
-        public async Task<List<JournalEntryLine>> GenerateLinesAsync(IPostingRequest request)
+        public async Task<Result<List<JournalEntryLine>>> GenerateLinesAsync(IPostingRequest request)
         {
             var journalEntry = await _unitOfWork.JournalEntries.GetByIdWithLinesAsync(request.SourceId);
             if (journalEntry == null)
-                throw new Exception($"Journal entry with ID {request.SourceId} not found.");
+                return Result<List<JournalEntryLine>>.Failure($"Journal entry with ID {request.SourceId} not found.");
 
-            return journalEntry.Lines.ToList();
+            return Result<List<JournalEntryLine>>.Ok(journalEntry.Lines.ToList());
         }
     }
 }

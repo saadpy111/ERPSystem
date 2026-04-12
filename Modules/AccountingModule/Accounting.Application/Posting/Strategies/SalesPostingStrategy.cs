@@ -1,3 +1,4 @@
+using Accounting.Application.Common.Models;
 using Accounting.Application.Interfaces.External;
 using Accounting.Application.Posting.Interfaces;
 using Accounting.Application.Services.Interfaces;
@@ -21,18 +22,25 @@ namespace Accounting.Application.Posting.Strategies
 
         public bool CanHandle(SourceType type) => type == SourceType.Sales;
 
-        public async Task<List<JournalEntryLine>> GenerateLinesAsync(IPostingRequest request)
+        public async Task<Result<List<JournalEntryLine>>> GenerateLinesAsync(IPostingRequest request)
         {
             var sales = await _salesRepository.GetByIdAsync(request.SourceId);
-            
+            if (sales == null)
+                return Result<List<JournalEntryLine>>.Failure($"Sales with ID {request.SourceId} not found.");
+
             var cashAccountId = await _mappingService.GetAccountIdAsync(SourceType.Sales, "Cash");
             var revenueAccountId = await _mappingService.GetAccountIdAsync(SourceType.Sales, "Revenue");
 
-            return new List<JournalEntryLine>
+            if (cashAccountId <= 0 || revenueAccountId <= 0)
+                return Result<List<JournalEntryLine>>.Failure("Missing account mapping for Sales posting.");
+
+            var lines = new List<JournalEntryLine>
             {
                 new JournalEntryLine { AccountId = cashAccountId, Debit = sales.TotalAmount, Credit = 0, Description = "Cash Receipt" },
                 new JournalEntryLine { AccountId = revenueAccountId, Debit = 0, Credit = sales.TotalAmount, Description = "Sales Revenue" }
             };
+
+            return Result<List<JournalEntryLine>>.Ok(lines);
         }
     }
 }

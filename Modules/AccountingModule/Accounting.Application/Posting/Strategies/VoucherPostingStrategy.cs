@@ -1,3 +1,4 @@
+using Accounting.Application.Common.Models;
 using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Posting.Interfaces;
 using Accounting.Domain.Entities;
@@ -20,13 +21,13 @@ namespace Accounting.Application.Posting.Strategies
 
         public bool CanHandle(SourceType type) => type == SourceType.Voucher;
 
-        public async Task<List<JournalEntryLine>> GenerateLinesAsync(IPostingRequest request)
+        public async Task<Result<List<JournalEntryLine>>> GenerateLinesAsync(IPostingRequest request)
         {
             var voucher = await _unitOfWork.Vouchers.GetByIdWithLinesAsync(request.SourceId);
             if (voucher == null) 
-                throw new Exception($"Voucher with ID {request.SourceId} not found.");
+                return Result<List<JournalEntryLine>>.Failure($"Voucher with ID {request.SourceId} not found.");
 
-            return voucher.Lines.Select(line => new JournalEntryLine
+            var lines = voucher.Lines.Select(line => new JournalEntryLine
             {
                 AccountId = line.AccountId,
                 Debit = line.Debit,
@@ -34,6 +35,8 @@ namespace Accounting.Application.Posting.Strategies
                 CostCenterId = line.CostCenterId,
                 Description = voucher.Description
             }).ToList();
+
+            return Result<List<JournalEntryLine>>.Ok(lines);
         }
     }
 }

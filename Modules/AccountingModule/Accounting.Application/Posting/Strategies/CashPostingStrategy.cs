@@ -1,3 +1,4 @@
+using Accounting.Application.Common.Models;
 using Accounting.Application.Interfaces.Contexts;
 using Accounting.Application.Posting.Interfaces;
 using Accounting.Domain.Entities;
@@ -21,23 +22,23 @@ namespace Accounting.Application.Posting.Strategies
 
         public bool CanHandle(SourceType type) => type == SourceType.CashReceipt || type == SourceType.CashPayment;
 
-        public async Task<List<JournalEntryLine>> GenerateLinesAsync(IPostingRequest request)
+        public async Task<Result<List<JournalEntryLine>>> GenerateLinesAsync(IPostingRequest request)
         {
             var transaction = await _context.CashTransactions
                 .Include(t => t.CashAccount)
                 .FirstOrDefaultAsync(t => t.Id == request.SourceId);
 
             if (transaction == null)
-                throw new BusinessException("Cash transaction not found for posting.");
+                return Result<List<JournalEntryLine>>.Failure("Cash transaction not found for posting.");
 
             if (transaction.CashAccount == null || transaction.CashAccount.AccountId <= 0)
-                throw new BusinessException("Cash Account is missing or lacks a mapped GL AccountId.");
+                return Result<List<JournalEntryLine>>.Failure("Cash Account is missing or lacks a mapped GL AccountId.");
 
             if (transaction.OffsetAccountId <= 0)
-                throw new BusinessException("An OffsetAccountId is strictly required to post a cash transaction.");
+                return Result<List<JournalEntryLine>>.Failure("An OffsetAccountId is strictly required to post a cash transaction.");
 
             if (transaction.Amount <= 0)
-                throw new BusinessException("Cash transaction must have an amount greater than zero.");
+                return Result<List<JournalEntryLine>>.Failure("Cash transaction must have an amount greater than zero.");
 
             var lines = new List<JournalEntryLine>();
 
@@ -87,12 +88,12 @@ namespace Accounting.Application.Posting.Strategies
             }
 
             if (lines.Count < 2)
-                throw new BusinessException("Failed to generate double-entry lines. Minimum 2 lines required.");
+                return Result<List<JournalEntryLine>>.Failure("Failed to generate double-entry lines. Minimum 2 lines required.");
 
             if (lines.Sum(l => l.Debit) != lines.Sum(l => l.Credit))
-                throw new BusinessException("Generated entry lines are unequal, breaking double-entry principles.");
+                return Result<List<JournalEntryLine>>.Failure("Generated entry lines are unequal, breaking double-entry principles.");
 
-            return lines;
+            return Result<List<JournalEntryLine>>.Ok(lines);
         }
     }
 }

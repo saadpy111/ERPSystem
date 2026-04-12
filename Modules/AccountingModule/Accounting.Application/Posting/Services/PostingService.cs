@@ -43,11 +43,22 @@ namespace Accounting.Application.Posting.Services
                 ? await _unitOfWork.JournalEntries.GetByIdAsync(request.SourceId)
                 : null;
 
-            var lines = existingEntry != null
-                ? existingEntry.Lines.ToList()
-                : await strategy.GenerateLinesAsync(request);
+            List<JournalEntryLine> lines;
 
-            if (lines == null || lines.Count < 2)
+            if (existingEntry != null)
+            {
+                lines = existingEntry.Lines.ToList();
+            }
+            else
+            {
+                var generateResult = await strategy.GenerateLinesAsync(request);
+                if (!generateResult.Success)
+                    return Result<int>.Failure(generateResult.Message);
+                
+                lines = generateResult.Data ?? new List<JournalEntryLine>();
+            }
+
+            if (lines.Count < 2)
                 return Result<int>.Failure("Invalid journal entry lines.");
 
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
