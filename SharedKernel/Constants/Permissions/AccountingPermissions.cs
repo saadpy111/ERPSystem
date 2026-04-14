@@ -40,6 +40,8 @@ namespace SharedKernel.Core.Constants.Permissions
         // ===== PARTNERS =====
         public const string PartnersView = "Permissions.Accounting.Partners.View";
         public const string PartnersCreate = "Permissions.Accounting.Partners.Create";
+        public const string PartnersEdit = "Permissions.Accounting.Partners.Edit";
+        public const string PartnersDelete = "Permissions.Accounting.Partners.Delete";
 
         // ===== FISCAL =====
         public const string FiscalView   = "Permissions.Accounting.Fiscal.View";

@@ -33,48 +33,65 @@ namespace Accounting.Application.Features.Receivables.Commands
 
         public async Task<Result<int>> Handle(ReceivePaymentCommand request, CancellationToken cancellationToken)
         {
-            var receivable = await _uow.Receivables.GetByIdAsync(request.ReceivableId);
-            var cashAccount = await _uow.CashAccounts.GetByIdAsync(request.CashAccountId);
-
-            var payment = new ReceivablePayment
+            return await _uow.ExecuteTransactionAsync<Result<int>>(async () =>
             {
-                ReceivableId = request.ReceivableId,
-                Amount = request.Amount,
-                Date = request.Date,
-                CashAccountId = request.CashAccountId,
-                Description = request.Description
-            };
+                var receivable = await _uow.Receivables.GetByIdAsync(request.ReceivableId);
+                if (receivable == null)
+                    return Result<int>.Failure("Receivable not found.");
 
-            await _uow.ReceivablePayments.AddAsync(payment);
+                var cashAccount = await _uow.CashAccounts.GetByIdAsync(request.CashAccountId);
+                if (cashAccount == null)
+                    return Result<int>.Failure("Cash account not found.");
 
-            receivable.PaidAmount += request.Amount;
-            receivable.RemainingAmount -= request.Amount;
-            
-            if (receivable.RemainingAmount == 0)
-            {
-                receivable.Status = ReceivableStatus.Paid;
-            }
-            else
-            {
-                receivable.Status = ReceivableStatus.PartiallyPaid;
-            }
-            
-            _uow.Receivables.Update(receivable);
-            await _uow.SaveChangesAsync();
+                if (request.Amount <= 0)
+                    return Result<int>.Failure("Invalid payment amount.");
 
-            var postCommand = new PostTransactionCommand
-            {
-                SourceType = SourceType.ReceivablePayment,
-                SourceId = payment.Id,
-                Date = request.Date,
-                Description = request.Description ?? $"Payment received for receivable {receivable.Id}",
-                Reference = receivable.Reference,
-                CurrencyId = request.CurrencyId
-            };
-            
-            var postResult = await _mediator.Send(postCommand, cancellationToken);
+                if (request.Amount > receivable.RemainingAmount)
+                    return Result<int>.Failure("Payment exceeds remaining amount.");
 
-            return Result<int>.Ok(payment.Id, "Payment received successfully");
+                var payment = new ReceivablePayment
+                {
+                    ReceivableId = request.ReceivableId,
+                    Amount = request.Amount,
+                    Date = request.Date,
+                    CashAccountId = request.CashAccountId,
+                    Description = request.Description
+                };
+
+                await _uow.ReceivablePayments.AddAsync(payment);
+
+                receivable.PaidAmount += request.Amount;
+                receivable.RemainingAmount -= request.Amount;
+
+                if (receivable.RemainingAmount == 0)
+                    receivable.Status = ReceivableStatus.Paid;
+                else
+                    receivable.Status = ReceivableStatus.PartiallyPaid;
+
+                _uow.Receivables.Update(receivable);
+
+                await _uow.SaveChangesAsync();
+
+                var postCommand = new PostTransactionCommand
+                {
+                    SourceType = SourceType.ReceivablePayment,
+                    SourceId = payment.Id,
+                    Date = request.Date,
+                    Description = request.Description ?? $"Payment received for receivable {receivable.Id}",
+                    Reference = receivable.Reference,
+                    CurrencyId = request.CurrencyId
+                };
+
+                var postResult = await _mediator.Send(postCommand, cancellationToken);
+
+                if (!postResult.Success)
+                    return Result<int>.Failure(postResult.Message);
+
+                await _uow.SaveChangesAsync();
+
+                return Result<int>.Ok(payment.Id, "Payment received successfully");
+            });
         }
     }
+
 }

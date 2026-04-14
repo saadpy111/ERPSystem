@@ -33,36 +33,47 @@ namespace Accounting.Application.Features.Receivables.Commands
 
         public async Task<Result<int>> Handle(CreateReceivableCommand request, CancellationToken cancellationToken)
         {
-            var partner = await _uow.Partners.GetByIdAsync(request.PartnerId);
-            
-            var receivable = new Receivable
+            return await _uow.ExecuteTransactionAsync<Result<int>>(async () =>
             {
-                PartnerId = request.PartnerId,
-                Amount = request.Amount,
-                RemainingAmount = request.Amount,
-                PaidAmount = 0,
-                DueDate = request.DueDate,
-                Status = ReceivableStatus.Open,
-                Reference = request.Reference,
-                Description = request.Description
-            };
+                var partner = await _uow.Partners.GetByIdAsync(request.PartnerId);
+                if (partner == null)
+                    return Result<int>.Failure("Partner not found.");
 
-            await _uow.Receivables.AddAsync(receivable);
-            await _uow.SaveChangesAsync();
+                var receivable = new Receivable
+                {
+                    PartnerId = request.PartnerId,
+                    Amount = request.Amount,
+                    RemainingAmount = request.Amount,
+                    PaidAmount = 0,
+                    DueDate = request.DueDate,
+                    Status = ReceivableStatus.Open,
+                    Reference = request.Reference,
+                    Description = request.Description
+                };
 
-            var postCommand = new PostTransactionCommand
-            {
-                SourceType = SourceType.Receivable,
-                SourceId = receivable.Id,
-                Date = DateTime.UtcNow,
-                Description = request.Description ?? $"Receivable created for {partner.NameEn}",
-                Reference = request.Reference,
-                CurrencyId = request.CurrencyId
-            };
-            
-            var postResult = await _mediator.Send(postCommand, cancellationToken);
-            
-            return Result<int>.Ok(receivable.Id, "Receivable created successfully");
+                await _uow.Receivables.AddAsync(receivable);
+
+                await _uow.SaveChangesAsync();
+
+                var postCommand = new PostTransactionCommand
+                {
+                    SourceType = SourceType.Receivable,
+                    SourceId = receivable.Id,
+                    Date = DateTime.UtcNow,
+                    Description = request.Description ?? $"Receivable created for {partner.NameEn}",
+                    Reference = request.Reference,
+                    CurrencyId = request.CurrencyId
+                };
+
+                var postResult = await _mediator.Send(postCommand, cancellationToken);
+
+                if (!postResult.Success)
+                    return Result<int>.Failure(postResult.Message);
+
+                await _uow.SaveChangesAsync();
+
+                return Result<int>.Ok(receivable.Id, "Receivable created successfully");
+            });
         }
     }
 }

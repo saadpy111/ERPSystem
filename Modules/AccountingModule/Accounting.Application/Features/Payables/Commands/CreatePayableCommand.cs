@@ -33,38 +33,50 @@ namespace Accounting.Application.Features.Payables.Commands
 
         public async Task<Result<int>> Handle(CreatePayableCommand request, CancellationToken cancellationToken)
         {
-            var partner = await _uow.Partners.GetByIdAsync(request.PartnerId);
-
-            var payable = new Payable
+            return await _uow.ExecuteTransactionAsync<Result<int>>(async () =>
             {
-                PartnerId = request.PartnerId,
-                Amount = request.Amount,
-                RemainingAmount = request.Amount,
-                PaidAmount = 0,
-                DueDate = request.DueDate,
-                Status = PayableStatus.Open,
-                Reference = request.Reference,
-                Description = request.Description
-            };
+                var partner = await _uow.Partners.GetByIdAsync(request.PartnerId);
+                if (partner == null)
+                    return Result<int>.Failure("Partner not found.");
 
-            await _uow.Payables.AddAsync(payable);
-            await _uow.SaveChangesAsync();
+                if (request.Amount <= 0)
+                    return Result<int>.Failure("Invalid payable amount.");
 
-            var postCommand = new PostTransactionCommand
-            {
-                SourceType = SourceType.Payable,
-                SourceId = payable.Id,
-                Date = DateTime.UtcNow,
-                Description = request.Description ?? $"Payable created for {partner.NameEn}",
-                Reference = request.Reference,
-                CurrencyId = request.CurrencyId
-            };
-            
-            
-            var postResult = await _mediator.Send(postCommand, cancellationToken);
-             if (!postResult.Success) return Result<int>.Failure(postResult.Message);
+                var payable = new Payable
+                {
+                    PartnerId = request.PartnerId,
+                    Amount = request.Amount,
+                    RemainingAmount = request.Amount,
+                    PaidAmount = 0,
+                    DueDate = request.DueDate,
+                    Status = PayableStatus.Open,
+                    Reference = request.Reference,
+                    Description = request.Description
+                };
 
-            return Result<int>.Ok(payable.Id, "Payable created successfully");
+                await _uow.Payables.AddAsync(payable);
+
+                await _uow.SaveChangesAsync();
+
+                var postCommand = new PostTransactionCommand
+                {
+                    SourceType = SourceType.Payable,
+                    SourceId = payable.Id,
+                    Date = DateTime.UtcNow,
+                    Description = request.Description ?? $"Payable created for {partner.NameEn}",
+                    Reference = request.Reference,
+                    CurrencyId = request.CurrencyId
+                };
+
+                var postResult = await _mediator.Send(postCommand, cancellationToken);
+
+                if (!postResult.Success)
+                    return Result<int>.Failure(postResult.Message);
+
+                await _uow.SaveChangesAsync();
+
+                return Result<int>.Ok(payable.Id, "Payable created successfully");
+            });
         }
     }
 }

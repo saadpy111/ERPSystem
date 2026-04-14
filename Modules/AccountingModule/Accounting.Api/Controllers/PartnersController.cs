@@ -6,9 +6,12 @@ using System.Threading.Tasks;
 using SharedKernel.Authorization;
 using Accounting.Application.Features.Partners.Commands.CreatePartner;
 using Accounting.Application.Features.Partners.Commands.UpdatePartner;
+using Accounting.Application.Features.Partners.Commands.DeletePartner;
+using Accounting.Application.Features.Partners.Commands.TogglePartnerStatus;
 using Accounting.Application.Features.Partners.Queries.GetPartnerById;
 using Accounting.Application.Features.Partners.Queries.GetPartnersList;
 using SharedKernel.Core.Constants.Permissions;
+using Accounting.Domain.Enums;
 
 namespace Accounting.Api.Controllers
 {
@@ -16,7 +19,6 @@ namespace Accounting.Api.Controllers
     [Route("api/accounting/partners")]
     [Produces("application/json")]
     [ApiExplorerSettings(GroupName = "Accounting")]
-
     public class PartnersController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -29,9 +31,9 @@ namespace Accounting.Api.Controllers
         [HttpGet]
         [HasPermission(AccountingPermissions.PartnersView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll([FromQuery] PartnerType? type, CancellationToken cancellationToken)
         {
-            var query = new GetPartnersListQuery();
+            var query = new GetPartnersListQuery { Type = type };
             var result = await _mediator.Send(query, cancellationToken);
             
             if (!result.Success)
@@ -39,7 +41,7 @@ namespace Accounting.Api.Controllers
                 return BadRequest(new { result.Message });
             }
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(new { success = true, data = result.Data });
         }
 
         [HttpGet("{id:int}")]
@@ -53,10 +55,10 @@ namespace Accounting.Api.Controllers
             
             if (!result.Success)
             {
-                return BadRequest(new { result.Message });
+                return NotFound(new { result.Message });
             }
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(new { success = true, data = result.Data });
         }
 
         [HttpPost]
@@ -72,12 +74,12 @@ namespace Accounting.Api.Controllers
                 return BadRequest(new { result.Message });
             }
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return CreatedAtAction(nameof(GetById), new { id = result.Data }, new { success = true, message = result.Message, data = result.Data });
         }
 
         [HttpPut("{id:int}")]
-        [HasPermission(AccountingPermissions.PartnersCreate)] // Same as Create based on specific restrictions requested
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [HasPermission(AccountingPermissions.PartnersEdit)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdatePartnerCommand command, CancellationToken cancellationToken)
@@ -87,8 +89,48 @@ namespace Accounting.Api.Controllers
                 return BadRequest("ID in route must match ID in body.");
             }
 
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message });
+        }
+
+        [HttpDelete("{id:int}")]
+        [HasPermission(AccountingPermissions.PartnersDelete)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Delete([FromRoute] int id, CancellationToken cancellationToken)
+        {
+            var command = new DeletePartnerCommand { Id = id };
+            var result = await _mediator.Send(command, cancellationToken);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message });
+        }
+
+        [HttpPatch("{id:int}/toggle-status")]
+        [HasPermission(AccountingPermissions.PartnersEdit)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ToggleStatus([FromRoute] int id, CancellationToken cancellationToken)
+        {
+            var command = new TogglePartnerStatusCommand { Id = id };
+            var result = await _mediator.Send(command, cancellationToken);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message });
         }
     }
 }
