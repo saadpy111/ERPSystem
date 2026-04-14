@@ -42,6 +42,7 @@ namespace Accounting.Persistence.Configurations
 
             // ── Indexes ────────────────────────────────────────────────────────
             builder.HasIndex(e => new { e.TenantId, e.JournalNumber }).IsUnique();
+            builder.HasIndex(e => new { e.TenantId, e.SourceType, e.SourceId }).IsUnique();
             builder.HasIndex(e => e.TenantId);
             builder.HasIndex(e => new { e.TenantId, e.Id });
             builder.HasIndex(e => e.Date);

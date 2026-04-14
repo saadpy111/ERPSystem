@@ -1,15 +1,13 @@
-using MediatR;
-
 using Accounting.Application.Common.Models;
+using MediatR;
+using System;
 
 namespace Accounting.Application.Features.JournalEntries.Commands.ReverseJournalEntry
 {
     public class ReverseJournalEntryCommand : IRequest<Result<int>>
     {
-        /// <summary>The ID of the Posted journal entry to be reversed.</summary>
         public int JournalEntryId { get; set; }
-
-        /// <summary>Mandatory business reason for the reversal (audit trail).</summary>
-        public string Reason { get; set; } = null!;
+        public DateTime ReversalDate { get; set; }
+        public string? Reason { get; set; }
     }
 }

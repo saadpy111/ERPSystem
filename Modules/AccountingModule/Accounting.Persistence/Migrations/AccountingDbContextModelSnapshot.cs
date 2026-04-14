@@ -748,6 +748,9 @@ namespace Accounting.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("ReversalEntryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("ReversalReason")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -760,6 +763,9 @@ namespace Accounting.Persistence.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<int?>("ReversedEntryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SourceId")
                         .HasColumnType("int");
 
                     b.Property<int>("SourceType")
@@ -801,6 +807,9 @@ namespace Accounting.Persistence.Migrations
                     b.HasIndex("TenantId", "Id");
 
                     b.HasIndex("TenantId", "JournalNumber")
+                        .IsUnique();
+
+                    b.HasIndex("TenantId", "SourceType", "SourceId")
                         .IsUnique();
 
                     b.ToTable("JournalEntries", "Accounting");

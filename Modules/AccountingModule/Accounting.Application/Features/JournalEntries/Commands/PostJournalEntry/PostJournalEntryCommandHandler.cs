@@ -45,14 +45,15 @@ namespace Accounting.Application.Features.JournalEntries.Commands.PostJournalEnt
             };
 
             var postResult = await _postingService.PostAsync(postingRequest);
-            
+            await _unitOfWork.SaveChangesAsync();
+
             if (postResult == null)
                 return Result<int>.Failure("Unexpected null result from posting service.");
 
             if (!postResult.Success)
                 return Result<int>.Failure(postResult.Message);
 
-            return Result<int>.Ok(postResult.Data, "Journal entry posted successfully.");
+            return Result<int>.Ok(postResult.Data.Id, "Journal entry posted successfully.");
         }
     }
 }

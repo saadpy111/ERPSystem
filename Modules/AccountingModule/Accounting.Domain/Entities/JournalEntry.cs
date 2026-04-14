@@ -12,6 +12,7 @@ namespace Accounting.Domain.Entities
         public string? Reference { get; set; }
         public int CurrencyId { get; set; }
         public SourceType SourceType { get; set; }
+        public int SourceId { get; set; }
         public string? Description { get; set; }
         public JournalStatus Status { get; set; }
         public decimal TotalDebit { get; set; }
@@ -22,6 +23,7 @@ namespace Accounting.Domain.Entities
         // Reversal Tracking
         public bool IsReversed { get; set; }
         public int? ReversedEntryId { get; set; }
+        public int? ReversalEntryId { get; set; }
         public DateTime? ReversedAt { get; set; }
         public string? ReversedBy { get; set; }
         public string? ReversalReason { get; set; }

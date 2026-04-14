@@ -76,6 +76,7 @@ namespace Accounting.Application.Features.Vouchers.Commands.PostVoucher
                 };
 
                 var postResult = await _postingService.PostAsync(postingRequest);
+                await _unitOfWork.SaveChangesAsync();
 
                 if (postResult == null)
                     return Result<int>.Failure("Unexpected null result from posting service.");
@@ -83,7 +84,7 @@ namespace Accounting.Application.Features.Vouchers.Commands.PostVoucher
                 if (!postResult.Success)
                     return Result<int>.Failure(postResult.Message);
 
-                int journalEntryId = postResult.Data;
+                int journalEntryId = postResult.Data.Id;
 
                 voucher.Status       = VoucherStatus.Posted;
                 voucher.JournalEntryId = journalEntryId;

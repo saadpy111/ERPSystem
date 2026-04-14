@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Accounting.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class initialAccounting : Migration
+    public partial class addInitialInAccountingModule : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,8 +21,11 @@ namespace Accounting.Persistence.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    NameAr = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    NameEn = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
                     ParentId = table.Column<int>(type: "int", nullable: true),
+                    Level = table.Column<int>(type: "int", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -212,6 +215,36 @@ namespace Accounting.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Budgets",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    FiscalYearId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    EnforceBudgetControl = table.Column<bool>(type: "bit", nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Budgets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Budgets_FiscalYears_FiscalYearId",
+                        column: x => x.FiscalYearId,
+                        principalSchema: "Accounting",
+                        principalTable: "FiscalYears",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FiscalPeriods",
                 schema: "Accounting",
                 columns: table => new
@@ -352,6 +385,52 @@ namespace Accounting.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BudgetLines",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BudgetId = table.Column<int>(type: "int", nullable: false),
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    CostCenterId = table.Column<int>(type: "int", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    PlannedAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BudgetLines", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BudgetLines_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BudgetLines_Budgets_BudgetId",
+                        column: x => x.BudgetId,
+                        principalSchema: "Accounting",
+                        principalTable: "Budgets",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_BudgetLines_CostCenters_CostCenterId",
+                        column: x => x.CostCenterId,
+                        principalSchema: "Accounting",
+                        principalTable: "CostCenters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "JournalEntries",
                 schema: "Accounting",
                 columns: table => new
@@ -363,6 +442,7 @@ namespace Accounting.Persistence.Migrations
                     Reference = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     CurrencyId = table.Column<int>(type: "int", nullable: false),
                     SourceType = table.Column<int>(type: "int", nullable: false),
+                    SourceId = table.Column<int>(type: "int", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     TotalDebit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
@@ -371,6 +451,7 @@ namespace Accounting.Persistence.Migrations
                     PostedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsReversed = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     ReversedEntryId = table.Column<int>(type: "int", nullable: true),
+                    ReversalEntryId = table.Column<int>(type: "int", nullable: true),
                     ReversedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ReversedBy = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     ReversalReason = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
@@ -403,6 +484,74 @@ namespace Accounting.Persistence.Migrations
                         column: x => x.ReversedEntryId,
                         principalSchema: "Accounting",
                         principalTable: "JournalEntries",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payables",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PartnerId = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    PaidAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    RemainingAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Reference = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payables", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payables_Partners_PartnerId",
+                        column: x => x.PartnerId,
+                        principalSchema: "Accounting",
+                        principalTable: "Partners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Receivables",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PartnerId = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    PaidAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    RemainingAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Reference = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Receivables", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Receivables_Partners_PartnerId",
+                        column: x => x.PartnerId,
+                        principalSchema: "Accounting",
+                        principalTable: "Partners",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -540,12 +689,14 @@ namespace Accounting.Persistence.Migrations
                     VoucherNumber = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     VoucherType = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    PartnerId = table.Column<int>(type: "int", nullable: false),
-                    PaymentMethod = table.Column<int>(type: "int", nullable: false),
-                    CurrencyId = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
-                    JournalEntryId = table.Column<int>(type: "int", nullable: false),
+                    PartnerId = table.Column<int>(type: "int", nullable: true),
+                    PaymentMethod = table.Column<int>(type: "int", nullable: true),
+                    CurrencyId = table.Column<int>(type: "int", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    Reference = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    JournalEntryId = table.Column<int>(type: "int", nullable: true),
                     TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
@@ -575,6 +726,135 @@ namespace Accounting.Persistence.Migrations
                         column: x => x.PartnerId,
                         principalSchema: "Accounting",
                         principalTable: "Partners",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PayablePayments",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PayableId = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CashAccountId = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PayablePayments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PayablePayments_CashAccounts_CashAccountId",
+                        column: x => x.CashAccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "CashAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_PayablePayments_Payables_PayableId",
+                        column: x => x.PayableId,
+                        principalSchema: "Accounting",
+                        principalTable: "Payables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ReceivablePayments",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ReceivableId = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CashAccountId = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ReceivablePayments", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ReceivablePayments_CashAccounts_CashAccountId",
+                        column: x => x.CashAccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "CashAccounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_ReceivablePayments_Receivables_ReceivableId",
+                        column: x => x.ReceivableId,
+                        principalSchema: "Accounting",
+                        principalTable: "Receivables",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VoucherLines",
+                schema: "Accounting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    AccountId = table.Column<int>(type: "int", nullable: false),
+                    Debit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    Credit = table.Column<decimal>(type: "decimal(18,6)", precision: 18, scale: 6, nullable: false),
+                    CurrencyId = table.Column<int>(type: "int", nullable: false),
+                    CostCenterId = table.Column<int>(type: "int", nullable: true),
+                    TenantId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoucherLines", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VoucherLines_Accounts_AccountId",
+                        column: x => x.AccountId,
+                        principalSchema: "Accounting",
+                        principalTable: "Accounts",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_VoucherLines_CostCenters_CostCenterId",
+                        column: x => x.CostCenterId,
+                        principalSchema: "Accounting",
+                        principalTable: "CostCenters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_VoucherLines_Currencies_CurrencyId",
+                        column: x => x.CurrencyId,
+                        principalSchema: "Accounting",
+                        principalTable: "Currencies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_VoucherLines_Vouchers_VoucherId",
+                        column: x => x.VoucherId,
+                        principalSchema: "Accounting",
+                        principalTable: "Vouchers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -630,6 +910,42 @@ namespace Accounting.Persistence.Migrations
                 columns: new[] { "TenantId", "Id" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BudgetLines_AccountId",
+                schema: "Accounting",
+                table: "BudgetLines",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BudgetLines_BudgetId",
+                schema: "Accounting",
+                table: "BudgetLines",
+                column: "BudgetId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BudgetLines_CostCenterId",
+                schema: "Accounting",
+                table: "BudgetLines",
+                column: "CostCenterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BudgetLines_TenantId",
+                schema: "Accounting",
+                table: "BudgetLines",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Budgets_FiscalYearId",
+                schema: "Accounting",
+                table: "Budgets",
+                column: "FiscalYearId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Budgets_TenantId",
+                schema: "Accounting",
+                table: "Budgets",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CashAccounts_AccountId",
                 schema: "Accounting",
                 table: "CashAccounts",
@@ -676,6 +992,13 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting",
                 table: "CostCenters",
                 column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CostCenters_TenantId_Code",
+                schema: "Accounting",
+                table: "CostCenters",
+                columns: new[] { "TenantId", "Code" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_CostCenters_TenantId_Id",
@@ -770,10 +1093,23 @@ namespace Accounting.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_JournalEntries_TenantId_SourceType_SourceId",
+                schema: "Accounting",
+                table: "JournalEntries",
+                columns: new[] { "TenantId", "SourceType", "SourceId" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_JournalEntryLines_AccountId",
                 schema: "Accounting",
                 table: "JournalEntryLines",
                 column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JournalEntryLines_AccountId_CostCenterId",
+                schema: "Accounting",
+                table: "JournalEntryLines",
+                columns: new[] { "AccountId", "CostCenterId" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_JournalEntryLines_CostCenterId",
@@ -837,6 +1173,42 @@ namespace Accounting.Persistence.Migrations
                 columns: new[] { "TenantId", "Id" });
 
             migrationBuilder.CreateIndex(
+                name: "IX_PayablePayments_CashAccountId",
+                schema: "Accounting",
+                table: "PayablePayments",
+                column: "CashAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PayablePayments_PayableId",
+                schema: "Accounting",
+                table: "PayablePayments",
+                column: "PayableId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payables_PartnerId",
+                schema: "Accounting",
+                table: "Payables",
+                column: "PartnerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReceivablePayments_CashAccountId",
+                schema: "Accounting",
+                table: "ReceivablePayments",
+                column: "CashAccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ReceivablePayments_ReceivableId",
+                schema: "Accounting",
+                table: "ReceivablePayments",
+                column: "ReceivableId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Receivables_PartnerId",
+                schema: "Accounting",
+                table: "Receivables",
+                column: "PartnerId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Sequences_TenantId",
                 schema: "Accounting",
                 table: "Sequences",
@@ -859,6 +1231,42 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting",
                 table: "Taxes",
                 columns: new[] { "TenantId", "Id" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherLines_AccountId",
+                schema: "Accounting",
+                table: "VoucherLines",
+                column: "AccountId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherLines_CostCenterId",
+                schema: "Accounting",
+                table: "VoucherLines",
+                column: "CostCenterId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherLines_CurrencyId",
+                schema: "Accounting",
+                table: "VoucherLines",
+                column: "CurrencyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherLines_TenantId",
+                schema: "Accounting",
+                table: "VoucherLines",
+                column: "TenantId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherLines_TenantId_Id",
+                schema: "Accounting",
+                table: "VoucherLines",
+                columns: new[] { "TenantId", "Id" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherLines_VoucherId",
+                schema: "Accounting",
+                table: "VoucherLines",
+                column: "VoucherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vouchers_CurrencyId",
@@ -906,6 +1314,10 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
+                name: "BudgetLines",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
                 name: "CashTransactions",
                 schema: "Accounting");
 
@@ -918,11 +1330,27 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
+                name: "PayablePayments",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
+                name: "ReceivablePayments",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
                 name: "Sequences",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
-                name: "Vouchers",
+                name: "VoucherLines",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
+                name: "Budgets",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
+                name: "Payables",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
@@ -930,7 +1358,19 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
+                name: "Receivables",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
                 name: "CostCenters",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
+                name: "Vouchers",
+                schema: "Accounting");
+
+            migrationBuilder.DropTable(
+                name: "Accounts",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
@@ -942,19 +1382,15 @@ namespace Accounting.Persistence.Migrations
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
-                name: "Accounts",
-                schema: "Accounting");
-
-            migrationBuilder.DropTable(
                 name: "FiscalPeriods",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
-                name: "Taxes",
+                name: "Currencies",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(
-                name: "Currencies",
+                name: "Taxes",
                 schema: "Accounting");
 
             migrationBuilder.DropTable(

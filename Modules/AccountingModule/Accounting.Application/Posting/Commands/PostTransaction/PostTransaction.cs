@@ -5,6 +5,7 @@ using Accounting.Domain.Enums;
 using MediatR;
 using Accounting.Application.Common.Models;
 using Accounting.Application.Posting.Interfaces;
+using Accounting.Application.Interfaces.Repositories;
 
 namespace Accounting.Application.Posting.Commands.PostTransaction
 {
@@ -21,23 +22,26 @@ namespace Accounting.Application.Posting.Commands.PostTransaction
     public class PostTransactionCommandHandler : IRequestHandler<PostTransactionCommand, Result<int>>
     {
         private readonly IPostingService _postingService;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PostTransactionCommandHandler(IPostingService postingService)
+        public PostTransactionCommandHandler(IPostingService postingService , IUnitOfWork unitOfWork)
         {
             _postingService = postingService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Result<int>> Handle(PostTransactionCommand request, CancellationToken cancellationToken)
         {
             var postResult = await _postingService.PostAsync(request);
-            
+            await _unitOfWork.SaveChangesAsync();
+
             if (postResult == null)
                 return Result<int>.Failure("Unexpected null result from posting service.");
 
             if (!postResult.Success)
                 return Result<int>.Failure(postResult.Message);
 
-            return Result<int>.Ok(postResult.Data, "Transaction posted successfully.");
+            return Result<int>.Ok(postResult.Data.Id, "Transaction posted successfully.");
         }
     }
 }
