@@ -2,6 +2,7 @@ using Inventory.Application.Contracts.Infrastruture.FileService;
 using Inventory.Application.Contracts.Persistence.Repositories;
 using Inventory.Application.Dtos.ProductDtos;
 using Inventory.Domain.Entities;
+using Events.InventoryEvents;
 using MediatR;
 using System.Linq;
 
@@ -10,12 +11,14 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
     public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommandRequest, UpdateProductCommandResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
         private readonly IFileService _fileService;
         private readonly SharedKernel.Core.Files.IFileUrlResolver _urlResolver;
 
-        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IFileService fileService, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
+        public UpdateProductCommandHandler(IUnitOfWork unitOfWork, IMediator mediator, IFileService fileService, SharedKernel.Core.Files.IFileUrlResolver urlResolver)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
             _fileService = fileService;
             _urlResolver = urlResolver;
         }
@@ -58,6 +61,11 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                 product.MainSupplierName = request.Product.MainSupplierName;
                 product.Tax = request.Product.Tax;
                 product.OrderLimit = request.Product.OrderLimit;
+                product.ProductType = request.Product.ProductType;
+                product.IsSellableInPOS = request.Product.IsSellableInPOS;
+                product.IsWeighted = request.Product.IsWeighted;
+                product.PricePerKg = request.Product.PricePerKg;
+                product.DefaultTareWeight = request.Product.DefaultTareWeight;
                 #endregion
 
 
@@ -183,6 +191,20 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.UpdateProduct
                 
                 repo.Update(product);
                 await _unitOfWork.CompleteAsync();
+
+                // Publish domain event after successful save
+                await _mediator.Publish(new ProductUpdatedEvent
+                {
+                    ProductId = product.Id,
+                    Name = product.Name,
+                    Sku = product.Sku,
+                    SalePrice = product.SalePrice,
+                    CostPrice = product.CostPrice,
+                    IsActive = product.IsActive,
+                    ProductBarcode = product.ProductBarcode,
+                    UnitOfMeasure = product.UnitOfMeasure,
+                    CategoryName = product.Category?.Name ?? string.Empty,
+                });
 
                 var dto = product.ToDto(_urlResolver);
 

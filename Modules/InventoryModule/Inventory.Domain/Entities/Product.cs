@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Inventory.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,8 +16,16 @@ namespace Inventory.Domain.Entities
         public decimal SalePrice { get; set; }
         public decimal CostPrice { get; set; }
         public bool IsActive { get; set; }
-        
-        // New fields
+
+        // POS & weighted product support
+        public ProductType ProductType { get; set; } = ProductType.FinishedGood;
+        public bool IsSellableInPOS { get; set; } = true;
+        public bool IsWeighted { get; set; }
+        public decimal? PricePerKg { get; set; }
+        public decimal? DefaultTareWeight { get; set; }
+
+        // Legacy single barcode – use Barcodes collection instead
+        [System.Obsolete("Use the Barcodes navigation collection for multi-barcode support.")]
         public string? ProductBarcode { get; set; }
         public string? MainSupplierName { get; set; }
         public decimal? Tax { get; set; }

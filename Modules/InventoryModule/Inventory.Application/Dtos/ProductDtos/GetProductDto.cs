@@ -16,8 +16,15 @@ namespace Inventory.Application.Dtos.ProductDtos
         public decimal SalePrice { get; set; }
         public decimal CostPrice { get; set; }
         public bool IsActive { get; set; }
-        
-        // New fields
+
+        // POS & weighted product support
+        public string ProductType { get; set; }
+        public bool IsSellableInPOS { get; set; }
+        public bool IsWeighted { get; set; }
+        public decimal? PricePerKg { get; set; }
+        public decimal? DefaultTareWeight { get; set; }
+
+        // Legacy fields
         public string? ProductBarcode { get; set; }
         public string? MainSupplierName { get; set; }
         public decimal? Tax { get; set; }
@@ -54,8 +61,8 @@ namespace Inventory.Application.Dtos.ProductDtos
     public class GetProductLocationDto
     {
         public string LocationName { get; set; }
-        public int Quantity { get; set; }
-        public int ReservedQuantity { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal ReservedQuantity { get; set; }
     }
 
     public static class ProductExtentions
@@ -77,6 +84,13 @@ namespace Inventory.Application.Dtos.ProductDtos
                 MainSupplierName = entity.MainSupplierName,
                 Tax = entity.Tax,
                 OrderLimit = entity.OrderLimit,
+
+                // POS & weighted product fields
+                ProductType = entity.ProductType.ToString(),
+                IsSellableInPOS = entity.IsSellableInPOS,
+                IsWeighted = entity.IsWeighted,
+                PricePerKg = entity.PricePerKg,
+                DefaultTareWeight = entity.DefaultTareWeight,
 
                 // Map Attribute values to include attribute name instead of id
                 AttributeValues = entity.AttributeValues?.Select(av => new GetProductAttributeValueDto

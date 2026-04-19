@@ -33,6 +33,8 @@ namespace Inventory.Application.Features.ProductBarcodeFeatures.Queries.GetPaged
                     Id = pb.Id,
                     BarcodeValue = pb.BarcodeValue,
                     Type = pb.Type,
+                    IsWeighted = pb.IsWeighted,
+                    Prefix = pb.Prefix,
                     ProductId = pb.ProductId,
                     CreatedAt = pb.CreatedAt,
                     UpdatedAt = pb.UpdatedAt

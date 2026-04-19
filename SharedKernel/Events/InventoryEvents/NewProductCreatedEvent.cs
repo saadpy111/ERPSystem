@@ -9,6 +9,7 @@ namespace Events.InventoryEvents
 {
     public class NewProductCreatedEvent:INotification
     {
+        public Guid ProductId { get; set; }
         public string? Sku { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
@@ -24,5 +25,11 @@ namespace Events.InventoryEvents
 
         public string CategoryName { get; set; }
 
+        // POS-related fields
+        public string ProductType { get; set; }
+        public bool IsSellableInPOS { get; set; }
+        public bool IsWeighted { get; set; }
+        public decimal? PricePerKg { get; set; }
+        public decimal? DefaultTareWeight { get; set; }
     }
 }

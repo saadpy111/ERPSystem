@@ -25,6 +25,8 @@ namespace Inventory.Application.Features.ProductBarcodeFeatures.Commands.UpdateP
 
                 entity.BarcodeValue = request.ProductBarcode.BarcodeValue;
                 entity.Type = request.ProductBarcode.Type;
+                entity.IsWeighted = request.ProductBarcode.IsWeighted;
+                entity.Prefix = request.ProductBarcode.Prefix;
                 entity.ProductId = request.ProductBarcode.ProductId;
                 entity.UpdatedAt = DateTime.UtcNow;
 
@@ -39,6 +41,8 @@ namespace Inventory.Application.Features.ProductBarcodeFeatures.Commands.UpdateP
                         Id = entity.Id,
                         BarcodeValue = entity.BarcodeValue,
                         Type = entity.Type,
+                        IsWeighted = entity.IsWeighted,
+                        Prefix = entity.Prefix,
                         ProductId = entity.ProductId,
                         CreatedAt = entity.CreatedAt,
                         UpdatedAt = entity.UpdatedAt

@@ -9,7 +9,7 @@ namespace Inventory.Domain.Entities
 {
     public class InventoryQuarantine : BaseEntity
     {
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public DateTime QuarantineDate { get; set; }
         public QuarantineStatus Status { get; set; } 
         public string SourceReference { get; set; } 

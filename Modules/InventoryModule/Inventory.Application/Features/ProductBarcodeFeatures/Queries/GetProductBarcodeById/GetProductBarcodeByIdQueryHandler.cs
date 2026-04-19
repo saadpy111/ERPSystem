@@ -27,6 +27,8 @@ namespace Inventory.Application.Features.ProductBarcodeFeatures.Queries.GetProdu
                     Id = entity.Id,
                     BarcodeValue = entity.BarcodeValue,
                     Type = entity.Type,
+                    IsWeighted = entity.IsWeighted,
+                    Prefix = entity.Prefix,
                     ProductId = entity.ProductId,
                     CreatedAt = entity.CreatedAt,
                     UpdatedAt = entity.UpdatedAt

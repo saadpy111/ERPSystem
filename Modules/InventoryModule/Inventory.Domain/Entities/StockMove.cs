@@ -9,7 +9,7 @@ namespace Inventory.Domain.Entities
 {
     public class StockMove : BaseEntity
     {
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
         public DateTime MoveDate { get; set; }
         public string? Reference { get; set; } 
         public StockMoveType MoveType { get; set; } 

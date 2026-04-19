@@ -17,6 +17,13 @@ namespace Inventory.Persistence.Configurations
 
             builder.HasIndex(b => b.BarcodeValue).IsUnique();
 
+            builder.Property(b => b.IsWeighted)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
+            builder.Property(b => b.Prefix)
+                   .HasMaxLength(10);
+
             builder.HasOne(b => b.Product)
                    .WithMany(p => p.Barcodes)
                    .HasForeignKey(b => b.ProductId)

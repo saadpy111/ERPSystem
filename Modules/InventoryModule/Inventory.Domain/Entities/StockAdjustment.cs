@@ -8,8 +8,8 @@ namespace Inventory.Domain.Entities
 {
     public class StockAdjustment : BaseEntity
     {
-        public int ExpectedQuantity { get; set; }
-        public int ActualQuantity { get; set; }
+        public decimal ExpectedQuantity { get; set; }
+        public decimal ActualQuantity { get; set; }
         public DateTime Date { get; set; }
         public Guid UserId { get; set; } 
 

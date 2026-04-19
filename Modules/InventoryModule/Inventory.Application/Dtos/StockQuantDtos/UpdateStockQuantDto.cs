@@ -5,6 +5,6 @@ namespace Inventory.Application.Dtos.StockQuantDtos
         public Guid Id { get; set; }
         public Guid ProductId { get; set; }
         public Guid LocationId { get; set; }
-        public int Quantity { get; set; }
+        public decimal Quantity { get; set; }
     }
 }

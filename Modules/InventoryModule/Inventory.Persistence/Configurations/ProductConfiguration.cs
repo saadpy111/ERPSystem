@@ -24,6 +24,27 @@ namespace Inventory.Persistence.Configurations
             builder.Property(p => p.MainSupplierName).HasMaxLength(250);
             builder.Property(p => p.Name).HasMaxLength(255).IsRequired();
 
+            // POS & weighted product fields
+            builder.Property(p => p.ProductType)
+                   .IsRequired()
+                   .HasConversion<string>()
+                   .HasMaxLength(50)
+                   .HasDefaultValue(Inventory.Domain.Enums.ProductType.FinishedGood);
+
+            builder.Property(p => p.IsSellableInPOS)
+                   .IsRequired()
+                   .HasDefaultValue(true);
+
+            builder.Property(p => p.IsWeighted)
+                   .IsRequired()
+                   .HasDefaultValue(false);
+
+            builder.Property(p => p.PricePerKg)
+                   .HasColumnType("decimal(18,4)");
+
+            builder.Property(p => p.DefaultTareWeight)
+                   .HasColumnType("decimal(18,4)");
+
             builder.HasOne(p => p.Category)
                    .WithMany(c => c.Products)
                    .HasForeignKey(p => p.CategoryId)

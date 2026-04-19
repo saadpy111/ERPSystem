@@ -2,6 +2,7 @@ using Inventory.Application.Contracts.Persistence.Repositories;
 using Inventory.Application.Dtos.StockMoveDtos;
 using Inventory.Application.Helpers.Strategies.StockMoveFactoryHandler.Factory;
 using Inventory.Domain.Entities;
+using Events.InventoryEvents;
 using MediatR;
 
 namespace Inventory.Application.Features.StockMoveFeatures.Commands.CreateStockMove
@@ -10,11 +11,13 @@ namespace Inventory.Application.Features.StockMoveFeatures.Commands.CreateStockM
         : IRequestHandler<CreateStockMoveCommandRequest, CreateStockMoveCommandResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMediator _mediator;
         private readonly IStockMoveHandlerFactory _handlerFactory;
 
-        public CreateStockMoveCommandHandler(IUnitOfWork unitOfWork, IStockMoveHandlerFactory handlerFactory)
+        public CreateStockMoveCommandHandler(IUnitOfWork unitOfWork, IMediator mediator, IStockMoveHandlerFactory handlerFactory)
         {
             _unitOfWork = unitOfWork;
+            _mediator = mediator;
             _handlerFactory = handlerFactory;
         }
 
@@ -49,6 +52,19 @@ namespace Inventory.Application.Features.StockMoveFeatures.Commands.CreateStockM
 
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitTransactionAsync();
+
+                // Publish domain event after successful commit
+                await _mediator.Publish(new StockMoveCreatedEvent
+                {
+                    StockMoveId = entity.Id,
+                    ProductId = entity.ProductId,
+                    Quantity = entity.Quantity,
+                    MoveType = entity.MoveType.ToString(),
+                    Reference = entity.Reference,
+                    SourceLocationId = entity.SourceLocationId,
+                    DestinationLocationId = entity.DestinationLocationId,
+                    MoveDate = entity.MoveDate
+                }, cancellationToken);
 
                 return new CreateStockMoveCommandResponse { Success = true };
             }

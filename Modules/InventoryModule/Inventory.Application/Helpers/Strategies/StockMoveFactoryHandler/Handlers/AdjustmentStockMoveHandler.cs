@@ -31,11 +31,11 @@ namespace Inventory.Application.Helpers.Strategies.StockMoveFactoryHandler.Handl
                 q => q.ProductId == stockMove.ProductId && q.LocationId == stockMove.DestinationLocationId
             );
 
-            int actualQty = stockMove.Quantity;
+            decimal actualQty = stockMove.Quantity;
 
             if (existingQuant != null)
             {
-                int expectedQty = existingQuant.Quantity;
+                decimal expectedQty = existingQuant.Quantity;
 
                 var adjustment = new StockAdjustment
                 {

@@ -22,6 +22,8 @@ namespace Inventory.Application.Features.ProductBarcodeFeatures.Commands.CreateP
                 {
                     BarcodeValue = request.ProductBarcode.BarcodeValue,
                     Type = request.ProductBarcode.Type,
+                    IsWeighted = request.ProductBarcode.IsWeighted,
+                    Prefix = request.ProductBarcode.Prefix,
                     ProductId = request.ProductBarcode.ProductId,
                     CreatedAt = DateTime.UtcNow
                 };
@@ -37,6 +39,8 @@ namespace Inventory.Application.Features.ProductBarcodeFeatures.Commands.CreateP
                         Id = entity.Id,
                         BarcodeValue = entity.BarcodeValue,
                         Type = entity.Type,
+                        IsWeighted = entity.IsWeighted,
+                        Prefix = entity.Prefix,
                         ProductId = entity.ProductId,
                         CreatedAt = entity.CreatedAt,
                         UpdatedAt = entity.UpdatedAt

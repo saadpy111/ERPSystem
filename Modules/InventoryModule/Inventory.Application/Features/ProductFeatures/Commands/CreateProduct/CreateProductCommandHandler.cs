@@ -43,6 +43,14 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
                     MainSupplierName = request.Product.MainSupplierName,
                     Tax = request.Product.Tax,
                     OrderLimit = request.Product.OrderLimit,
+
+                    // POS & weighted product fields
+                    ProductType = request.Product.ProductType,
+                    IsSellableInPOS = request.Product.IsSellableInPOS,
+                    IsWeighted = request.Product.IsWeighted,
+                    PricePerKg = request.Product.PricePerKg,
+                    DefaultTareWeight = request.Product.DefaultTareWeight,
+
                     CreatedAt = DateTime.UtcNow
                 };
 
@@ -123,6 +131,7 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
                 var product =  await _unitOfWork.Repositories<Product>().GetFirst(p => p.Id == entity.Id, false, p => p.Category);
                 await _mediator.Publish(new NewProductCreatedEvent()
                 {
+                     ProductId = product.Id,
                      CategoryName = product?.Category?.Name??"",
                      Name = product?.Name??"",
                      CostPrice = product.CostPrice,
@@ -135,8 +144,11 @@ namespace Inventory.Application.Features.ProductFeatures.Commands.CreateProduct
                      Sku = product.Sku,
                      Tax = product.Tax,
                      UnitOfMeasure = product.UnitOfMeasure,
-                      
-
+                     ProductType = product.ProductType.ToString(),
+                     IsSellableInPOS = product.IsSellableInPOS,
+                     IsWeighted = product.IsWeighted,
+                     PricePerKg = product.PricePerKg,
+                     DefaultTareWeight = product.DefaultTareWeight,
                 });
 
                 var dto = entity.ToDto(_urlResolver);

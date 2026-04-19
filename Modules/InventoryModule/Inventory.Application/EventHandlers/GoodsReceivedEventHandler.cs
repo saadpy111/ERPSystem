@@ -26,7 +26,7 @@ namespace Inventory.Application.EventHandlers
                     StockMove = new CreateStockMoveDto
                     {
                         ProductId = item.ProductId,
-                        Quantity = (int)item.Quantity,
+                        Quantity = item.Quantity,
                         MoveType = StockMoveType.Purchase,
                         Reference = $"GoodsReceipt-{notification.GoodsReceiptId}",
                         DestinationLocationId = notification.LocationId
