@@ -24,6 +24,14 @@ namespace SharedKernel.Constants.Permissions
         public const string BrandsEdit   = "Website.Brands.Edit";
         public const string BrandsDelete = "Website.Brands.Delete";
 
+        // ===== TESTIMONIALS =====
+        public const string TestimonialsView   = "Website.Testimonials.View";
+        public const string TestimonialsCreate = "Website.Testimonials.Create";
+        public const string TestimonialsEdit   = "Website.Testimonials.Edit";
+        public const string TestimonialsDelete = "Website.Testimonials.Delete";
+        public const string TestimonialsChangeVisibility = "Website.Testimonials.ChangeVisibility";
+        public const string TestimonialsReorder = "Website.Testimonials.Reorder";
+
         // ===== PRODUCTS =====
         public const string ProductsView      = "Website.Products.View";
         public const string ProductsCreate    = "Website.Products.Create";   // publish from Inventory

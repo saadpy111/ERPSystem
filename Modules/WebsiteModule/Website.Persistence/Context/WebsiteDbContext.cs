@@ -50,6 +50,7 @@ namespace Website.Persistence.Context
         public DbSet<WebsiteVisitorSession> WebsiteVisitorSessions => Set<WebsiteVisitorSession>();
         public DbSet<WebsiteAnalyticsDaily> WebsiteAnalyticsDaily => Set<WebsiteAnalyticsDaily>();
         public DbSet<Brand> Brands => Set<Brand>();
+        public DbSet<Testimonial> Testimonials => Set<Testimonial>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -130,6 +131,9 @@ namespace Website.Persistence.Context
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
 
             modelBuilder.Entity<Brand>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<Testimonial>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
