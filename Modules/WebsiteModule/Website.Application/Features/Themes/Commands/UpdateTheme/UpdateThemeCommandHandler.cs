@@ -182,12 +182,17 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
             // ───────── Sections ─────────
             if (request.Sections != null)
             {
+                // Explicit field-by-field mapping preserves validation and extensibility
                 theme.Config.Sections = request.Sections
                     .Select(s => new SectionItem
                     {
-                        Id = s.Id,
-                        Enabled = s.Enabled,
-                        Order = s.Order
+                        Id              = s.Id,
+                        Enabled         = s.Enabled,
+                        Order           = s.Order,
+                        Title           = CopySectionTextContent(s.Title),
+                        Subtitle        = CopySectionTextContent(s.Subtitle),
+                        ButtonText      = CopySectionTextContent(s.ButtonText),
+                        BackgroundImage = CopySectionImageContent(s.BackgroundImage)
                     })
                     .ToList();
             }
@@ -211,9 +216,29 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
             theme.Config.Hero.ButtonText ??= DefaultTextContent();
             theme.Config.Hero.BackgroundImage ??= DefaultImageContent();
 
+            theme.Config.Hero.Title.Style ??= new TextStyle();
+            theme.Config.Hero.Subtitle.Style ??= new TextStyle();
+            theme.Config.Hero.ButtonText.Style ??= new TextStyle();
+            theme.Config.Hero.BackgroundImage.Style ??= new ImageStyle();
+
             theme.Config.ContactUsImages ??= new ContactUsImages();
             theme.Config.ContactUsImages.ContactUsImg ??= DefaultImageContent();
             theme.Config.ContactUsImages.ClientOImg ??= DefaultImageContent();
+
+            // Ensure all existing sections have rich sub-fields initialised
+            theme.Config.Sections ??= new();
+            foreach (var section in theme.Config.Sections)
+            {
+                section.Title           ??= DefaultTextContent();
+                section.Subtitle        ??= DefaultTextContent();
+                section.ButtonText      ??= DefaultTextContent();
+                section.BackgroundImage ??= DefaultImageContent();
+
+                section.Title.Style           ??= new TextStyle();
+                section.Subtitle.Style        ??= new TextStyle();
+                section.ButtonText.Style      ??= new TextStyle();
+                section.BackgroundImage.Style ??= new ImageStyle();
+            }
         }
 
         private static void UpdateTextContent(
@@ -224,7 +249,8 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
             string? color,
             TextAlign? align,
             int? hSpacing,
-            int? vSpacing)
+            int? vSpacing,
+            int? marginTop = null)
         {
             if (text != null)
                 target.Text = text;
@@ -246,24 +272,53 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
 
             if (vSpacing.HasValue)
                 target.Style.VerticalSpacing = vSpacing.Value;
+
+            if (marginTop.HasValue)
+                target.Style.MarginTop = marginTop.Value;
         }
 
-        private static TextContent DefaultTextContent()
+        private static TextContent DefaultTextContent() => new()
         {
-            return new TextContent
+            Text  = string.Empty,
+            Style = new TextStyle
             {
-                Text = "",
-                Style = new TextStyle
-                {
-                    FontSize = 16,
-                    FontWeight = FontWeight.Normal,
-                    Color = "#000000",
-                    Alignment = TextAlign.Left,
-                    HorizontalSpacing = 0,
-                    VerticalSpacing = 0
-                }
-            };
-        }
+                FontSize          = 16,
+                FontWeight        = FontWeight.Normal,
+                Color             = "#000000",
+                Alignment         = TextAlign.Left,
+                HorizontalSpacing = 0,
+                VerticalSpacing   = 0,
+                MarginTop         = 0
+            }
+        };
+
+        /// <summary>Deep-copy a TextContent from a SectionItem request payload.</summary>
+        private static TextContent CopySectionTextContent(TextContent? src) => new()
+        {
+            Text  = src?.Text ?? string.Empty,
+            Style = new TextStyle
+            {
+                FontSize          = src?.Style?.FontSize          ?? 16,
+                FontWeight        = src?.Style?.FontWeight        ?? FontWeight.Normal,
+                Color             = src?.Style?.Color             ?? "#000000",
+                Alignment         = src?.Style?.Alignment         ?? TextAlign.Left,
+                HorizontalSpacing = src?.Style?.HorizontalSpacing ?? 0,
+                VerticalSpacing   = src?.Style?.VerticalSpacing   ?? 0,
+                MarginTop         = src?.Style?.MarginTop         ?? 0
+            }
+        };
+
+        /// <summary>Deep-copy an ImageContent from a SectionItem request payload.</summary>
+        private static ImageContent CopySectionImageContent(ImageContent? src) => new()
+        {
+            Url   = src?.Url ?? string.Empty,
+            Style = new ImageStyle
+            {
+                BorderRadius   = src?.Style?.BorderRadius   ?? 6,
+                OverlayColor   = src?.Style?.OverlayColor   ?? "#FFFFFF",
+                OverlayOpacity = src?.Style?.OverlayOpacity ?? 40
+            }
+        };
 
         private static ImageContent DefaultImageContent()
         {

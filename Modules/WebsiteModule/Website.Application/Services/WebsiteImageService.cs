@@ -84,5 +84,14 @@ namespace Website.Application.Services
             string folderPath = $"themes/{themeCode}/clientoverview";
             return await _fileService.SaveFileAsync(file, folderPath);
         }
+
+        public async Task<string> ProcessWebsiteSectionImageAsync(string tenantId, string sectionId, IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                throw new ArgumentException("Section background image file is required", nameof(file));
+
+            string folderPath = $"websites/{tenantId}/sections/{sectionId}";
+            return await _fileService.SaveFileAsync(file, folderPath);
+        }
     }
 }

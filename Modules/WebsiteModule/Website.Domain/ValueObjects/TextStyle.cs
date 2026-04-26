@@ -14,5 +14,10 @@ namespace Website.Domain.ValueObjects
         public TextAlign Alignment { get; set; } = TextAlign.Left;
         public int HorizontalSpacing { get; set; } = 0;
         public int VerticalSpacing { get; set; } = 0;
+
+        /// <summary>
+        /// Top margin in pixels. Defaults to 0 for backward compatibility.
+        /// </summary>
+        public int? MarginTop { get; set; }
     }
 }

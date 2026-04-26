@@ -93,7 +93,29 @@ namespace Website.Persistence.Configurations
                     {
                         image.OwnsOne(i => i.Style);
                     });
-                }); config.OwnsMany(c => c.Sections);
+                });
+                config.OwnsMany(c => c.Sections, section =>
+                {
+                    section.OwnsOne(s => s.Title, t =>
+                    {
+                        t.OwnsOne(x => x.Style);
+                    });
+
+                    section.OwnsOne(s => s.Subtitle, t =>
+                    {
+                        t.OwnsOne(x => x.Style);
+                    });
+
+                    section.OwnsOne(s => s.ButtonText, t =>
+                    {
+                        t.OwnsOne(x => x.Style);
+                    });
+
+                    section.OwnsOne(s => s.BackgroundImage, img =>
+                    {
+                        img.OwnsOne(i => i.Style);
+                    });
+                });
             });
         }
     }

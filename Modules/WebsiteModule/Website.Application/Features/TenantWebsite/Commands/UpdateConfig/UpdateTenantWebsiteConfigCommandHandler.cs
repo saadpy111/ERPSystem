@@ -25,22 +25,25 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         public async Task<UpdateTenantWebsiteConfigResponse> Handle(UpdateTenantWebsiteConfigCommand request, CancellationToken cancellationToken)
         {
             var tenantWebsite = await _tenantWebsiteRepository.GetByTenantIdAsync(request.TenantId);
-            EnsureConfigStructure(tenantWebsite);
+
             if (tenantWebsite == null)
             {
                 // Create new with Custom mode
                 tenantWebsite = new Domain.Entities.TenantWebsite
                 {
-                    Id = Guid.NewGuid(),
-                    TenantId = request.TenantId,
-                    Mode = WebsiteMode.Custom,
-                    ThemeId = null,
-                    Config = new SiteConfig(),
+                    Id          = Guid.NewGuid(),
+                    TenantId    = request.TenantId,
+                    Mode        = WebsiteMode.Custom,
+                    ThemeId     = null,
+                    Config      = new SiteConfig(),
                     IsPublished = false
                 };
 
                 await _tenantWebsiteRepository.CreateAsync(tenantWebsite);
             }
+
+            // Guarantee all nested objects are non-null before property assignments
+            EnsureConfigStructure(tenantWebsite);
 
             // ── Business data ────────────────────────────────────────────────────
             if (request.SiteName != null)
@@ -284,9 +287,88 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                 presentationUpdated = true;
             }
 
-            if (request.Sections != null)
+            if (request.Sections != null && request.Sections.Count > 0)
             {
-                tenantWebsite.Config.Sections = request.Sections;
+                foreach (var dto in request.Sections)
+                {
+                    // Find existing section by Id or create a new one
+                    var existing = tenantWebsite.Config.Sections
+                        .FirstOrDefault(s => s.Id == dto.Id);
+
+                    if (existing == null)
+                    {
+                        // New section — initialize with defaults then merge below
+                        existing = new SectionItem { Id = dto.Id };
+                        tenantWebsite.Config.Sections.Add(existing);
+                    }
+
+                    // ── Identity / visibility ────────────────────────────────
+                    if (dto.Enabled.HasValue)
+                        existing.Enabled = dto.Enabled.Value;
+
+                    if (dto.Order.HasValue)
+                        existing.Order = dto.Order.Value;
+
+                    // ── Title ────────────────────────────────────────────────
+                    if (dto.Title != null)
+                    {
+                        existing.Title ??= new TextContent();
+                        existing.Title.Style ??= new TextStyle();
+
+                        if (dto.Title.Text != null)
+                            existing.Title.Text = dto.Title.Text;
+
+                        MergeTextStyle(existing.Title.Style, dto.Title.Style);
+                    }
+
+                    // ── Subtitle ─────────────────────────────────────────────
+                    if (dto.Subtitle != null)
+                    {
+                        existing.Subtitle ??= new TextContent();
+                        existing.Subtitle.Style ??= new TextStyle();
+
+                        if (dto.Subtitle.Text != null)
+                            existing.Subtitle.Text = dto.Subtitle.Text;
+
+                        MergeTextStyle(existing.Subtitle.Style, dto.Subtitle.Style);
+                    }
+
+                    // ── ButtonText ───────────────────────────────────────────
+                    if (dto.ButtonText != null)
+                    {
+                        existing.ButtonText ??= new TextContent();
+                        existing.ButtonText.Style ??= new TextStyle();
+
+                        if (dto.ButtonText.Text != null)
+                            existing.ButtonText.Text = dto.ButtonText.Text;
+
+                        MergeTextStyle(existing.ButtonText.Style, dto.ButtonText.Style);
+                    }
+
+                    // ── Background image ─────────────────────────────────────
+                    existing.BackgroundImage ??= new ImageContent();
+                    existing.BackgroundImage.Style ??= new ImageStyle();
+
+                    if (dto.BackgroundImageFile != null)
+                    {
+                        // Upload file → store resulting relative path
+                        existing.BackgroundImage.Url =
+                            await _websiteImageService.ProcessWebsiteSectionImageAsync(
+                                request.TenantId,
+                                dto.Id,
+                                dto.BackgroundImageFile);
+                    }
+                    else if (dto.BackgroundImageUrl != null)
+                    {
+                        // Caller supplied a URL directly (no file upload)
+                        existing.BackgroundImage.Url = dto.BackgroundImageUrl;
+                    }
+                    // else → preserve the existing URL (no change)
+
+                    if (dto.BackgroundImageStyle != null)
+                        MergeImageStyle(existing.BackgroundImage.Style, dto.BackgroundImageStyle);
+                }
+
                 presentationUpdated = true;
             }
 
@@ -313,18 +395,78 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
 
             site.Config.Hero ??= new HeroSection();
 
-            site.Config.Hero.Title ??= new TextContent();
-            site.Config.Hero.Subtitle ??= new TextContent();
-            site.Config.Hero.ButtonText ??= new TextContent();
+            site.Config.Hero.Title       ??= new TextContent();
+            site.Config.Hero.Subtitle    ??= new TextContent();
+            site.Config.Hero.ButtonText  ??= new TextContent();
 
-            site.Config.Hero.Title.Style ??= new TextStyle();
-            site.Config.Hero.Subtitle.Style ??= new TextStyle();
-            site.Config.Hero.ButtonText.Style ??= new TextStyle();
+            site.Config.Hero.Title.Style       ??= new TextStyle();
+            site.Config.Hero.Subtitle.Style    ??= new TextStyle();
+            site.Config.Hero.ButtonText.Style  ??= new TextStyle();
 
-            site.Config.Hero.BackgroundImage ??= new ImageContent();
+            site.Config.Hero.BackgroundImage       ??= new ImageContent();
             site.Config.Hero.BackgroundImage.Style ??= new ImageStyle();
 
+            site.Config.ContactUsImages ??= new ContactUsImages();
+            site.Config.ContactUsImages.ContactUsImg       ??= new ImageContent();
+            site.Config.ContactUsImages.ContactUsImg.Style ??= new ImageStyle();
+            site.Config.ContactUsImages.ClientOImg         ??= new ImageContent();
+            site.Config.ContactUsImages.ClientOImg.Style   ??= new ImageStyle();
+
+            // Ensure all existing sections have rich sub-fields initialised
             site.Config.Sections ??= new List<SectionItem>();
+            foreach (var section in site.Config.Sections)
+            {
+                section.Title           ??= new TextContent();
+                section.Subtitle        ??= new TextContent();
+                section.ButtonText      ??= new TextContent();
+                section.BackgroundImage ??= new ImageContent();
+
+                section.Title.Style           ??= new TextStyle();
+                section.Subtitle.Style        ??= new TextStyle();
+                section.ButtonText.Style      ??= new TextStyle();
+                section.BackgroundImage.Style ??= new ImageStyle();
+            }
+        }
+
+        private static void MergeTextStyle(TextStyle target, TextStyleDto? src)
+        {
+            if (src == null) return;
+
+            if (src.FontSize.HasValue)
+                target.FontSize = src.FontSize.Value;
+
+            if (src.FontWeight.HasValue)
+                target.FontWeight = src.FontWeight.Value;
+
+            if (src.Color != null)
+                target.Color = src.Color;
+
+            if (src.Alignment.HasValue)
+                target.Alignment = src.Alignment.Value;
+
+            if (src.HorizontalSpacing.HasValue)
+                target.HorizontalSpacing = src.HorizontalSpacing.Value;
+
+            if (src.VerticalSpacing.HasValue)
+                target.VerticalSpacing = src.VerticalSpacing.Value;
+
+            if (src.MarginTop.HasValue)
+                target.MarginTop = src.MarginTop.Value;
+        }
+
+
+        private static void MergeImageStyle(ImageStyle target, ImageStyleDto? src)
+        {
+            if (src == null) return;
+
+            if (src.BorderRadius.HasValue)
+                target.BorderRadius = src.BorderRadius.Value;
+
+            if (src.OverlayColor != null)
+                target.OverlayColor = src.OverlayColor;
+
+            if (src.OverlayOpacity.HasValue)
+                target.OverlayOpacity = src.OverlayOpacity.Value;
         }
     }
 }

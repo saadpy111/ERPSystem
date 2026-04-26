@@ -2,28 +2,21 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
-
 namespace SharedKernel.Website
 {
     /// <summary>
     /// Request model for initializing a tenant's website configuration.
-    /// Used for cross-module communication between IdentityModule and WebsiteModule.
-    /// 
-    /// STRICT RULES:
+    ///
+    /// RULES:
     /// - If ThemeCode is provided → Presentation data (Colors, Hero, Sections) is IGNORED
-    /// - If ThemeCode is null → Presentation data is REQUIRED (validation error if missing)
+    /// - If ThemeCode is null → Presentation data is USED
     /// </summary>
     public class WebsiteInitializationRequest
     {
-        /// <summary>
-        /// Optional theme code to apply.
-        /// If provided: Theme mode - presentation comes from theme.
-        /// If null: Custom mode - presentation comes from user (REQUIRED).
-        /// </summary>
         public string? ThemeCode { get; set; }
-        
-        // ===== BUSINESS DATA (always from user, always required) =====
-        public string SiteName { get; set; } = string.Empty;
+
+    // ===== BUSINESS DATA =====
+    public string SiteName { get; set; } = string.Empty;
         public string Domain { get; set; } = string.Empty;
         public string BusinessType { get; set; } = string.Empty;
         public string LogoUrl { get; set; } = string.Empty;
@@ -31,49 +24,34 @@ namespace SharedKernel.Website
         public string location { get; set; } = string.Empty;
         public string phone { get; set; } = string.Empty;
         public string email { get; set; } = string.Empty;
-        
-        // ===== PRESENTATION DATA (for Custom mode ONLY) =====
-        // These are IGNORED when ThemeCode is provided.
-        // These are REQUIRED when ThemeCode is null.
-        
+
+        // ===== PRESENTATION DATA (Custom mode only) =====
         public WebsiteColors? Colors { get; set; }
         public WebsiteHero? Hero { get; set; }
         public List<WebsiteSection>? Sections { get; set; }
-
-        // ===== CONTACT US IMAGES (for Custom mode ONLY) =====
         public WebsiteContactUsImages? ContactUsImages { get; set; }
     }
 
-    /// <summary>
-    /// Groups the two Contact-Us page images passed in Custom mode.
-    /// IGNORED when ThemeCode is provided.
-    /// </summary>
+    // ================= CONTACT IMAGES =================
+
     public class WebsiteContactUsImages
     {
         public WebsiteImageContent? ContactUsImg { get; set; }
-        public WebsiteImageContent? ClientOImg   { get; set; }
+        public WebsiteImageContent? ClientOImg { get; set; }
     }
 
-    /// <summary>
-    /// Color configuration for website, including global font family.
-    /// REQUIRED for Custom mode. IGNORED for Theme mode.
-    /// </summary>
+    // ================= COLORS =================
+
     public class WebsiteColors
     {
         public string Primary { get; set; } = string.Empty;
         public string Secondary { get; set; } = string.Empty;
         public string Background { get; set; } = string.Empty;
         public string Text { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Global font family for the website. Default: "Neo Sans Arabic".
-        /// </summary>
         public string FontFamily { get; set; } = "Neo Sans Arabic";
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
-    // Text Styling system (mirrors Domain ValueObjects, defined here for SharedKernel consumers)
-    // ─────────────────────────────────────────────────────────────────────────────
+    // ================= ENUMS =================
 
     public enum WebsiteFontWeight
     {
@@ -89,6 +67,8 @@ namespace SharedKernel.Website
         Right = 2
     }
 
+    // ================= TEXT =================
+
     public class WebsiteTextStyle
     {
         public int FontSize { get; set; } = 16;
@@ -97,6 +77,7 @@ namespace SharedKernel.Website
         public WebsiteTextAlign Alignment { get; set; } = WebsiteTextAlign.Left;
         public int HorizontalSpacing { get; set; } = 0;
         public int VerticalSpacing { get; set; } = 0;
+        public int MarginTop { get; set; } = 0;
     }
 
     public class WebsiteTextContent
@@ -104,6 +85,8 @@ namespace SharedKernel.Website
         public string Text { get; set; } = string.Empty;
         public WebsiteTextStyle Style { get; set; } = new();
     }
+
+    // ================= IMAGE =================
 
     public class WebsiteImageStyle
     {
@@ -118,14 +101,8 @@ namespace SharedKernel.Website
         public WebsiteImageStyle Style { get; set; } = new();
     }
 
-    // ─────────────────────────────────────────────────────────────────────────────
+    // ================= HERO =================
 
-    /// <summary>
-    /// Hero section configuration for website.
-    /// REQUIRED for Custom mode. IGNORED for Theme mode.
-    /// All text fields are rich content (text + style).
-    /// BackgroundImage is image content (url + style).
-    /// </summary>
     public class WebsiteHero
     {
         public WebsiteTextContent Title { get; set; } = new();
@@ -134,40 +111,32 @@ namespace SharedKernel.Website
         public WebsiteImageContent BackgroundImage { get; set; } = new();
     }
 
-    /// <summary>
-    /// Section configuration for website.
-    /// REQUIRED for Custom mode. IGNORED for Theme mode.
-    /// </summary>
+    // ================= SECTION (🔥 أهم تعديل) =================
+
     public class WebsiteSection
     {
-        public string Id { get; set; } = string.Empty;
-        public bool Enabled { get; set; } = true;
-        public int Order { get; set; }
+        // Identity
+        public string? Id { get; set; }
+        public bool? Enabled { get; set; }
+        public int? Order { get; set; }
+
+        // 🔥 Full Control زي Hero
+        public WebsiteTextContent? Title { get; set; }
+        public WebsiteTextContent? Subtitle { get; set; }
+        public WebsiteTextContent? ButtonText { get; set; }
+        public WebsiteImageContent? BackgroundImage { get; set; }
     }
 
-    /// <summary>
-    /// Result of website provisioning operation.
-    /// </summary>
+    // ================= RESULT =================
+
     public class WebsiteProvisioningResult
     {
         public bool Success { get; set; }
         public string? Error { get; set; }
     }
 
-    /// <summary>
-    /// Cross-module interface for website provisioning.
-    /// Implemented by WebsiteModule, consumed by IdentityModule.
-    /// 
-    /// BUSINESS RULES (NON-NEGOTIABLE):
-    /// 
-    /// THEME MODE (ThemeCode provided):
-    /// - Business data: ALWAYS from user
-    /// - Presentation data: ALWAYS from theme (user input IGNORED)
-    /// 
-    /// CUSTOM MODE (ThemeCode null):
-    /// - Business data: ALWAYS from user
-    /// - Presentation data: ALWAYS from user (REQUIRED, no defaults)
-    /// </summary>
+    // ================= SERVICE =================
+
     public interface IWebsiteProvisioningService
     {
         Task<WebsiteProvisioningResult> InitializeTenantWebsiteAsync(
@@ -175,58 +144,19 @@ namespace SharedKernel.Website
             WebsiteInitializationRequest request);
     }
 
-    /// <summary>
-    /// Service to handle website-related image uploads.
-    /// Implemented by WebsiteModule, consumed by IdentityModule.
-    /// </summary>
+    // ================= IMAGE SERVICE =================
+
     public interface IWebsiteImageService
     {
-        /// <summary>
-        /// Processes and saves the website logo for a tenant.
-        /// Returns the relative path to the saved logo.
-        /// </summary>
         Task<string> ProcessWebsiteLogoAsync(string tenantId, IFormFile logoFile);
-
-        /// <summary>
-        /// Processes and saves the website hero background image for a tenant.
-        /// Returns the relative path to the saved image.
-        /// </summary>
         Task<string> ProcessWebsiteHeroImageAsync(string tenantId, IFormFile heroFile);
-
-        /// <summary>
-        /// Processes and saves the preview image for a theme.
-        /// Returns the relative path to the saved image.
-        /// </summary>
         Task<string> ProcessThemePreviewImageAsync(string themeCode, IFormFile previewFile);
-
-        /// <summary>
-        /// Processes and saves the hero background image for a theme.
-        /// Returns the relative path to the saved image.
-        /// </summary>
         Task<string> ProcessThemeHeroImageAsync(string themeCode, IFormFile heroFile);
-
-        /// <summary>
-        /// Processes and saves the Contact-Us section image for a tenant.
-        /// Returns the relative path to the saved image.
-        /// </summary>
         Task<string> ProcessWebsiteContactUsImgAsync(string tenantId, IFormFile file);
-
-        /// <summary>
-        /// Processes and saves the Client-Overview image for a tenant.
-        /// Returns the relative path to the saved image.
-        /// </summary>
         Task<string> ProcessWebsiteClientOImgAsync(string tenantId, IFormFile file);
-
-        /// <summary>
-        /// Processes and saves the Contact-Us section image for a theme.
-        /// Returns the relative path to the saved image.
-        /// </summary>
         Task<string> ProcessThemeContactUsImgAsync(string themeCode, IFormFile file);
-
-        /// <summary>
-        /// Processes and saves the Client-Overview image for a theme.
-        /// Returns the relative path to the saved image.
-        /// </summary>
         Task<string> ProcessThemeClientOImgAsync(string themeCode, IFormFile file);
+        Task<string> ProcessWebsiteSectionImageAsync(string tenantId, string sectionId, IFormFile file);
     }
+
 }

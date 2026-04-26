@@ -6,24 +6,6 @@ using Website.Domain.ValueObjects;
 
 namespace Website.Application.Services
 {
-    /// <summary>
-    /// Implementation of IWebsiteProvisioningService.
-    ///
-    /// STRICT BUSINESS RULES (NON-NEGOTIABLE):
-    /// ═══════════════════════════════════════════════════════════════
-    /// CASE 1: THEME MODE
-    /// - Business data: FROM USER
-    /// - Colors & Hero: FROM THEME ONLY (full snapshot)
-    /// - Sections:
-    ///   - From USER if provided
-    ///   - Otherwise fallback to THEME
-    /// - NO merging of Colors or Hero
-    ///
-    /// CASE 2: CUSTOM MODE
-    /// - Business data: FROM USER
-    /// - Presentation data: FROM USER
-    /// - Defaults applied for missing nested style fields
-    /// </summary>
     public class WebsiteProvisioningService : IWebsiteProvisioningService
     {
         private readonly IThemeRepository _themeRepository;
@@ -47,43 +29,31 @@ namespace Website.Application.Services
             if (await _tenantWebsiteRepository.ExistsAsync(tenantId))
                 return Fail("Tenant website already exists");
 
-            TenantWebsite tenantWebsite;
-
             Theme? theme = null;
             var hasThemeCode = !string.IsNullOrWhiteSpace(request.ThemeCode);
 
             if (hasThemeCode)
-            {
                 theme = await _themeRepository.GetByCodeAsync(request.ThemeCode);
-            }
 
             var isValidActiveTheme =
                 hasThemeCode &&
                 theme != null &&
                 theme.IsActive;
 
+            TenantWebsite tenantWebsite;
+
             if (isValidActiveTheme)
             {
-                var sections = request.Sections != null && request.Sections.Any()
-                    ? request.Sections.Select(s => new SectionItem
-                    {
-                        Id = s.Id,
-                        Enabled = s.Enabled,
-                        Order = s.Order
-                    }).ToList()
-                    : theme!.Config?.Sections?.Select(s => new SectionItem
-                    {
-                        Id = s.Id,
-                        Enabled = s.Enabled,
-                        Order = s.Order
-                    }).ToList() ?? new();
+                var sections = theme!.Config?.Sections?
+                    .Select(SnapshotSection)
+                    .ToList() ?? new();
 
                 tenantWebsite = new TenantWebsite
                 {
                     Id = Guid.NewGuid(),
                     TenantId = tenantId,
                     Mode = WebsiteMode.Theme,
-                    ThemeId = theme!.Id,
+                    ThemeId = theme.Id,
                     IsPublished = true,
                     Config = new SiteConfig
                     {
@@ -126,12 +96,9 @@ namespace Website.Application.Services
                         Colors = MapColors(request.Colors),
                         Hero = MapHero(request.Hero),
                         ContactUsImages = MapContactUsImages(request.ContactUsImages),
-                        Sections = request.Sections?.Select(s => new SectionItem
-                        {
-                            Id = s.Id,
-                            Enabled = s.Enabled,
-                            Order = s.Order
-                        }).ToList() ?? new()
+
+                        // ?? ??? ??? ?????
+                        Sections = request.Sections?.Select(MapRequestSection).ToList() ?? new()
                     }
                 };
             }
@@ -142,13 +109,47 @@ namespace Website.Application.Services
             return new WebsiteProvisioningResult { Success = true };
         }
 
+        // ================= SECTION =================
+
+        private static SectionItem MapRequestSection(WebsiteSection src)
+        {
+            return new SectionItem
+            {
+                Id = src.Id,
+                Enabled = src.Enabled ?? true,
+                Order = src.Order ?? 0,
+                Title = MapTextContent(src.Title),
+                Subtitle = MapTextContent(src.Subtitle),
+                ButtonText = MapTextContent(src.ButtonText),
+                BackgroundImage = MapImageContent(src.BackgroundImage)
+            };
+        }
+
+        private static SectionItem SnapshotSection(SectionItem? src)
+        {
+            if (src == null) return new SectionItem();
+
+            return new SectionItem
+            {
+                Id = src.Id,
+                Enabled = src.Enabled,
+                Order = src.Order,
+                Title = SnapshotTextContent(src.Title),
+                Subtitle = SnapshotTextContent(src.Subtitle),
+                ButtonText = SnapshotTextContent(src.ButtonText),
+                BackgroundImage = SnapshotImageContent(src.BackgroundImage)
+            };
+        }
+
+        // ================= SNAPSHOT =================
+
         private static ThemeColors SnapshotColors(ThemeColors? src) => new()
         {
-            Primary = src?.Primary ?? "#000000",
-            Secondary = src?.Secondary ?? "#FFFFFF",
-            Background = src?.Background ?? "#FFFFFF",
-            Text = src?.Text ?? "#000000",
-            FontFamily = src?.FontFamily ?? "Neo Sans Arabic"
+            Primary = src?.Primary,
+            Secondary = src?.Secondary,
+            Background = src?.Background,
+            Text = src?.Text,
+            FontFamily = src?.FontFamily
         };
 
         private static HeroSection SnapshotHero(HeroSection? src) => new()
@@ -161,35 +162,32 @@ namespace Website.Application.Services
 
         private static TextContent SnapshotTextContent(TextContent? src)
         {
-            if (src == null) return DefaultTextContent();
-
             return new TextContent
             {
-                Text = src.Text,
-                Style = new TextStyle
+                Text = src?.Text,
+                Style = src?.Style == null ? new TextStyle() : new TextStyle
                 {
-                    FontSize = src.Style?.FontSize ?? 16,
-                    FontWeight = src.Style?.FontWeight ?? FontWeight.Normal,
-                    Color = src.Style?.Color ?? "#000000",
-                    Alignment = src.Style?.Alignment ?? TextAlign.Left,
-                    HorizontalSpacing = src.Style?.HorizontalSpacing ?? 0,
-                    VerticalSpacing = src.Style?.VerticalSpacing ?? 0
+                    FontSize = src.Style.FontSize,
+                    FontWeight = src.Style.FontWeight,
+                    Color = src.Style.Color,
+                    Alignment = src.Style.Alignment,
+                    HorizontalSpacing = src.Style.HorizontalSpacing,
+                    VerticalSpacing = src.Style.VerticalSpacing,
+                    MarginTop = src.Style.MarginTop
                 }
             };
         }
 
         private static ImageContent SnapshotImageContent(ImageContent? src)
         {
-            if (src == null) return DefaultImageContent();
-
             return new ImageContent
             {
-                Url = src.Url,
-                Style = new ImageStyle
+                Url = src?.Url,
+                Style = src?.Style == null ? new ImageStyle() : new ImageStyle
                 {
-                    BorderRadius = src.Style?.BorderRadius ?? 6,
-                    OverlayColor = src.Style?.OverlayColor ?? "#FFFFFF",
-                    OverlayOpacity = src.Style?.OverlayOpacity ?? 40
+                    BorderRadius = src.Style.BorderRadius,
+                    OverlayColor = src.Style.OverlayColor,
+                    OverlayOpacity = src.Style.OverlayOpacity
                 }
             };
         }
@@ -197,22 +195,24 @@ namespace Website.Application.Services
         private static ContactUsImages SnapshotContactUsImages(ContactUsImages? src) => new()
         {
             ContactUsImg = SnapshotImageContent(src?.ContactUsImg),
-            ClientOImg   = SnapshotImageContent(src?.ClientOImg)
+            ClientOImg = SnapshotImageContent(src?.ClientOImg)
         };
+
+        // ================= MAP =================
 
         private static ContactUsImages MapContactUsImages(WebsiteContactUsImages? src) => new()
         {
             ContactUsImg = MapImageContent(src?.ContactUsImg),
-            ClientOImg   = MapImageContent(src?.ClientOImg)
+            ClientOImg = MapImageContent(src?.ClientOImg)
         };
 
         private static ThemeColors MapColors(WebsiteColors? src) => new()
         {
-            Primary = src?.Primary ?? string.Empty,
-            Secondary = src?.Secondary ?? string.Empty,
-            Background = src?.Background ?? string.Empty,
-            Text = src?.Text ?? string.Empty,
-            FontFamily = src?.FontFamily ?? "Neo Sans Arabic"
+            Primary = src?.Primary,
+            Secondary = src?.Secondary,
+            Background = src?.Background,
+            Text = src?.Text,
+            FontFamily = src?.FontFamily
         };
 
         private static HeroSection MapHero(WebsiteHero? src)
@@ -228,41 +228,38 @@ namespace Website.Application.Services
             };
         }
 
-        private static TextContent MapTextContent(WebsiteTextContent? src)
+        private static TextContent? MapTextContent(WebsiteTextContent? src)
         {
-            if (src == null) return DefaultTextContent();
-
-            var style = src.Style;
+            if (src == null) return null;
 
             return new TextContent
             {
                 Text = src.Text,
-                Style = new TextStyle
+                Style = src.Style == null ? new TextStyle() : new TextStyle
                 {
-                    FontSize = style?.FontSize ?? 16,
-                    FontWeight = MapFontWeight(style?.FontWeight),
-                    Color = style?.Color ?? "#000000",
-                    Alignment = MapTextAlign(style?.Alignment),
-                    HorizontalSpacing = style?.HorizontalSpacing ?? 0,
-                    VerticalSpacing = style?.VerticalSpacing ?? 0
+                    FontSize = src.Style.FontSize,
+                    FontWeight = MapFontWeight(src.Style.FontWeight),
+                    Color = src.Style.Color,
+                    Alignment = MapTextAlign(src.Style.Alignment),
+                    HorizontalSpacing = src.Style.HorizontalSpacing,
+                    VerticalSpacing = src.Style.VerticalSpacing,
+                    MarginTop = src.Style.MarginTop
                 }
             };
         }
 
-        private static ImageContent MapImageContent(WebsiteImageContent? src)
+        private static ImageContent? MapImageContent(WebsiteImageContent? src)
         {
-            if (src == null) return DefaultImageContent();
-
-            var style = src.Style;
+            if (src == null) return null;
 
             return new ImageContent
             {
                 Url = src.Url,
-                Style = new ImageStyle
+                Style = src.Style == null ? new ImageStyle() : new ImageStyle
                 {
-                    BorderRadius = style?.BorderRadius ?? 6,
-                    OverlayColor = style?.OverlayColor ?? "#FFFFFF",
-                    OverlayOpacity = style?.OverlayOpacity ?? 40
+                    BorderRadius = src.Style.BorderRadius,
+                    OverlayColor = src.Style.OverlayColor,
+                    OverlayOpacity = src.Style.OverlayOpacity
                 }
             };
         }
@@ -279,31 +276,6 @@ namespace Website.Application.Services
             WebsiteTextAlign.Center => TextAlign.Center,
             WebsiteTextAlign.Right => TextAlign.Right,
             _ => TextAlign.Left
-        };
-
-        private static TextContent DefaultTextContent() => new()
-        {
-            Text = string.Empty,
-            Style = new TextStyle
-            {
-                FontSize = 16,
-                FontWeight = FontWeight.Normal,
-                Color = "#000000",
-                Alignment = TextAlign.Left,
-                HorizontalSpacing = 0,
-                VerticalSpacing = 0
-            }
-        };
-
-        private static ImageContent DefaultImageContent() => new()
-        {
-            Url = string.Empty,
-            Style = new ImageStyle
-            {
-                BorderRadius = 6,
-                OverlayColor = "#FFFFFF",
-                OverlayOpacity = 40
-            }
         };
 
         private static WebsiteProvisioningResult Fail(string error)

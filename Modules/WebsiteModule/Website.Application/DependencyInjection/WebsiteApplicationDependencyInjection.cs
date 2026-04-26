@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Website;
+using Website.Application.Mappers;
 using Website.Application.Services;
 using Website.Application.Features.StorefrontFeatures.Services;
 using System.Reflection;
@@ -25,6 +26,9 @@ namespace Website.Application.DependencyInjection
             services.AddScoped<IOfferEligibilityService, OfferEligibilityService>();
             services.AddScoped<ICouponService, CouponService>();
             services.AddScoped<IProductPricingService, ProductPricingService>();
+
+            // Mappers
+            services.AddScoped<IWebsiteConfigMapper, WebsiteConfigMapper>();
 
             // Cross-module services (consumed by IdentityModule)
             services.AddScoped<IWebsiteProvisioningService, WebsiteProvisioningService>();
