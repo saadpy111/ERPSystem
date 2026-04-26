@@ -18,6 +18,12 @@ namespace SharedKernel.Constants.Permissions
         public const string ConfigApplyTheme = "Website.Config.ApplyTheme";
         public const string ConfigPublish    = "Website.Config.Publish";
 
+        // ===== BRANDS =====
+        public const string BrandsView   = "Website.Brands.View";
+        public const string BrandsCreate = "Website.Brands.Create";
+        public const string BrandsEdit   = "Website.Brands.Edit";
+        public const string BrandsDelete = "Website.Brands.Delete";
+
         // ===== PRODUCTS =====
         public const string ProductsView      = "Website.Products.View";
         public const string ProductsCreate    = "Website.Products.Create";   // publish from Inventory

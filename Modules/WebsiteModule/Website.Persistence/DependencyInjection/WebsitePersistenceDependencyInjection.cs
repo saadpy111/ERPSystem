@@ -40,8 +40,8 @@ namespace Website.Persistence.DependencyInjection
             // Legacy Repositories (existing)
             services.AddScoped<IThemeRepository, ThemeRepository>();
             services.AddScoped<ITenantWebsiteRepository, TenantWebsiteRepository>();
+            services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<IWebsiteUnitOfWork, WebsiteUnitOfWork>();
-           
 
             return services;
         }
