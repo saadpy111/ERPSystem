@@ -28,6 +28,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetAll()
         {
             var response = await _mediator.Send(new GetAllBrandsQuery());

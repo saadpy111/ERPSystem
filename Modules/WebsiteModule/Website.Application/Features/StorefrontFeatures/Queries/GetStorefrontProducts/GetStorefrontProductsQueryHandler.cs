@@ -30,17 +30,28 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
         public async Task<GetStorefrontProductsQueryResponse> Handle(GetStorefrontProductsQueryRequest request, CancellationToken cancellationToken)
         {
             // 1. Get Paginated Products
+            List<Guid> categoryIds = new();
+
+            if (request.CategoryId.HasValue)
+            {
+                categoryIds = await GetAllChildCategoryIds(request.CategoryId.Value);
+            }
+
             var result = await _productRepository.SearchAsync(
                 filter: p =>
-                    p.IsPublished && p.IsAvailable &&
-                    (request.CategoryId == null || p.CategoryId == request.CategoryId) &&
+                    p.IsPublished &&
+                    p.IsAvailable &&
+                    (!categoryIds.Any() || categoryIds.Contains(p.CategoryId)) &&
                     (request.MinPrice == null || p.Price >= request.MinPrice) &&
                     (request.MaxPrice == null || p.Price <= request.MaxPrice) &&
                     (string.IsNullOrEmpty(request.Search) || p.NameSnapshot.Contains(request.Search)),
                 page: request.Page,
                 pageSize: request.PageSize,
                 orderBy: q => q.OrderBy(p => p.DisplayOrder).ThenBy(p => p.NameSnapshot),
-                includes: new Expression<Func<WebsiteProduct, object>>[] { p => p.Images }
+                includes: new Expression<Func<WebsiteProduct, object>>[]
+                {
+        p => p.Images
+                }
             );
 
             // 2. Build Product-to-Offers Lookup
@@ -106,6 +117,36 @@ namespace Website.Application.Features.StorefrontFeatures.Queries.GetStorefrontP
                     g => g.Key,
                     g => g.Select(x => x.Offer).ToList()
                 );
+        }
+
+        private async Task<List<Guid>> GetAllChildCategoryIds(Guid parentCategoryId)
+        {
+            var categoryRepo = _unitOfWork.Repository<WebsiteCategory>();
+
+            var allCategories = await categoryRepo.GetAllAsync();
+
+            var result = new List<Guid>();
+
+            void AddChildren(Guid categoryId)
+            {
+                if (result.Contains(categoryId))
+                    return;
+                result.Add(categoryId);
+
+                var children = allCategories
+                    .Where(c => c.ParentCategoryId == categoryId)
+                    .Select(c => c.Id)
+                    .ToList();
+
+                foreach (var childId in children)
+                {
+                    AddChildren(childId);
+                }
+            }
+
+            AddChildren(parentCategoryId);
+
+            return result;
         }
     }
 }

@@ -30,6 +30,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet("public")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetPublicTestimonials([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
         {
             var result = await _mediator.Send(new GetVisibleTestimonialsQuery { Page = page, PageSize = pageSize });

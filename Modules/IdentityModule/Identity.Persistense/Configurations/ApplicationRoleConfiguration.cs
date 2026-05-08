@@ -19,6 +19,11 @@ namespace Identity.Persistense.Configurations
                 .HasForeignKey(r => r.TenantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasMany(r => r.UserRoles)
+                    .WithOne(t => t.Role)
+                    .HasForeignKey(r => r.RoleId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasIndex(r => new { r.Name, r.TenantId, r.Scope })
                 .IsUnique();
         }
