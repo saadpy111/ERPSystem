@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace Accounting.Application.Reports.DTOs
 {
-    /// <summary>Root Balance Sheet DTO returned to API callers.</summary>
     public class BalanceSheetDto
     {
         // ── Classification buckets ──────────────────────────────────────────────
@@ -16,18 +15,12 @@ namespace Accounting.Application.Reports.DTOs
         public decimal TotalLiabilities { get; init; }
         public decimal TotalEquity      { get; init; }
 
-        // ── Accounting equation check ───────────────────────────────────────────
-        /// <summary>
-        /// True when <see cref="TotalAssets"/> == <see cref="TotalLiabilities"/> + <see cref="TotalEquity"/>.
-        /// A false value flags an out-of-balance ledger for the caller to handle.
-        /// </summary>
+
         public bool IsBalanced { get; init; }
 
-        /// <summary>The cut-off date this report was generated for.</summary>
         public DateTime AsOfDate { get; init; }
     }
 
-    /// <summary>One account row within a Balance Sheet section.</summary>
     public class BalanceSheetItemDto
     {
         public int     AccountId   { get; init; }

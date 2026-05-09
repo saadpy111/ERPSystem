@@ -11,5 +11,11 @@ namespace Accounting.Application.Posting.Interfaces
         DateTime Date { get; set; }
         string? Description { get; set; }
         string? Reference { get; set; }
+
+        /// <summary>
+        /// The identity (username / user-id) of the actor triggering this posting.
+        /// Stored as PostedBy on the JournalEntry for immutable audit trail.
+        /// </summary>
+        string? PostedBy { get; set; }
     }
 }

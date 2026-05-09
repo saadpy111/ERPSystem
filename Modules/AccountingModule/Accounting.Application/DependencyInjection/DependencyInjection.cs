@@ -34,7 +34,14 @@ namespace Accounting.Application.DependencyInjection
 
             // Register Mapping Service
             services.AddScoped<Accounting.Application.Services.Interfaces.IAccountingMappingService, Accounting.Application.Services.Implementations.AccountingMappingService>();
+            // Register Exchange Rate Service (used by business-layer command handlers only,
+            // NOT by the Posting Engine — exchange rates are locked at transaction creation)
             services.AddScoped<Accounting.Application.Services.Interfaces.IExchangeRateService, Accounting.Application.Services.Implementations.ExchangeRateService>();
+
+            // Register Balance Validation Service
+            // Queries Posted JournalEntryLines (GL) as the single financial source of truth.
+            // Encapsulates overdraft policy (AllowNegativeBalance) — kept outside the Posting Engine.
+            services.AddScoped<Accounting.Application.Services.Interfaces.IAccountBalanceService, Accounting.Application.Services.Implementations.AccountBalanceService>();
 
             // Register Budget Control
             services.AddScoped<Accounting.Application.Services.Interfaces.IBudgetControlService, Accounting.Application.Services.Implementations.BudgetControlService>();

@@ -14,9 +14,10 @@ namespace Accounting.Application.Posting.Commands.PostTransaction
         public SourceType SourceType { get; set; }
         public int SourceId { get; set; }
         public DateTime Date { get; set; }
-        public string Description { get; set; } = null!;
+        public string? Description { get; set; }
         public string? Reference { get; set; }
         public int CurrencyId { get; set; }
+        public string? PostedBy { get; set; }
     }
 
     public class PostTransactionCommandHandler : IRequestHandler<PostTransactionCommand, Result<int>>

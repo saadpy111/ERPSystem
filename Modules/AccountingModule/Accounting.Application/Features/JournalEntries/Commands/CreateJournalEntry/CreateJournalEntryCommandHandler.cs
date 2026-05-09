@@ -64,7 +64,7 @@ namespace Accounting.Application.Features.JournalEntries.Commands.CreateJournalE
             journalEntry.SourceType = SourceType.Manual;
             journalEntry.JournalNumber = "JE-" + DateTime.Now.ToString("yyyyMMddHHmmss");
 
-            // Raw amounts as provided by user - no conversion here per goal #4
+            // Raw amounts as provided by user - no conversion here per goal 
             foreach(var line in journalEntry.Lines)
             {
                 line.CurrencyId = request.CurrencyId;

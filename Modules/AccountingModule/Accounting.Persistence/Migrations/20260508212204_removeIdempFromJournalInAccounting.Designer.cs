@@ -4,6 +4,7 @@ using Accounting.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Accounting.Persistence.Migrations
 {
     [DbContext(typeof(AccountingDbContext))]
-    partial class AccountingDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260508212204_removeIdempFromJournalInAccounting")]
+    partial class removeIdempFromJournalInAccounting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,9 +285,6 @@ namespace Accounting.Persistence.Migrations
 
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("AllowNegativeBalance")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -710,10 +710,6 @@ namespace Accounting.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ApprovedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -751,13 +747,12 @@ namespace Accounting.Persistence.Migrations
                     b.Property<DateTime?>("PostedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("PostedBy")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<string>("Reference")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int?>("ReversalEntryId")
+                        .HasColumnType("int");
 
                     b.Property<string>("ReversalReason")
                         .HasMaxLength(500)
@@ -770,7 +765,7 @@ namespace Accounting.Persistence.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<int?>("ReversedSourceJournalId")
+                    b.Property<int?>("ReversedEntryId")
                         .HasColumnType("int");
 
                     b.Property<int>("SourceId")
@@ -808,7 +803,7 @@ namespace Accounting.Persistence.Migrations
 
                     b.HasIndex("FiscalPeriodId");
 
-                    b.HasIndex("ReversedSourceJournalId");
+                    b.HasIndex("ReversedEntryId");
 
                     b.HasIndex("TenantId");
 
@@ -1096,10 +1091,6 @@ namespace Accounting.Persistence.Migrations
                         .HasPrecision(18, 6)
                         .HasColumnType("decimal(18,6)");
 
-                    b.Property<decimal>("BaseAmount")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
                     b.Property<int>("CashAccountId")
                         .HasColumnType("int");
 
@@ -1111,23 +1102,12 @@ namespace Accounting.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("CurrencyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("ExchangeRate")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal>("ForeignAmount")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1231,10 +1211,6 @@ namespace Accounting.Persistence.Migrations
                         .HasPrecision(18, 6)
                         .HasColumnType("decimal(18,6)");
 
-                    b.Property<decimal>("BaseAmount")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
                     b.Property<int>("CashAccountId")
                         .HasColumnType("int");
 
@@ -1246,23 +1222,12 @@ namespace Accounting.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("CurrencyId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<decimal>("ExchangeRate")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal>("ForeignAmount")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -1489,10 +1454,6 @@ namespace Accounting.Persistence.Migrations
                     b.Property<int>("AccountId")
                         .HasColumnType("int");
 
-                    b.Property<decimal?>("BaseAmount")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
                     b.Property<int?>("CostCenterId")
                         .HasColumnType("int");
 
@@ -1512,14 +1473,6 @@ namespace Accounting.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<decimal>("Debit")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal?>("ExchangeRate")
-                        .HasPrecision(18, 6)
-                        .HasColumnType("decimal(18,6)");
-
-                    b.Property<decimal?>("ForeignAmount")
                         .HasPrecision(18, 6)
                         .HasColumnType("decimal(18,6)");
 
@@ -1713,16 +1666,16 @@ namespace Accounting.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Accounting.Domain.Entities.JournalEntry", "ReversedSourceJournal")
+                    b.HasOne("Accounting.Domain.Entities.JournalEntry", "ReversedEntry")
                         .WithMany("Reversals")
-                        .HasForeignKey("ReversedSourceJournalId")
+                        .HasForeignKey("ReversedEntryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Currency");
 
                     b.Navigation("FiscalPeriod");
 
-                    b.Navigation("ReversedSourceJournal");
+                    b.Navigation("ReversedEntry");
                 });
 
             modelBuilder.Entity("Accounting.Domain.Entities.JournalEntryLine", b =>

@@ -91,25 +91,6 @@ namespace Accounting.Api.Controllers
             return Ok(new { success = true, message = result.Message, data = result.Data });
         }
 
-        /// <summary>
-        /// Reverses a Posted journal entry.
-        /// </summary>
-        /// <remarks>
-
-
-        /// Creates a new mirror journal entry with every debit/credit swapped and marks
-        /// the original as <c>Reversed</c>. The original entry is never deleted.
-        ///
-        /// Business rules enforced:
-        /// - Entry must exist and be in <c>Posted</c> status.
-        /// - Entry must not have been reversed before.
-        /// - The entry's fiscal period must be open.
-        /// - Reason must be provided (audit trail).
-        /// </remarks>
-        /// <param name="id">ID of the Posted journal entry to reverse.</param>
-        /// <param name="request">Reversal payload (only <c>Reason</c> is required).</param>
-        /// <param name="cancellationToken"></param>
-        /// <returns>The ID of the newly created reversal journal entry.</returns>
         [HttpPost("{id:int}/reverse")]
         [HasPermission(AccountingPermissions.JournalEntriesReverse)]
         [ProducesResponseType(typeof(int), StatusCodes.Status200OK)]
@@ -137,10 +118,8 @@ namespace Accounting.Api.Controllers
         }
     }
 
-    /// <summary>Request body for the reversal endpoint.</summary>
     public sealed class ReverseJournalEntryRequest
     {
-        /// <summary>Mandatory business reason for the reversal (stored as an audit trail).</summary>
         public string Reason { get; set; } = null!;
     }
 }

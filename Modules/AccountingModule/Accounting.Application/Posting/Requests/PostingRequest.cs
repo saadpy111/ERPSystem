@@ -12,5 +12,6 @@ namespace Accounting.Application.Posting.Requests
         public DateTime Date { get; set; }
         public string? Description { get; set; }
         public string? Reference { get; set; }
+        public string? PostedBy { get; set; }
     }
 }

@@ -7,6 +7,7 @@ namespace Accounting.Domain.Entities
     {
         public string Name { get; set; } = null!;
         public int AccountId { get; set; } // Map to GL Account
+        public bool AllowNegativeBalance { get; set; } = false;
 
         public virtual Account Account { get; set; } = null!;
         public virtual ICollection<CashTransaction> Transactions { get; set; } = new List<CashTransaction>();
