@@ -1,5 +1,6 @@
 using Accounting.Application.Interfaces.Repositories;
 using Accounting.Application.Reports.DTOs;
+using Accounting.Application.Reports.Models;
 using Accounting.Domain.Enums;
 using MediatR;
 using Accounting.Application.Common.Models;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetTrialBalance
 {
-    public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery, Result<List<TrialBalanceDto>>>
+    public class GetTrialBalanceQueryHandler : IRequestHandler<GetTrialBalanceQuery, Result<ReportResponse<TrialBalanceDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -20,7 +21,7 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<List<TrialBalanceDto>>> Handle(GetTrialBalanceQuery request, CancellationToken cancellationToken)
+        public async Task<Result<ReportResponse<TrialBalanceDto>>> Handle(GetTrialBalanceQuery request, CancellationToken cancellationToken)
         {
             var query = _unitOfWork.JournalEntryLines.Query()
                 .Where(l => l.JournalEntry.Status == JournalStatus.Posted);
@@ -73,6 +74,7 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
                         AccountId = x.AccountId,
                         AccountCode = x.AccountCode,
                         AccountName = x.AccountName,
+                        AccountType = x.AccountType,
                         Debit = x.TotalDebit,
                         Credit = x.TotalCredit,
                         Balance = balance,
@@ -82,7 +84,23 @@ namespace Accounting.Application.Reports.Queries.GetTrialBalance
                 .OrderBy(x => x.AccountCode)
                 .ToList();
 
-            return Result<List<TrialBalanceDto>>.Ok(result);
+            var response = new ReportResponse<TrialBalanceDto>
+            {
+                Items = result,
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = "Trial Balance",
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate
+                }
+            };
+
+            response.Totals.Add("Turnover Debit", result.Sum(x => x.Debit));
+            response.Totals.Add("Turnover Credit", result.Sum(x => x.Credit));
+            response.Totals.Add("Debit Balance", result.Where(x => x.AccountType == AccountType.Asset || x.AccountType == AccountType.Expense).Sum(x => x.Balance));
+            response.Totals.Add("Credit Balance", result.Where(x => x.AccountType == AccountType.Liability || x.AccountType == AccountType.Equity || x.AccountType == AccountType.Revenue).Sum(x => x.Balance));
+
+            return Result<ReportResponse<TrialBalanceDto>>.Ok(response);
         }
     }
 }

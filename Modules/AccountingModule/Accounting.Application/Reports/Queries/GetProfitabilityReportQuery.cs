@@ -5,7 +5,7 @@ using System;
 
 namespace Accounting.Application.Reports.Queries
 {
-    public class GetProfitabilityReportQuery : IRequest<Result<ProfitabilityReportDto>>
+    public class GetProfitabilityReportQuery : IRequest<Result<Accounting.Application.Reports.Models.ReportResponse<ProfitabilityItemDto>>>
     {
         public int? CostCenterId { get; set; }
         public DateTime FromDate { get; set; }

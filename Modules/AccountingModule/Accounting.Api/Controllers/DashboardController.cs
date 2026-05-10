@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Authorization;
 using SharedKernel.Core.Constants.Permissions;
 using Accounting.Application.Interfaces.Services;
+using Accounting.Application.Reports.Models;
+using Accounting.Application.Reports.Builders;
+using System.Linq;
 
 namespace Accounting.Api.Controllers
 {
@@ -47,11 +50,25 @@ namespace Accounting.Api.Controllers
             if (format.HasValue)
             {
                 var reportName = "Profit By Cost Center";
+                var response = new ReportResponse<Accounting.Application.Dashboard.DTOs.ProfitByCostCenterDto>
+                {
+                    Items = result.Data.ToList(),
+                    Metadata = new ReportMetadata { ReportName = reportName, FromDate = fromDate, ToDate = toDate }
+                };
+
+                var definition = new ReportDefinitionBuilder<Accounting.Application.Dashboard.DTOs.ProfitByCostCenterDto>()
+                    .AddTextColumn(x => x.CostCenterName, "Cost Center")
+                    .AddDecimalColumn(x => x.Revenue, "Revenue")
+                    .AddDecimalColumn(x => x.Expenses, "Expenses")
+                    .AddDecimalColumn(x => x.Profit, "Profit")
+                    .HasTotals(true)
+                    .Build();
+
                 var (stream, contentType, fileName) = format.Value switch
                 {
-                    ReportFormat.Pdf => await _exportService.ExportToPdf(result.Data, reportName),
-                    ReportFormat.Excel => await _exportService.ExportToExcel(result.Data, reportName),
-                    ReportFormat.Csv => await _exportService.ExportToCsv(result.Data, reportName),
+                    ReportFormat.Pdf => await _exportService.ExportToPdf(response, definition),
+                    ReportFormat.Excel => await _exportService.ExportToExcel(response, definition),
+                    ReportFormat.Csv => await _exportService.ExportToCsv(response, definition),
                     _ => throw new ArgumentOutOfRangeException()
                 };
 
@@ -79,11 +96,27 @@ namespace Accounting.Api.Controllers
             if (format.HasValue)
             {
                 var reportName = "Budget Usage";
+                var response = new ReportResponse<Accounting.Application.Dashboard.DTOs.BudgetUsageDto>
+                {
+                    Items = result.Data.ToList(),
+                    Metadata = new ReportMetadata { ReportName = reportName }
+                };
+
+                var definition = new ReportDefinitionBuilder<Accounting.Application.Dashboard.DTOs.BudgetUsageDto>()
+                    .AddTextColumn(x => x.BudgetName, "Budget")
+                    .AddTextColumn(x => x.CostCenterName, "Cost Center")
+                    .AddDecimalColumn(x => x.PlannedAmount, "Planned")
+                    .AddDecimalColumn(x => x.ActualAmount, "Actual")
+                    .AddDecimalColumn(x => x.PlannedAmount - x.ActualAmount, "Variance")
+                    .AddPercentageColumn(x => x.UsagePercentage, "Usage (%)")
+                    .HasTotals(true)
+                    .Build();
+
                 var (stream, contentType, fileName) = format.Value switch
                 {
-                    ReportFormat.Pdf => await _exportService.ExportToPdf(result.Data, reportName),
-                    ReportFormat.Excel => await _exportService.ExportToExcel(result.Data, reportName),
-                    ReportFormat.Csv => await _exportService.ExportToCsv(result.Data, reportName),
+                    ReportFormat.Pdf => await _exportService.ExportToPdf(response, definition),
+                    ReportFormat.Excel => await _exportService.ExportToExcel(response, definition),
+                    ReportFormat.Csv => await _exportService.ExportToCsv(response, definition),
                     _ => throw new ArgumentOutOfRangeException()
                 };
 
@@ -111,11 +144,23 @@ namespace Accounting.Api.Controllers
             if (format.HasValue)
             {
                 var reportName = "Top Expenses";
+                var response = new ReportResponse<Accounting.Application.Dashboard.DTOs.TopExpenseDto>
+                {
+                    Items = result.Data.ToList(),
+                    Metadata = new ReportMetadata { ReportName = reportName }
+                };
+
+                var definition = new ReportDefinitionBuilder<Accounting.Application.Dashboard.DTOs.TopExpenseDto>()
+                    .AddTextColumn(x => x.AccountName, "Expense Account")
+                    .AddDecimalColumn(x => x.TotalExpense, "Total Amount")
+                    .HasTotals(true)
+                    .Build();
+
                 var (stream, contentType, fileName) = format.Value switch
                 {
-                    ReportFormat.Pdf => await _exportService.ExportToPdf(result.Data, reportName),
-                    ReportFormat.Excel => await _exportService.ExportToExcel(result.Data, reportName),
-                    ReportFormat.Csv => await _exportService.ExportToCsv(result.Data, reportName),
+                    ReportFormat.Pdf => await _exportService.ExportToPdf(response, definition),
+                    ReportFormat.Excel => await _exportService.ExportToExcel(response, definition),
+                    ReportFormat.Csv => await _exportService.ExportToCsv(response, definition),
                     _ => throw new ArgumentOutOfRangeException()
                 };
 
@@ -143,11 +188,25 @@ namespace Accounting.Api.Controllers
             if (format.HasValue)
             {
                 var reportName = "Monthly Overview";
+                var response = new ReportResponse<Accounting.Application.Dashboard.DTOs.MonthlyOverviewDto>
+                {
+                    Items = result.Data.ToList(),
+                    Metadata = new ReportMetadata { ReportName = reportName }
+                };
+
+                var definition = new ReportDefinitionBuilder<Accounting.Application.Dashboard.DTOs.MonthlyOverviewDto>()
+                    .AddTextColumn(x => x.MonthName, "Month")
+                    .AddDecimalColumn(x => x.Revenue, "Revenue")
+                    .AddDecimalColumn(x => x.Expenses, "Expenses")
+                    .AddDecimalColumn(x => x.Profit, "Net Profit")
+                    .HasTotals(true)
+                    .Build();
+
                 var (stream, contentType, fileName) = format.Value switch
                 {
-                    ReportFormat.Pdf => await _exportService.ExportToPdf(result.Data, reportName),
-                    ReportFormat.Excel => await _exportService.ExportToExcel(result.Data, reportName),
-                    ReportFormat.Csv => await _exportService.ExportToCsv(result.Data, reportName),
+                    ReportFormat.Pdf => await _exportService.ExportToPdf(response, definition),
+                    ReportFormat.Excel => await _exportService.ExportToExcel(response, definition),
+                    ReportFormat.Csv => await _exportService.ExportToCsv(response, definition),
                     _ => throw new ArgumentOutOfRangeException()
                 };
 

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetIncomeStatement
 {
-    public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatementQuery, Result<IncomeStatementDto>>
+    public class GetIncomeStatementQueryHandler : IRequestHandler<GetIncomeStatementQuery, Result<Accounting.Application.Reports.Models.ReportResponse<IncomeStatementItemDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -20,11 +20,11 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<IncomeStatementDto>> Handle(GetIncomeStatementQuery request, CancellationToken cancellationToken)
+        public async Task<Result<Accounting.Application.Reports.Models.ReportResponse<IncomeStatementItemDto>>> Handle(GetIncomeStatementQuery request, CancellationToken cancellationToken)
         {
             if (request.FromDate > request.ToDate)
             {
-                return Result<IncomeStatementDto>.Failure("FromDate cannot be later than ToDate.");
+                return Result<Accounting.Application.Reports.Models.ReportResponse<IncomeStatementItemDto>>.Failure("FromDate cannot be later than ToDate.");
             }
 
             var query = _unitOfWork.JournalEntryLines.Query()
@@ -77,6 +77,7 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
+                            AccountType = AccountType.Revenue,
                             Amount = amount,
                             CostCenterId = item.CostCenterId,
                             CostCenterName = item.CostCenterName
@@ -93,6 +94,7 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
+                            AccountType = AccountType.Expense,
                             Amount = amount,
                             CostCenterId = item.CostCenterId,
                             CostCenterName = item.CostCenterName
@@ -108,16 +110,26 @@ namespace Accounting.Application.Reports.Queries.GetIncomeStatement
             decimal totalExpenses = expenses.Sum(e => e.Amount);
             decimal netProfit = totalRevenue - totalExpenses;
 
-            return Result<IncomeStatementDto>.Ok(new IncomeStatementDto
+            var allItems = new List<IncomeStatementItemDto>();
+            allItems.AddRange(revenues);
+            allItems.AddRange(expenses);
+
+            var response = new Accounting.Application.Reports.Models.ReportResponse<IncomeStatementItemDto>
             {
-                Revenues = revenues,
-                Expenses = expenses,
-                TotalRevenue = totalRevenue,
-                TotalExpenses = totalExpenses,
-                NetProfit = netProfit,
-                FromDate = request.FromDate,
-                ToDate = request.ToDate
-            });
+                Items = allItems,
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = "Income Statement",
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate
+                }
+            };
+            
+            response.Totals.Add("Total Revenue", totalRevenue);
+            response.Totals.Add("Total Expenses", totalExpenses);
+            response.Totals.Add("Net Profit", netProfit);
+
+            return Result<Accounting.Application.Reports.Models.ReportResponse<IncomeStatementItemDto>>.Ok(response);
         }
     }
 }

@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetAccountStatement
 {
-    public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStatementQuery, Result<List<AccountStatementDto>>>
+    public class GetAccountStatementQueryHandler : IRequestHandler<GetAccountStatementQuery, Result<Accounting.Application.Reports.Models.ReportResponse<AccountStatementDto>>>
     {
         private readonly IAccountingDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
@@ -25,12 +25,12 @@ namespace Accounting.Application.Reports.Queries.GetAccountStatement
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<List<AccountStatementDto>>> Handle(GetAccountStatementQuery request, CancellationToken cancellationToken)
+        public async Task<Result<Accounting.Application.Reports.Models.ReportResponse<AccountStatementDto>>> Handle(GetAccountStatementQuery request, CancellationToken cancellationToken)
         {
             var partner = await _unitOfWork.Partners.GetByIdAsync(request.PartnerId);
             if (partner == null)
             {
-                return Result<List<AccountStatementDto>>.Failure($"Partner with ID {request.PartnerId} not found.");
+                return Result<Accounting.Application.Reports.Models.ReportResponse<AccountStatementDto>>.Failure($"Partner with ID {request.PartnerId} not found.");
             }
 
             decimal openingBalance = 0m;
@@ -136,7 +136,22 @@ namespace Accounting.Application.Reports.Queries.GetAccountStatement
                 });
             }
 
-            return Result<List<AccountStatementDto>>.Ok(result);
+            var response = new Accounting.Application.Reports.Models.ReportResponse<AccountStatementDto>
+            {
+                Items = result,
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = $"Account Statement - {partner.NameEn ?? partner.NameAr}",
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate
+                }
+            };
+            
+            response.Totals.Add("Total Debit", result.Sum(x => x.Debit));
+            response.Totals.Add("Total Credit", result.Sum(x => x.Credit));
+            response.Totals.Add("Ending Balance", runningBalance);
+
+            return Result<Accounting.Application.Reports.Models.ReportResponse<AccountStatementDto>>.Ok(response);
         }
     }
 }

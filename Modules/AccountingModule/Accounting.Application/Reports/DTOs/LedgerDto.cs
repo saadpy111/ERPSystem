@@ -1,3 +1,4 @@
+using Accounting.Domain.Enums;
 using System;
 
 namespace Accounting.Application.Reports.DTOs
@@ -10,6 +11,7 @@ namespace Accounting.Application.Reports.DTOs
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public decimal RunningBalance { get; set; }
+        public AccountType AccountType { get; set; }
         public int? PartnerId { get; set; }
         public int? CostCenterId { get; set; }
         public string? CostCenterName { get; set; }

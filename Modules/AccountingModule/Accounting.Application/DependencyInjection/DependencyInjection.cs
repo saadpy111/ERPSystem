@@ -46,6 +46,9 @@ namespace Accounting.Application.DependencyInjection
             // Register Budget Control
             services.AddScoped<Accounting.Application.Services.Interfaces.IBudgetControlService, Accounting.Application.Services.Implementations.BudgetControlService>();
 
+            // Register Financial Reporting Formatting
+            services.AddSingleton<Accounting.Application.Reports.Services.IFinancialFormattingService, Accounting.Application.Reports.Services.FinancialFormattingService>();
+
             return services;
         }
     }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 {
-    public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuery, Result<List<LedgerDto>>>
+    public class GetGeneralLedgerQueryHandler : IRequestHandler<GetGeneralLedgerQuery, Result<Accounting.Application.Reports.Models.ReportResponse<LedgerDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -21,7 +21,7 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<List<LedgerDto>>> Handle(GetGeneralLedgerQuery request, CancellationToken cancellationToken)
+        public async Task<Result<Accounting.Application.Reports.Models.ReportResponse<LedgerDto>>> Handle(GetGeneralLedgerQuery request, CancellationToken cancellationToken)
         {
             decimal openingBalance = 0m;
 
@@ -40,10 +40,25 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 
                 var priorEntries = await priorQuery
                     .GroupBy(l => l.AccountId)
-                    .Select(g => new { Balance = g.Sum(x => x.Debit) - g.Sum(x => x.Credit) })
+                    .Select(g => new { Debit = g.Sum(x => x.Debit), Credit = g.Sum(x => x.Credit) })
                     .FirstOrDefaultAsync(cancellationToken);
 
-                openingBalance = priorEntries?.Balance ?? 0m;
+                if (priorEntries != null)
+                {
+                    // The generic opening balance is returned as absolute difference here; we'll refine it when we get the account type below
+                    openingBalance = priorEntries.Debit - priorEntries.Credit;
+                }
+            }
+
+            var account = await _unitOfWork.Accounts.GetByIdAsync(request.AccountId);
+            if (account == null)
+            {
+                return Result<Accounting.Application.Reports.Models.ReportResponse<LedgerDto>>.Failure("Account not found.");
+            }
+            
+            if (account.AccountType == AccountType.Liability || account.AccountType == AccountType.Equity || account.AccountType == AccountType.Revenue)
+            {
+                openingBalance = -openingBalance; // For these accounts, credit is positive balance
             }
 
             var query = _unitOfWork.JournalEntryLines.Query()
@@ -102,7 +117,14 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 
             foreach (var entry in entries)
             {
-                runningBalance += (entry.Debit - entry.Credit);
+                if (account.AccountType == AccountType.Liability || account.AccountType == AccountType.Equity || account.AccountType == AccountType.Revenue)
+                {
+                    runningBalance += (entry.Credit - entry.Debit);
+                }
+                else
+                {
+                    runningBalance += (entry.Debit - entry.Credit);
+                }
 
                 result.Add(new LedgerDto
                 {
@@ -112,13 +134,29 @@ namespace Accounting.Application.Reports.Queries.GetGeneralLedger
                     Debit = entry.Debit,
                     Credit = entry.Credit,
                     RunningBalance = runningBalance,
+                    AccountType = account.AccountType,
                     PartnerId = entry.PartnerId,
                     CostCenterId = entry.CostCenterId,
                     CostCenterName = entry.CostCenterName
                 });
             }
 
-            return Result<List<LedgerDto>>.Ok(result);
+            var response = new Accounting.Application.Reports.Models.ReportResponse<LedgerDto>
+            {
+                Items = result,
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = $"General Ledger - {account.Code} - {account.NameEn ?? account.NameAr}",
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate
+                }
+            };
+            
+            response.Totals.Add("Total Debit", result.Sum(x => x.Debit));
+            response.Totals.Add("Total Credit", result.Sum(x => x.Credit));
+            response.Totals.Add("Ending Balance", runningBalance);
+
+            return Result<Accounting.Application.Reports.Models.ReportResponse<LedgerDto>>.Ok(response);
         }
     }
 }

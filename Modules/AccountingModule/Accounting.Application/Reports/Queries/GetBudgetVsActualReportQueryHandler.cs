@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries
 {
-    public class GetBudgetVsActualReportQueryHandler : IRequestHandler<GetBudgetVsActualReportQuery, Result<BudgetVsActualReportDto>>
+    public class GetBudgetVsActualReportQueryHandler : IRequestHandler<GetBudgetVsActualReportQuery, Result<Accounting.Application.Reports.Models.ReportResponse<BudgetVsActualItemDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -20,7 +20,7 @@ namespace Accounting.Application.Reports.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<BudgetVsActualReportDto>> Handle(GetBudgetVsActualReportQuery request, CancellationToken cancellationToken)
+        public async Task<Result<Accounting.Application.Reports.Models.ReportResponse<BudgetVsActualItemDto>>> Handle(GetBudgetVsActualReportQuery request, CancellationToken cancellationToken)
         {
             var budgetLinesQuery = _unitOfWork.BudgetLines.Query()
                 .AsNoTracking()
@@ -72,10 +72,21 @@ namespace Accounting.Application.Reports.Queries
                 });
             }
 
-            return Result<BudgetVsActualReportDto>.Ok(new BudgetVsActualReportDto
+            var sortedItems = items.OrderBy(x => x.AccountCode).ToList();
+            var response = new Accounting.Application.Reports.Models.ReportResponse<BudgetVsActualItemDto>
             {
-                Items = items.OrderBy(x => x.AccountCode).ToList()
-            });
+                Items = sortedItems,
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = "Budget Vs Actual"
+                }
+            };
+            
+            response.Totals.Add("Total Planned", sortedItems.Sum(x => x.PlannedAmount));
+            response.Totals.Add("Total Actual", sortedItems.Sum(x => x.ActualAmount));
+            response.Totals.Add("Total Variance", sortedItems.Sum(x => x.Variance));
+
+            return Result<Accounting.Application.Reports.Models.ReportResponse<BudgetVsActualItemDto>>.Ok(response);
         }
     }
 }

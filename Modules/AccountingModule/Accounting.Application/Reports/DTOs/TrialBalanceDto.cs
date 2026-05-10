@@ -1,3 +1,5 @@
+using Accounting.Domain.Enums;
+
 namespace Accounting.Application.Reports.DTOs
 {
     public class TrialBalanceDto
@@ -5,6 +7,7 @@ namespace Accounting.Application.Reports.DTOs
         public int AccountId { get; set; }
         public string AccountCode { get; set; } = null!;
         public string AccountName { get; set; } = null!;
+        public AccountType AccountType { get; set; }
         public decimal Debit { get; set; }
         public decimal Credit { get; set; }
         public decimal Balance { get; set; }

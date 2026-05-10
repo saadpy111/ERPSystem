@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Accounting.Application.Reports.Queries.GetAccountStatement
 {
-    public class GetAccountStatementQuery : IRequest<Result<List<AccountStatementDto>>>
+    public class GetAccountStatementQuery : IRequest<Result<Accounting.Application.Reports.Models.ReportResponse<AccountStatementDto>>>
     {
         public int PartnerId { get; set; }
         public DateTime? FromDate { get; set; }

@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries.GetBalanceSheet
 {
-    public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, Result<BalanceSheetDto>>
+    public class GetBalanceSheetQueryHandler : IRequestHandler<GetBalanceSheetQuery, Result<Accounting.Application.Reports.Models.ReportResponse<BalanceSheetItemDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -21,7 +21,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<BalanceSheetDto>> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
+        public async Task<Result<Accounting.Application.Reports.Models.ReportResponse<BalanceSheetItemDto>>> Handle(GetBalanceSheetQuery request, CancellationToken cancellationToken)
         {
             // Note: Cost Center filtering may produce unbalanced results because Balance Sheet is cumulative across all transactions.
             
@@ -64,6 +64,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
+                            AccountType = AccountType.Asset,
                             Amount = balance,
                             CostCenterId = request.CostCenterId
                         });
@@ -79,6 +80,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
+                            AccountType = AccountType.Liability,
                             Amount = balance,
                             CostCenterId = request.CostCenterId
                         });
@@ -94,6 +96,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                             AccountId = item.AccountId,
                             AccountCode = item.AccountCode,
                             AccountName = item.AccountName,
+                            AccountType = AccountType.Equity,
                             Amount = balance,
                             CostCenterId = request.CostCenterId
                         });
@@ -117,6 +120,7 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
                     AccountCode = "-",
                     AccountName = "Calculated Net Income",
                     Amount = netIncome,
+                    AccountType = AccountType.Equity,
                     CostCenterId = request.CostCenterId
                 });
             }
@@ -124,6 +128,11 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
             assets = assets.OrderBy(a => a.AccountCode).ToList();
             liabilities = liabilities.OrderBy(l => l.AccountCode).ToList();
             equity = equity.OrderBy(e => e.AccountCode).ToList();
+
+            var allItems = new List<BalanceSheetItemDto>();
+            allItems.AddRange(assets);
+            allItems.AddRange(liabilities);
+            allItems.AddRange(equity);
 
             decimal totalAssets = assets.Sum(a => a.Amount);
             decimal totalLiabilities = liabilities.Sum(l => l.Amount);
@@ -134,20 +143,25 @@ namespace Accounting.Application.Reports.Queries.GetBalanceSheet
             
             if (!request.CostCenterId.HasValue && !isBalanced)
             {
-                return Result<BalanceSheetDto>.Failure($"Balance Sheet mismatch: Total Assets ({totalAssets}) != Total Liabilities ({totalLiabilities}) + Total Equity ({totalEquity}).");
+                return Result<Accounting.Application.Reports.Models.ReportResponse<BalanceSheetItemDto>>.Failure($"Balance Sheet mismatch: Total Assets ({totalAssets}) != Total Liabilities ({totalLiabilities}) + Total Equity ({totalEquity}).");
             }
 
-            return Result<BalanceSheetDto>.Ok(new BalanceSheetDto
+            var response = new Accounting.Application.Reports.Models.ReportResponse<BalanceSheetItemDto>
             {
-                Assets = assets,
-                Liabilities = liabilities,
-                Equity = equity,
-                TotalAssets = totalAssets,
-                TotalLiabilities = totalLiabilities,
-                TotalEquity = totalEquity,
-                IsBalanced = isBalanced,
-                AsOfDate = request.AsOfDate
-            });
+                Items = allItems,
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = "Balance Sheet",
+                    AsOfDate = request.AsOfDate
+                }
+            };
+            
+            response.Totals.Add("Total Assets", totalAssets);
+            response.Totals.Add("Total Liabilities", totalLiabilities);
+            response.Totals.Add("Total Equity", totalEquity);
+            response.Totals.Add("Total Liabilities & Equity", totalLiabilities + totalEquity);
+
+            return Result<Accounting.Application.Reports.Models.ReportResponse<BalanceSheetItemDto>>.Ok(response);
         }
     }
 }

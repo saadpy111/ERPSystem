@@ -5,7 +5,7 @@ using System;
 
 namespace Accounting.Application.Reports.Queries
 {
-    public class GetExpenseAnalysisReportQuery : IRequest<Result<ExpenseAnalysisReportDto>>
+    public class GetExpenseAnalysisReportQuery : IRequest<Result<Accounting.Application.Reports.Models.ReportResponse<ExpenseAnalysisItemDto>>>
     {
         public int? CostCenterId { get; set; }
         public DateTime FromDate { get; set; }

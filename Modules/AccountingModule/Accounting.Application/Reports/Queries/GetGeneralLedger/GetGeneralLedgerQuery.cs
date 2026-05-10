@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Accounting.Application.Reports.Queries.GetGeneralLedger
 {
-    public class GetGeneralLedgerQuery : IRequest<Result<List<LedgerDto>>>
+    public class GetGeneralLedgerQuery : IRequest<Result<Accounting.Application.Reports.Models.ReportResponse<LedgerDto>>>
     {
         public int AccountId { get; set; }
         public DateTime? FromDate { get; set; }

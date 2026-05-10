@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries
 {
-    public class GetProfitabilityReportQueryHandler : IRequestHandler<GetProfitabilityReportQuery, Result<ProfitabilityReportDto>>
+    public class GetProfitabilityReportQueryHandler : IRequestHandler<GetProfitabilityReportQuery, Result<Accounting.Application.Reports.Models.ReportResponse<ProfitabilityItemDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -20,7 +20,7 @@ namespace Accounting.Application.Reports.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<ProfitabilityReportDto>> Handle(GetProfitabilityReportQuery request, CancellationToken cancellationToken)
+        public async Task<Result<Accounting.Application.Reports.Models.ReportResponse<ProfitabilityItemDto>>> Handle(GetProfitabilityReportQuery request, CancellationToken cancellationToken)
         {
             var query = _unitOfWork.JournalEntryLines.Query()
                 .AsNoTracking()
@@ -66,15 +66,22 @@ namespace Accounting.Application.Reports.Queries
             var totalRevenue = items.Sum(x => x.Revenue);
             var totalExpenses = items.Sum(x => x.Expenses);
 
-            return Result<ProfitabilityReportDto>.Ok(new ProfitabilityReportDto
+            var response = new Accounting.Application.Reports.Models.ReportResponse<ProfitabilityItemDto>
             {
                 Items = items,
-                TotalRevenue = totalRevenue,
-                TotalExpenses = totalExpenses,
-                TotalProfit = totalRevenue - totalExpenses,
-                FromDate = request.FromDate,
-                ToDate = request.ToDate
-            });
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = "Profitability",
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate
+                }
+            };
+            
+            response.Totals.Add("Total Revenue", totalRevenue);
+            response.Totals.Add("Total Expenses", totalExpenses);
+            response.Totals.Add("Total Profit", totalRevenue - totalExpenses);
+
+            return Result<Accounting.Application.Reports.Models.ReportResponse<ProfitabilityItemDto>>.Ok(response);
         }
     }
 }

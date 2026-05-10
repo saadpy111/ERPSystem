@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Accounting.Application.Reports.Queries
 {
-    public class GetExpenseAnalysisReportQueryHandler : IRequestHandler<GetExpenseAnalysisReportQuery, Result<ExpenseAnalysisReportDto>>
+    public class GetExpenseAnalysisReportQueryHandler : IRequestHandler<GetExpenseAnalysisReportQuery, Result<Accounting.Application.Reports.Models.ReportResponse<ExpenseAnalysisItemDto>>>
     {
         private readonly IUnitOfWork _unitOfWork;
 
@@ -20,7 +20,7 @@ namespace Accounting.Application.Reports.Queries
             _unitOfWork = unitOfWork;
         }
 
-        public async Task<Result<ExpenseAnalysisReportDto>> Handle(GetExpenseAnalysisReportQuery request, CancellationToken cancellationToken)
+        public async Task<Result<Accounting.Application.Reports.Models.ReportResponse<ExpenseAnalysisItemDto>>> Handle(GetExpenseAnalysisReportQuery request, CancellationToken cancellationToken)
         {
             var query = _unitOfWork.JournalEntryLines.Query()
                 .AsNoTracking()
@@ -65,13 +65,20 @@ namespace Accounting.Application.Reports.Queries
                 PercentageOfTotal = totalExpense == 0 ? 0 : (x.Amount / totalExpense) * 100
             }).OrderByDescending(x => x.Amount).ToList();
 
-            return Result<ExpenseAnalysisReportDto>.Ok(new ExpenseAnalysisReportDto
+            var response = new Accounting.Application.Reports.Models.ReportResponse<ExpenseAnalysisItemDto>
             {
                 Items = items,
-                TotalExpense = totalExpense,
-                FromDate = request.FromDate,
-                ToDate = request.ToDate
-            });
+                Metadata = new Accounting.Application.Reports.Models.ReportMetadata
+                {
+                    ReportName = "Expense Analysis",
+                    FromDate = request.FromDate,
+                    ToDate = request.ToDate
+                }
+            };
+            
+            response.Totals.Add("Total Expense", totalExpense);
+
+            return Result<Accounting.Application.Reports.Models.ReportResponse<ExpenseAnalysisItemDto>>.Ok(response);
         }
     }
 }
