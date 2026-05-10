@@ -49,7 +49,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalYear
                           cancellationToken);
 
             if (overlaps)
-                throw new BusinessException("The fiscal year dates overlap with an existing fiscal year.");
+                return Result<int>.Failure("The fiscal year dates overlap with an existing fiscal year.");
 
             var year = new FiscalYear
             {

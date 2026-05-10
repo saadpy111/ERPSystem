@@ -40,7 +40,7 @@ namespace Accounting.Application.Features.JournalEntries.Commands.CreateJournalE
             {
                 if (!allLeafIds.Contains(accountId))
                 {
-                    throw new Exception($"Account with ID {accountId} is not a leaf account or does not exist.");
+                    return Result<JournalEntryResponseDto>.Failure($"Account with ID {accountId} is not a leaf account or does not exist.");
                 }
             }
 
@@ -50,12 +50,12 @@ namespace Accounting.Application.Features.JournalEntries.Commands.CreateJournalE
             
             if (activePeriod == null)
             {
-                throw new Exception("No open fiscal period found for the specified date.");
+                return Result<JournalEntryResponseDto>.Failure("No open fiscal period found for the specified date.");
             }
 
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (currency == null || !currency.IsActive)
-                throw new Exception("Invalid or inactive currency.");
+                return Result<JournalEntryResponseDto>.Failure("Invalid or inactive currency.");
 
             var journalEntry = _mapper.Map<JournalEntry>(request);
 

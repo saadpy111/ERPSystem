@@ -32,11 +32,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(query, cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpPost("receipt")]
@@ -48,11 +46,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(command);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpPost("payment")]
@@ -65,11 +61,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(command);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
     }
 }

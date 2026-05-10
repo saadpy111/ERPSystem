@@ -49,7 +49,7 @@ namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalYearById
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (dto == null)
-                throw new BusinessException($"Fiscal year with ID {request.Id} was not found.");
+                return Result<FiscalYearDetailDto>.Failure($"Fiscal year with ID {request.Id} was not found.");
 
             return dto;
         }

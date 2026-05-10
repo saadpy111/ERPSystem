@@ -40,15 +40,15 @@ namespace Accounting.Application.Features.Fiscal.Commands.CloseFiscalYear
                 .FirstOrDefaultAsync(y => y.Id == request.Id && !y.IsDeleted, cancellationToken);
 
             if (year == null)
-                throw new BusinessException($"Fiscal year with ID {request.Id} was not found.");
+                return Result.Failure($"Fiscal year with ID {request.Id} was not found.");
 
             if (year.IsClosed)
-                throw new BusinessException("Fiscal year is already closed.");
+                return Result.Failure("Fiscal year is already closed.");
 
             // Business Rule: cannot close if any period is still open
             bool hasOpenPeriods = year.FiscalPeriods.Any(p => !p.IsClosed && !p.IsDeleted);
             if (hasOpenPeriods)
-                throw new BusinessException("Cannot close the fiscal year while it has open periods. Please close all periods first.");
+                return Result.Failure("Cannot close the fiscal year while it has open periods. Please close all periods first.");
 
             year.IsClosed = true;
             year.UpdatedAt = System.DateTime.UtcNow;

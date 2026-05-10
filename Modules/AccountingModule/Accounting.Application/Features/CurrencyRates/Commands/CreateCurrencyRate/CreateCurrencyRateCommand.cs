@@ -46,13 +46,13 @@ namespace Accounting.Application.Features.CurrencyRates.Commands.CreateCurrencyR
         {
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (currency == null)
-                throw new BusinessException("Currency not found.");
+                return Result<int>.Failure("Currency not found.");
 
             if (currency.IsBaseCurrency)
-                throw new BusinessException("Cannot set exchange rate for native Base Currency.");
+                return Result<int>.Failure("Cannot set exchange rate for native Base Currency.");
 
             if (await _unitOfWork.CurrencyRates.ExistsForDateAsync(request.CurrencyId, request.EffectiveDate))
-                throw new BusinessException($"An exchange rate already exists for {currency.Code} on {request.EffectiveDate.ToShortDateString()}. Updates are prohibited for historical integrity.");
+                return Result<int>.Failure($"An exchange rate already exists for {currency.Code} on {request.EffectiveDate.ToShortDateString()}. Updates are prohibited for historical integrity.");
 
             var rate = new CurrencyRate
             {

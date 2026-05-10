@@ -67,61 +67,68 @@ namespace Accounting.Application.Features.Cash.Commands.CreateCashTransaction
             CreateCashTransactionCommand request,
             CancellationToken cancellationToken)
         {
-            var cashAccount = await _context.CashAccounts
-                .FirstOrDefaultAsync(c => c.Id == request.CashAccountId, cancellationToken);
-
-            if (cashAccount == null)
-                throw new BusinessException("Cash Account not found.");
-
-            var rate = await _exchangeRateService.GetRateAsync(request.CurrencyId, request.Date);
-
-            decimal baseAmount = request.Amount * rate;
-
-            if (request.Type == CashTransactionType.Payment)
+            try
             {
-                var balanceResult = await _balanceService.ValidateSufficientBalanceAsync(
-                    glAccountId:           cashAccount.AccountId,
-                    allowNegativeBalance:  cashAccount.AllowNegativeBalance,
-                    requiredBaseAmount:    baseAmount,   
-                    cancellationToken:     cancellationToken);
+                var cashAccount = await _context.CashAccounts
+                    .FirstOrDefaultAsync(c => c.Id == request.CashAccountId, cancellationToken);
 
-                if (!balanceResult.Success)
-                    throw new BusinessException(balanceResult.Message);
+                if (cashAccount == null)
+                    return Result<int>.Failure("Cash Account not found.");
+
+                var rate = await _exchangeRateService.GetRateAsync(request.CurrencyId, request.Date);
+
+                decimal baseAmount = request.Amount * rate;
+
+                if (request.Type == CashTransactionType.Payment)
+                {
+                    var balanceResult = await _balanceService.ValidateSufficientBalanceAsync(
+                        glAccountId:           cashAccount.AccountId,
+                        allowNegativeBalance:  cashAccount.AllowNegativeBalance,
+                        requiredBaseAmount:    baseAmount,   
+                        cancellationToken:     cancellationToken);
+
+                    if (!balanceResult.Success)
+                        return Result<int>.Failure(balanceResult.Message);
+                }
+
+                var transaction = new CashTransaction
+                {
+                    CashAccountId   = request.CashAccountId,
+                    Type            = request.Type,
+                    Amount          = request.Amount,
+                    Date            = request.Date,
+                    Description     = request.Description,
+                    Reference       = request.Reference,
+                    CurrencyId      = request.CurrencyId,
+                    ExchangeRate    = rate,
+                    BaseAmount      = baseAmount,
+                    PartnerId       = request.PartnerId,
+                    OffsetAccountId = request.OffsetAccountId
+                };
+
+                await _context.CashTransactions.AddAsync(transaction, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+
+                var postCommand = new PostTransactionCommand
+                {
+                    SourceType  = request.Type == CashTransactionType.Receipt
+                                      ? SourceType.CashReceipt
+                                      : SourceType.CashPayment,
+                    SourceId    = transaction.Id,
+                    Date        = transaction.Date,
+                    Description = transaction.Description,
+                    CurrencyId  = transaction.CurrencyId,
+                    PostedBy    = request.CreatedByUser
+                };
+
+                await _mediator.Send(postCommand, cancellationToken);
+
+                return Result<int>.Ok(transaction.Id, "Cash transaction created and posted successfully.");
             }
-
-            var transaction = new CashTransaction
+            catch (BusinessException ex)
             {
-                CashAccountId   = request.CashAccountId,
-                Type            = request.Type,
-                Amount          = request.Amount,
-                Date            = request.Date,
-                Description     = request.Description,
-                Reference       = request.Reference,
-                CurrencyId      = request.CurrencyId,
-                ExchangeRate    = rate,
-                BaseAmount      = baseAmount,
-                PartnerId       = request.PartnerId,
-                OffsetAccountId = request.OffsetAccountId
-            };
-
-            await _context.CashTransactions.AddAsync(transaction, cancellationToken);
-            await _context.SaveChangesAsync(cancellationToken);
-
-            var postCommand = new PostTransactionCommand
-            {
-                SourceType  = request.Type == CashTransactionType.Receipt
-                                  ? SourceType.CashReceipt
-                                  : SourceType.CashPayment,
-                SourceId    = transaction.Id,
-                Date        = transaction.Date,
-                Description = transaction.Description,
-                CurrencyId  = transaction.CurrencyId,
-                PostedBy    = request.CreatedByUser
-            };
-
-            await _mediator.Send(postCommand, cancellationToken);
-
-            return Result<int>.Ok(transaction.Id, "Cash transaction created and posted successfully.");
+                return Result<int>.Failure(ex.Message);
+            }
         }
     }
 }

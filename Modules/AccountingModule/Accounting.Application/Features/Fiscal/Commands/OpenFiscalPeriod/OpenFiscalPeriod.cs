@@ -26,7 +26,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.OpenFiscalPeriod
         public async Task<Result> Handle(OpenFiscalPeriodCommand request, CancellationToken cancellationToken)
         {
             var period = await _context.FiscalPeriods.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
-            if (period == null) throw new BusinessException("Not found");
+            if (period == null) return Result.Failure("Fiscal period not found.");
 
             period.IsClosed = false;
 

@@ -34,11 +34,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(new GetCurrenciesQuery(), cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpGet("{id:int}")]
@@ -60,11 +58,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpPut("{id:int}")]
@@ -73,8 +69,9 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> Update(int id, [FromBody] UpdateCurrencyCommand command, CancellationToken cancellationToken)
         {
             command.Id = id;
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
         }
 
         [HttpPut("{id:int}/set-base")]
@@ -83,8 +80,9 @@ namespace Accounting.Api.Controllers
         public async Task<IActionResult> SetBase(int id, [FromBody] SetBaseCurrencyCommand command, CancellationToken cancellationToken)
         {
             command.CurrencyId = id;
-            await _mediator.Send(command, cancellationToken);
-            return NoContent();
+            var result = await _mediator.Send(command, cancellationToken);
+            if (!result.Success) return BadRequest(result);
+            return Ok(result);
         }
     }
 }

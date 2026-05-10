@@ -38,11 +38,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(query, cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpGet("{id:int}")]
@@ -54,11 +52,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(query, cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpPost]
@@ -69,11 +65,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpPost("post")]
@@ -84,11 +78,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
 
         [HttpPost("{id:int}/reverse")]
@@ -110,11 +102,9 @@ namespace Accounting.Api.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             
             if (!result.Success)
-            {
-                return BadRequest(new { result.Message });
-            }
+                return BadRequest(result);
 
-            return Ok(new { success = true, message = result.Message, data = result.Data });
+            return Ok(result);
         }
     }
 

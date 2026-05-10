@@ -51,7 +51,7 @@ namespace Accounting.Application.Features.Fiscal.Queries.GetFiscalPeriodById
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (dto == null)
-                throw new BusinessException($"Fiscal period with ID {request.Id} was not found.");
+                return Result<FiscalPeriodDetailDto>.Failure($"Fiscal period with ID {request.Id} was not found.");
 
             return dto;
         }

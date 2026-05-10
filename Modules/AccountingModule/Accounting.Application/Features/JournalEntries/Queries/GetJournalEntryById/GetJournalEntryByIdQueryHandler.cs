@@ -27,7 +27,7 @@ namespace Accounting.Application.Features.JournalEntries.Queries.GetJournalEntry
             
             if (journalEntry == null)
             {
-                throw new Exception($"Journal entry with ID {request.Id} not found.");
+                return Result<JournalEntryResponseDto>.Failure($"Journal entry with ID {request.Id} not found.");
             }
 
             return _mapper.Map<JournalEntryResponseDto>(journalEntry);

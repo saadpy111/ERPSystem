@@ -47,17 +47,17 @@ namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalPeriod
                 .FirstOrDefaultAsync(p => p.Id == request.Id && !p.IsDeleted, cancellationToken);
 
             if (period == null)
-                throw new BusinessException($"Fiscal period with ID {request.Id} was not found.");
+                return Result.Failure($"Fiscal period with ID {request.Id} was not found.");
 
             if (period.IsClosed)
-                throw new BusinessException("Cannot update a closed fiscal period.");
+                return Result.Failure("Cannot update a closed fiscal period.");
 
             if (period.FiscalYear.IsClosed)
-                throw new BusinessException("Cannot update a period that belongs to a closed fiscal year.");
+                return Result.Failure("Cannot update a period that belongs to a closed fiscal year.");
 
             // Validate dates stay within fiscal year range
             if (request.StartDate < period.FiscalYear.StartDate || request.EndDate > period.FiscalYear.EndDate)
-                throw new BusinessException("Period dates must fall within the fiscal year range.");
+                return Result.Failure("Period dates must fall within the fiscal year range.");
 
             // Check for overlap with other periods (excluding self)
             bool overlaps = await _context.FiscalPeriods
@@ -69,7 +69,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalPeriod
                           cancellationToken);
 
             if (overlaps)
-                throw new BusinessException("The updated period dates overlap with an existing period.");
+                return Result.Failure("The updated period dates overlap with an existing period.");
 
             period.PeriodName = request.PeriodName;
             period.StartDate = request.StartDate;

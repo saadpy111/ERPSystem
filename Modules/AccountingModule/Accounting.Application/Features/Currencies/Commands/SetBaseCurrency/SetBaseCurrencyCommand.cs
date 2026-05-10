@@ -26,10 +26,10 @@ namespace Accounting.Application.Features.Currencies.Commands.SetBaseCurrency
         {
             var newBase = await _unitOfWork.Currencies.GetByIdAsync(request.CurrencyId);
             if (newBase == null)
-                throw new BusinessException("Currency not found.");
+                return Result<bool>.Failure("Currency not found.");
 
             if (!newBase.IsActive)
-                throw new BusinessException("Cannot set inactive currency as base currency.");
+                return Result<bool>.Failure("Cannot set inactive currency as base currency.");
 
             if (newBase.IsBaseCurrency)
                 return true;

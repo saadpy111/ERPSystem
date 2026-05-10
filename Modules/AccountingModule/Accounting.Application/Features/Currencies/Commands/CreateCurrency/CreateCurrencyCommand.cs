@@ -44,7 +44,7 @@ namespace Accounting.Application.Features.Currencies.Commands.CreateCurrency
         {
             if (!await _unitOfWork.Currencies.IsCodeUniqueAsync(request.Code))
             {
-                throw new BusinessException($"Currency Code '{request.Code}' already exists.");
+                return Result<int>.Failure($"Currency Code '{request.Code}' already exists.");
             }
 
             var baseCurrencyExists = await _unitOfWork.Currencies.GetBaseCurrencyAsync() != null;

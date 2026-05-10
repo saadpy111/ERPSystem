@@ -47,19 +47,19 @@ namespace Accounting.Application.Features.Currencies.Commands.UpdateCurrency
         {
             var currency = await _unitOfWork.Currencies.GetByIdAsync(request.Id);
             if (currency == null)
-                throw new BusinessException("Currency not found.");
+                return Result<bool>.Failure("Currency not found.");
 
             if (currency.Code != request.Code)
             {
                 if (!await _unitOfWork.Currencies.IsCodeUniqueAsync(request.Code))
                 {
-                    throw new BusinessException($"Currency Code '{request.Code}' already exists.");
+                    return Result<bool>.Failure($"Currency Code '{request.Code}' already exists.");
                 }
             }
 
             if (!request.IsActive && currency.IsBaseCurrency)
             {
-                throw new BusinessException("Cannot deactivate the Base Currency. Set another currency as base first.");
+                return Result<bool>.Failure("Cannot deactivate the Base Currency. Set another currency as base first.");
             }
 
             currency.Code = request.Code;

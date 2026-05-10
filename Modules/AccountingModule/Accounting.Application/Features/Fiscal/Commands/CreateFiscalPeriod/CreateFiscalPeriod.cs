@@ -48,14 +48,14 @@ namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalPeriod
                 .FirstOrDefaultAsync(y => y.Id == request.FiscalYearId && !y.IsDeleted, cancellationToken);
 
             if (year == null)
-                throw new BusinessException($"Fiscal year with ID {request.FiscalYearId} was not found.");
+                return Result<int>.Failure($"Fiscal year with ID {request.FiscalYearId} was not found.");
 
             if (year.IsClosed)
-                throw new BusinessException("Cannot add a period to a closed fiscal year.");
+                return Result<int>.Failure("Cannot add a period to a closed fiscal year.");
 
             // 2. Validate period falls within fiscal year range
             if (request.StartDate < year.StartDate || request.EndDate > year.EndDate)
-                throw new BusinessException("Period dates must fall within the fiscal year range.");
+                return Result<int>.Failure("Period dates must fall within the fiscal year range.");
 
             // 3. Check for overlapping periods
             bool overlaps = await _context.FiscalPeriods
@@ -66,7 +66,7 @@ namespace Accounting.Application.Features.Fiscal.Commands.CreateFiscalPeriod
                           cancellationToken);
 
             if (overlaps)
-                throw new BusinessException("The period dates overlap with an existing period in this fiscal year.");
+                return Result<int>.Failure("The period dates overlap with an existing period in this fiscal year.");
 
             var period = new FiscalPeriod
             {

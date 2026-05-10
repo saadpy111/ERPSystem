@@ -39,7 +39,7 @@ namespace Accounting.Application.Features.Accounts.Queries.GetAccountById
 
             if (account == null)
             {
-                throw new BusinessException("Account not found");
+                return Result<AccountDetailDto>.Failure("Account not found");
             }
 
             return new AccountDetailDto

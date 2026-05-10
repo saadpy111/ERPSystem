@@ -39,10 +39,10 @@ namespace Accounting.Application.Features.Fiscal.Commands.DeleteFiscalPeriod
                 .FirstOrDefaultAsync(p => p.Id == request.Id && !p.IsDeleted, cancellationToken);
 
             if (period == null)
-                throw new BusinessException($"Fiscal period with ID {request.Id} was not found.");
+                return Result.Failure($"Fiscal period with ID {request.Id} was not found.");
 
             if (period.IsClosed)
-                throw new BusinessException("Cannot delete a closed fiscal period.");
+                return Result.Failure("Cannot delete a closed fiscal period.");
 
             // Soft delete
             period.IsDeleted = true;

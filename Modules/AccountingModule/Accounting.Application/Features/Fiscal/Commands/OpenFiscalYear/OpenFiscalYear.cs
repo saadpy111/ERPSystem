@@ -38,10 +38,10 @@ namespace Accounting.Application.Features.Fiscal.Commands.OpenFiscalYear
                 .FirstOrDefaultAsync(y => y.Id == request.Id && !y.IsDeleted, cancellationToken);
 
             if (year == null)
-                throw new BusinessException($"Fiscal year with ID {request.Id} was not found.");
+                return Result.Failure($"Fiscal year with ID {request.Id} was not found.");
 
             if (!year.IsClosed)
-                throw new BusinessException("Fiscal year is already open.");
+                return Result.Failure("Fiscal year is already open.");
 
             year.IsClosed = false;
             year.UpdatedAt = System.DateTime.UtcNow;

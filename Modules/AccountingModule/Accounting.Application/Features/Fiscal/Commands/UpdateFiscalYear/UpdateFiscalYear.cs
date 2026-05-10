@@ -44,10 +44,10 @@ namespace Accounting.Application.Features.Fiscal.Commands.UpdateFiscalYear
                 .FirstOrDefaultAsync(y => y.Id == request.Id && !y.IsDeleted, cancellationToken);
 
             if (year == null)
-                throw new BusinessException($"Fiscal year with ID {request.Id} was not found.");
+                return Result.Failure($"Fiscal year with ID {request.Id} was not found.");
 
             if (year.IsClosed)
-                throw new BusinessException("Cannot update a closed fiscal year.");
+                return Result.Failure("Cannot update a closed fiscal year.");
 
             year.Name = request.Name;
             year.StartDate = request.StartDate;
