@@ -24,6 +24,37 @@ namespace Accounting.Api.Controllers
             _mediator = mediator;
         }
 
+        [HttpGet]
+        [HasPermission(AccountingPermissions.VouchersView)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetList([FromQuery] Accounting.Application.Features.Vouchers.Queries.GetVouchers.GetVouchersQuery query, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(query, cancellationToken);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
+        }
+
+        [HttpGet("{id:int}")]
+        [HasPermission(AccountingPermissions.VouchersView)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetById([FromRoute] int id, CancellationToken cancellationToken)
+        {
+            var query = new Accounting.Application.Features.Vouchers.Queries.GetVoucherById.GetVoucherByIdQuery { Id = id };
+            var result = await _mediator.Send(query, cancellationToken);
+            
+            if (!result.Success)
+            {
+                return BadRequest(new { result.Message });
+            }
+
+            return Ok(new { success = true, message = result.Message, data = result.Data });
+        }
+
         [HttpPost]
         [HasPermission(AccountingPermissions.VouchersCreate)]
         [ProducesResponseType(StatusCodes.Status200OK)]

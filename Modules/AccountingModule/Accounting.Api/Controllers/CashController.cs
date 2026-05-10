@@ -25,12 +25,11 @@ namespace Accounting.Api.Controllers
         }
 
         [HttpGet]
-        [HasPermission(AccountingPermissions.CashView)]
+        [HasPermission(AccountingPermissions.CashTransactionsView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetList([FromQuery] int? accountId)
+        public async Task<IActionResult> GetList([FromQuery] GetCashTransactionsQuery query, CancellationToken cancellationToken)
         {
-            var query = new GetCashTransactionsQuery { CashAccountId = accountId };
-            var result = await _mediator.Send(query);
+            var result = await _mediator.Send(query, cancellationToken);
             
             if (!result.Success)
             {

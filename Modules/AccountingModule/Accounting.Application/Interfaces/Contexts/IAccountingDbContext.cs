@@ -12,6 +12,8 @@ namespace Accounting.Application.Interfaces.Contexts
         DbSet<FiscalPeriod> FiscalPeriods { get; }
         DbSet<CostCenter> CostCenters { get; }
         DbSet<Partner> Partners { get; }
+        DbSet<Voucher> Vouchers { get; }
+        DbSet<VoucherLine> VoucherLines { get; }
         DbSet<CashAccount> CashAccounts { get; }
         DbSet<CashTransaction> CashTransactions { get; }
         DbSet<Currency> Currencies { get; }

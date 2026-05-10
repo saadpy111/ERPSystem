@@ -18,6 +18,10 @@ namespace Accounting.Application.Features.Vouchers.DTOs
         public string? Reference { get; set; }
         public string? Description { get; set; }
         public int? JournalEntryId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public string CreatedBy { get; set; } = null!;
+        public DateTime? UpdatedAt { get; set; }
+        public string? UpdatedBy { get; set; }
         public List<VoucherLineDto> Lines { get; set; } = new();
     }
 

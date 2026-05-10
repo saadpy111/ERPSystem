@@ -59,6 +59,7 @@ namespace SharedKernel.Core.Constants.Permissions
 
         // ===== CASH =====
         public const string CashView = "Permissions.Accounting.Cash.View";
+        public const string CashTransactionsView = "Permissions.Accounting.CashTransactions.View";
         public const string CashCreate = "Permissions.Accounting.Cash.Create";
 
         // ===== CURRENCIES =====
