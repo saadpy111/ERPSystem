@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SharedKernel.Website;
@@ -20,6 +21,9 @@ namespace Website.Application.DependencyInjection
             {
                 options.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
             });
+
+            // FluentValidation
+            services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             // Application services
             services.AddScoped<IPricingService, PricingService>();

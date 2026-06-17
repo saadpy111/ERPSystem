@@ -42,6 +42,7 @@ namespace Website.Persistence.DependencyInjection
             services.AddScoped<ITenantWebsiteRepository, TenantWebsiteRepository>();
             services.AddScoped<IBrandRepository, BrandRepository>();
             services.AddScoped<ITestimonialRepository, TestimonialRepository>();
+            services.AddScoped<INewsletterSubscriberRepository, NewsletterSubscriberRepository>();
             services.AddScoped<IWebsiteUnitOfWork, WebsiteUnitOfWork>();
 
             return services;

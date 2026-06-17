@@ -17,6 +17,10 @@ namespace SharedKernel.Constants.Permissions
         public const string ConfigEdit       = "Website.Config.Edit";
         public const string ConfigApplyTheme = "Website.Config.ApplyTheme";
         public const string ConfigPublish    = "Website.Config.Publish";
+        // Newsletter
+
+        public const string NewsletterView = "Website.Newsletter.View";
+        public const string NewsletterDelete = "Website.Newsletter.Delete";
 
         // ===== BRANDS =====
         public const string BrandsView   = "Website.Brands.View";
