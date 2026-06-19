@@ -58,6 +58,8 @@ namespace Website.Api.Controllers
             {
                 UserId = GetUserId(),
                 PaymentMethod = request.PaymentMethod,
+                RecipientName = request.ShippingAddress.RecipientName,
+                Phone = request.ShippingAddress.Phone,
                 Street = request.ShippingAddress.Street,
                 City = request.ShippingAddress.City,
                 State = request.ShippingAddress.State,
@@ -116,6 +118,8 @@ namespace Website.Api.Controllers
 
     public class ShippingAddressDto
     {
+        public string RecipientName { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
         public string Street { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
         public string State { get; set; } = string.Empty;

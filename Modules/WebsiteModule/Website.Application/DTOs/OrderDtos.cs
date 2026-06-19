@@ -16,6 +16,17 @@ namespace Website.Application.DTOs
         public string? CouponCode { get; set; }
     }
 
+    public class ShippingDetailsDto
+    {
+        public string RecipientName { get; set; } = string.Empty;
+        public string Phone { get; set; } = string.Empty;
+        public string Street { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public string State { get; set; } = string.Empty;
+        public string Country { get; set; } = string.Empty;
+        public string ZipCode { get; set; } = string.Empty;
+    }
+
     public class OrderDetailsDto
     {
         public Guid Id { get; set; }
@@ -27,7 +38,12 @@ namespace Website.Application.DTOs
         public decimal TotalAmount { get; set; }
         public DateTime OrderDate { get; set; }
         public string UserId { get; set; } = string.Empty;
+        public string CustomerName { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
+        public PaymentMethod PaymentMethod { get; set; }
         public string? CouponCode { get; set; }
+        public ShippingDetailsDto? ShippingDetails { get; set; }
+        public string? Notes { get; set; }
         public List<OrderItemDto> Items { get; set; } = new();
     }
 
@@ -60,6 +76,11 @@ namespace Website.Application.DTOs
         public decimal DiscountTotal { get; set; }
         public decimal TotalAmount { get; set; }
         public DateTime OrderDate { get; set; }
+        public string CustomerName { get; set; } = string.Empty;
+        public string CustomerPhone { get; set; } = string.Empty;
+        public PaymentMethod PaymentMethod { get; set; }
+        public ShippingDetailsDto? ShippingDetails { get; set; }
+        public string? Notes { get; set; }
         public List<OrderItemDto> Items { get; set; } = new();
     }
     public class AdminDashboardStatsDto

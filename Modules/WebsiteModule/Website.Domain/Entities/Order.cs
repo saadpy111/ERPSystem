@@ -13,6 +13,16 @@ namespace Website.Domain.Entities
 
         public string UserId { get; set; } = string.Empty;
 
+        /// <summary>
+        /// Snapshot of the customer's full name at time of order.
+        /// </summary>
+        public string CustomerName { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Snapshot of the customer's phone number at time of order.
+        /// </summary>
+        public string CustomerPhone { get; set; } = string.Empty;
+
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
 
         /// <summary>

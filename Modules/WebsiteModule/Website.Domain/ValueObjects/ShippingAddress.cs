@@ -6,6 +6,8 @@ namespace Website.Domain.ValueObjects
     /// </summary>
     public record ShippingAddress
     {
+        public string RecipientName { get; init; } = string.Empty;
+        public string Phone { get; init; } = string.Empty;
         public string Street { get; init; } = string.Empty;
         public string City { get; init; } = string.Empty;
         public string State { get; init; } = string.Empty;
@@ -14,8 +16,10 @@ namespace Website.Domain.ValueObjects
 
         public ShippingAddress() { }
 
-        public ShippingAddress(string street, string city, string state, string country, string zipCode)
+        public ShippingAddress(string recipientName, string phone, string street, string city, string state, string country, string zipCode)
         {
+            RecipientName = recipientName;
+            Phone = phone;
             Street = street;
             City = city;
             State = state;

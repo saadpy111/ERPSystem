@@ -177,6 +177,8 @@ namespace Website.Persistence.Context
         {
             modelBuilder.Entity<Order>().OwnsOne(o => o.ShippingAddress, sa =>
             {
+                sa.Property(a => a.RecipientName).HasColumnName("ShippingAddress_RecipientName").HasMaxLength(150);
+                sa.Property(a => a.Phone).HasColumnName("ShippingAddress_Phone").HasMaxLength(20);
                 sa.Property(a => a.Street).HasColumnName("ShippingAddress_Street").HasMaxLength(200);
                 sa.Property(a => a.City).HasColumnName("ShippingAddress_City").HasMaxLength(100);
                 sa.Property(a => a.State).HasColumnName("ShippingAddress_State").HasMaxLength(100);

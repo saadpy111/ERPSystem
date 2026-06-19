@@ -83,7 +83,7 @@ namespace Website.Persistence.Repositories
 
         public async Task<OrderDetailsDto?> GetAdminOrderDetailsAsync(
             Guid orderId,
-          
+           
             CancellationToken cancellationToken)
         {
             return await _dbSet.AsNoTracking()
@@ -99,7 +99,21 @@ namespace Website.Persistence.Repositories
                     TotalAmount = o.TotalAmount,
                     OrderDate = o.OrderDate,
                     UserId = o.UserId,
+                    CustomerName = o.CustomerName,
+                    CustomerPhone = o.CustomerPhone,
+                    PaymentMethod = o.PaymentMethod,
                     CouponCode = o.AppliedCouponCode,
+                    Notes = o.Notes,
+                    ShippingDetails = new ShippingDetailsDto
+                    {
+                        RecipientName = o.ShippingAddress.RecipientName,
+                        Phone = o.ShippingAddress.Phone,
+                        Street = o.ShippingAddress.Street,
+                        City = o.ShippingAddress.City,
+                        State = o.ShippingAddress.State,
+                        Country = o.ShippingAddress.Country,
+                        ZipCode = o.ShippingAddress.ZipCode
+                    },
                     Items = o.Items.Select(i => new OrderItemDto
                     {
                         ProductId = i.ProductId,
@@ -163,6 +177,20 @@ namespace Website.Persistence.Repositories
                     DiscountTotal = o.DiscountTotal,
                     TotalAmount = o.TotalAmount,
                     OrderDate = o.OrderDate,
+                    CustomerName = o.CustomerName,
+                    CustomerPhone = o.CustomerPhone,
+                    PaymentMethod = o.PaymentMethod,
+                    Notes = o.Notes,
+                    ShippingDetails = new ShippingDetailsDto
+                    {
+                        RecipientName = o.ShippingAddress.RecipientName,
+                        Phone = o.ShippingAddress.Phone,
+                        Street = o.ShippingAddress.Street,
+                        City = o.ShippingAddress.City,
+                        State = o.ShippingAddress.State,
+                        Country = o.ShippingAddress.Country,
+                        ZipCode = o.ShippingAddress.ZipCode
+                    },
                     Items = o.Items.Select(i => new OrderItemDto
                     {
                         ProductId = i.ProductId,

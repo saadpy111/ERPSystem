@@ -1,4 +1,5 @@
 using MediatR;
+using SharedKernel.Contracts;
 using SharedKernel.Multitenancy;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Domain.Entities;
@@ -18,6 +19,7 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
         private readonly IPricingService _pricingService;
         private readonly IOfferEligibilityService _offerEligibilityService;
         private readonly ICouponService _couponService;
+        private readonly IUserLookupService _userLookupService;
         private readonly IMediator _mediator;
 
         public CreateOrderCommandHandler(
@@ -27,6 +29,7 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
             IPricingService pricingService,
             IOfferEligibilityService offerEligibilityService,
             ICouponService couponService,
+            IUserLookupService userLookupService,
             IMediator mediator)
         {
             _unitOfWork = unitOfWork;
@@ -35,6 +38,7 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
             _pricingService = pricingService;
             _offerEligibilityService = offerEligibilityService;
             _couponService = couponService;
+            _userLookupService = userLookupService;
             _mediator = mediator;
         }
 
@@ -76,7 +80,12 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
                 };
             }
 
-            // 3?? Handle Coupon Validation
+            // 3?? Load customer profile for snapshot fields
+            var userProfile = await _userLookupService.GetUserByIdAsync(request.UserId, cancellationToken);
+            var customerName = userProfile?.FullName ?? string.Empty;
+            var customerPhone = userProfile?.PhoneNumber ?? string.Empty;
+
+            // 4?? Handle Coupon Validation
             Coupon? appliedCoupon = null;
             if (!string.IsNullOrWhiteSpace(request.CouponCode))
             {
@@ -149,6 +158,8 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
             {
                 OrderNumber = GenerateOrderNumber(),
                 UserId = request.UserId,
+                CustomerName = customerName,
+                CustomerPhone = customerPhone,
                 Status = OrderStatus.Pending,
                 SubTotal = totalOriginalPrice,
                 DiscountTotal = totalOfferDiscount + couponDiscount,
@@ -157,6 +168,8 @@ namespace Website.Application.Features.OrderFeatures.Commands.CreateOrder
                 TotalAmount = totalOriginalPrice - (totalOfferDiscount + couponDiscount),
                 PaymentMethod = request.PaymentMethod,
                 ShippingAddress = new ShippingAddress(
+                    request.RecipientName,
+                    request.Phone,
                     request.Street,
                     request.City,
                     request.State,
