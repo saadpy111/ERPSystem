@@ -19,5 +19,11 @@ namespace Website.Domain.ValueObjects
         /// Top margin in pixels. Defaults to 0 for backward compatibility.
         /// </summary>
         public int? MarginTop { get; set; }
+
+        /// <summary>
+        /// Background color (e.g. hex, rgba). Null/empty means transparent.
+        /// Defaults to null for backward compatibility with existing data.
+        /// </summary>
+        public string? BackgroundColor { get; set; }
     }
 }

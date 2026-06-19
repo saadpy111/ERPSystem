@@ -27,6 +27,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         public int? HorizontalSpacing { get; set; }
         public int? VerticalSpacing { get; set; }
         public int? MarginTop { get; set; }
+        public string? BackgroundColor { get; set; }
     }
 
     /// <summary>

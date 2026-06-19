@@ -212,6 +212,11 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                 tenantWebsite.Config.Hero.Title.Style.VerticalSpacing = request.HeroTitleVerticalSpacing.Value;
                 presentationUpdated = true;
             }
+            if (request.HeroTitleBackgroundColor != null)
+            {
+                tenantWebsite.Config.Hero.Title.Style.BackgroundColor = request.HeroTitleBackgroundColor;
+                presentationUpdated = true;
+            }
 
             // Hero Subtitle
             if (request.HeroSubtitle != null)
@@ -249,6 +254,11 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                 tenantWebsite.Config.Hero.Subtitle.Style.VerticalSpacing = request.HeroSubtitleVerticalSpacing.Value;
                 presentationUpdated = true;
             }
+            if (request.HeroSubtitleBackgroundColor != null)
+            {
+                tenantWebsite.Config.Hero.Subtitle.Style.BackgroundColor = request.HeroSubtitleBackgroundColor;
+                presentationUpdated = true;
+            }
 
             // Hero Button Text
             if (request.HeroButtonText != null)
@@ -284,6 +294,11 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
             if (request.HeroButtonTextVerticalSpacing.HasValue)
             {
                 tenantWebsite.Config.Hero.ButtonText.Style.VerticalSpacing = request.HeroButtonTextVerticalSpacing.Value;
+                presentationUpdated = true;
+            }
+            if (request.HeroButtonTextBackgroundColor != null)
+            {
+                tenantWebsite.Config.Hero.ButtonText.Style.BackgroundColor = request.HeroButtonTextBackgroundColor;
                 presentationUpdated = true;
             }
 
@@ -452,6 +467,9 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
 
             if (src.MarginTop.HasValue)
                 target.MarginTop = src.MarginTop.Value;
+
+            if (src.BackgroundColor != null)
+                target.BackgroundColor = src.BackgroundColor;
         }
 
 

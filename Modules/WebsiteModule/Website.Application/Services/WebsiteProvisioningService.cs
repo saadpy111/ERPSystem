@@ -173,7 +173,8 @@ namespace Website.Application.Services
                     Alignment = src.Style.Alignment,
                     HorizontalSpacing = src.Style.HorizontalSpacing,
                     VerticalSpacing = src.Style.VerticalSpacing,
-                    MarginTop = src.Style.MarginTop
+                    MarginTop = src.Style.MarginTop,
+                    BackgroundColor = src.Style.BackgroundColor
                 }
             };
         }
@@ -243,7 +244,8 @@ namespace Website.Application.Services
                     Alignment = MapTextAlign(src.Style.Alignment),
                     HorizontalSpacing = src.Style.HorizontalSpacing,
                     VerticalSpacing = src.Style.VerticalSpacing,
-                    MarginTop = src.Style.MarginTop
+                    MarginTop = src.Style.MarginTop,
+                    BackgroundColor = src.Style.BackgroundColor
                 }
             };
         }

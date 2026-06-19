@@ -78,6 +78,7 @@ namespace SharedKernel.Website
         public int HorizontalSpacing { get; set; } = 0;
         public int VerticalSpacing { get; set; } = 0;
         public int MarginTop { get; set; } = 0;
+        public string? BackgroundColor { get; set; }
     }
 
     public class WebsiteTextContent

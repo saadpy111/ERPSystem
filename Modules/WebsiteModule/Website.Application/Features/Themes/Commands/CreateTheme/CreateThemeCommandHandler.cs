@@ -96,7 +96,8 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
                             request.HeroTitleColor,
                             request.HeroTitleAlignment,
                             request.HeroTitleHorizontalSpacing,
-                            request.HeroTitleVerticalSpacing),
+                            request.HeroTitleVerticalSpacing,
+                            request.HeroTitleBackgroundColor),
 
                         Subtitle = BuildTextContent(
                             request.HeroSubtitle,
@@ -105,7 +106,8 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
                             request.HeroSubtitleColor,
                             request.HeroSubtitleAlignment,
                             request.HeroSubtitleHorizontalSpacing,
-                            request.HeroSubtitleVerticalSpacing),
+                            request.HeroSubtitleVerticalSpacing,
+                            request.HeroSubtitleBackgroundColor),
 
                         ButtonText = BuildTextContent(
                             request.HeroButtonText,
@@ -114,7 +116,8 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
                             request.HeroButtonTextColor,
                             request.HeroButtonTextAlignment,
                             request.HeroButtonTextHorizontalSpacing,
-                            request.HeroButtonTextVerticalSpacing),
+                            request.HeroButtonTextVerticalSpacing,
+                            request.HeroButtonTextBackgroundColor),
 
                         BackgroundImage = new ImageContent
                         {
@@ -154,7 +157,8 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
             string? color,
             TextAlign? align,
             int? horizontalSpacing,
-            int? verticalSpacing)
+            int? verticalSpacing,
+            string? backgroundColor = null)
         {
             return new TextContent
             {
@@ -166,7 +170,8 @@ namespace Website.Application.Features.Themes.Commands.CreateTheme
                     Color = color ?? "#000000",
                     Alignment = align ?? TextAlign.Left,
                     HorizontalSpacing = horizontalSpacing ?? 0,
-                    VerticalSpacing = verticalSpacing ?? 0
+                    VerticalSpacing = verticalSpacing ?? 0,
+                    BackgroundColor = backgroundColor
                 }
             };
         }

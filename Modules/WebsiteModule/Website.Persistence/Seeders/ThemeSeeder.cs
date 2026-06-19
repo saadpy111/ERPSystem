@@ -223,7 +223,8 @@ namespace Website.Persistence.Seeders
                 Alignment = TextAlign.Left,
                 HorizontalSpacing = 0,
                 VerticalSpacing = 0,
-                MarginTop = 0
+                MarginTop = 0,
+                BackgroundColor = null
             }
         };
 

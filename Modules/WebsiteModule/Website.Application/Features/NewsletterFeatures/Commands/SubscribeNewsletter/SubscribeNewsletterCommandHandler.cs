@@ -30,7 +30,8 @@ namespace Website.Application.Features.NewsletterFeatures.Commands.SubscribeNews
         {
             var tenantId = _tenantProvider.GetTenantId()!;
             var email = request.Email.Trim().ToLowerInvariant();
-
+            if(string.IsNullOrEmpty(tenantId))
+             return new SubscribeNewsletterResponse { Success = false, Message = "Subscription failed , login first" };
             var existing = await _repository.GetByEmailAsync(email);
 
             if (existing != null)

@@ -36,7 +36,7 @@ namespace Website.Domain.Entities
         /// <summary>
         /// Whether the website is published/live
         /// </summary>
-        public bool IsPublished { get; set; } = false;
+        public bool IsPublished { get; set; } = true;
         
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

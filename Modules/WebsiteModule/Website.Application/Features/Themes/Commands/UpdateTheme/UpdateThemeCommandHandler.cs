@@ -94,7 +94,8 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 request.HeroTitleColor,
                 request.HeroTitleAlignment,
                 request.HeroTitleHorizontalSpacing,
-                request.HeroTitleVerticalSpacing);
+                request.HeroTitleVerticalSpacing,
+                backgroundColor: request.HeroTitleBackgroundColor);
 
             // ───────── Hero Subtitle ─────────
             UpdateTextContent(
@@ -105,7 +106,8 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 request.HeroSubtitleColor,
                 request.HeroSubtitleAlignment,
                 request.HeroSubtitleHorizontalSpacing,
-                request.HeroSubtitleVerticalSpacing);
+                request.HeroSubtitleVerticalSpacing,
+                backgroundColor: request.HeroSubtitleBackgroundColor);
 
             // ───────── Hero Button ─────────
             UpdateTextContent(
@@ -116,7 +118,8 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 request.HeroButtonTextColor,
                 request.HeroButtonTextAlignment,
                 request.HeroButtonTextHorizontalSpacing,
-                request.HeroButtonTextVerticalSpacing);
+                request.HeroButtonTextVerticalSpacing,
+                backgroundColor: request.HeroButtonTextBackgroundColor);
 
             // ───────── Hero Image Style ─────────
             if (request.HeroBackgroundBorderRadius.HasValue)
@@ -250,7 +253,8 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
             TextAlign? align,
             int? hSpacing,
             int? vSpacing,
-            int? marginTop = null)
+            int? marginTop = null,
+            string? backgroundColor = null)
         {
             if (text != null)
                 target.Text = text;
@@ -275,6 +279,9 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
 
             if (marginTop.HasValue)
                 target.Style.MarginTop = marginTop.Value;
+
+            if (backgroundColor != null)
+                target.Style.BackgroundColor = backgroundColor;
         }
 
         private static TextContent DefaultTextContent() => new()
@@ -288,7 +295,8 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 Alignment         = TextAlign.Left,
                 HorizontalSpacing = 0,
                 VerticalSpacing   = 0,
-                MarginTop         = 0
+                MarginTop         = 0,
+                BackgroundColor   = null
             }
         };
 
@@ -304,7 +312,8 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 Alignment         = src?.Style?.Alignment         ?? TextAlign.Left,
                 HorizontalSpacing = src?.Style?.HorizontalSpacing ?? 0,
                 VerticalSpacing   = src?.Style?.VerticalSpacing   ?? 0,
-                MarginTop         = src?.Style?.MarginTop         ?? 0
+                MarginTop         = src?.Style?.MarginTop         ?? 0,
+                BackgroundColor   = src?.Style?.BackgroundColor
             }
         };
 

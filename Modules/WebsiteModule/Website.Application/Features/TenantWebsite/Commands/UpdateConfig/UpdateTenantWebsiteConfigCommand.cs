@@ -65,6 +65,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         public TextAlign? HeroTitleAlignment { get; set; }
         public int? HeroTitleHorizontalSpacing { get; set; }
         public int? HeroTitleVerticalSpacing { get; set; }
+        public string? HeroTitleBackgroundColor { get; set; }
 
         // ── Hero Subtitle ────────────────────────────────────────────────────────
         public string? HeroSubtitle { get; set; }
@@ -74,6 +75,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         public TextAlign? HeroSubtitleAlignment { get; set; }
         public int? HeroSubtitleHorizontalSpacing { get; set; }
         public int? HeroSubtitleVerticalSpacing { get; set; }
+        public string? HeroSubtitleBackgroundColor { get; set; }
 
         // ── Hero Button Text ─────────────────────────────────────────────────────
         public string? HeroButtonText { get; set; }
@@ -83,6 +85,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
         public TextAlign? HeroButtonTextAlignment { get; set; }
         public int? HeroButtonTextHorizontalSpacing { get; set; }
         public int? HeroButtonTextVerticalSpacing { get; set; }
+        public string? HeroButtonTextBackgroundColor { get; set; }
 
         // ── Hero Background Image Style ──────────────────────────────────────────
         public int? HeroBackgroundBorderRadius { get; set; }

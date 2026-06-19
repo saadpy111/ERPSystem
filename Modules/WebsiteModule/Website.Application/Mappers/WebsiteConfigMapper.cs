@@ -94,7 +94,8 @@ namespace Website.Application.Mappers
                     Alignment         = style.Alignment,
                     HorizontalSpacing = style.HorizontalSpacing,
                     VerticalSpacing   = style.VerticalSpacing,
-                    MarginTop         = style.MarginTop   // defaults to 0 for old data
+                    MarginTop         = style.MarginTop,   // defaults to 0 for old data
+                    BackgroundColor   = style.BackgroundColor
                 }
             };
         }
@@ -192,7 +193,8 @@ namespace Website.Application.Mappers
                 Alignment         = TextAlign.Left,
                 HorizontalSpacing = 0,
                 VerticalSpacing   = 0,
-                MarginTop         = 0
+                MarginTop         = 0,
+                BackgroundColor   = null
             }
         };
 

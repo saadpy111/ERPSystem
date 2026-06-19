@@ -211,6 +211,7 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
             target.HorizontalSpacing = source.HorizontalSpacing;
             target.VerticalSpacing = source.VerticalSpacing;
             if (source.MarginTop.HasValue) target.MarginTop = source.MarginTop.Value;
+            if (!string.IsNullOrEmpty(source.BackgroundColor)) target.BackgroundColor = source.BackgroundColor;
         }
 
         private static void MergeImageContent(ImageContent target, ImageContent? source)
@@ -284,7 +285,8 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                 Alignment         = src?.Style?.Alignment         ?? TextAlign.Left,
                 HorizontalSpacing = src?.Style?.HorizontalSpacing ?? 0,
                 VerticalSpacing   = src?.Style?.VerticalSpacing   ?? 0,
-                MarginTop         = src?.Style?.MarginTop         ?? 0   // preserved in snapshot
+                MarginTop         = src?.Style?.MarginTop         ?? 0,   // preserved in snapshot
+                BackgroundColor   = src?.Style?.BackgroundColor
             }
         };
         private static void NormalizeConfig(SiteConfig config)
