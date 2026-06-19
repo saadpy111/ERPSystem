@@ -40,7 +40,7 @@ namespace Website.Application.Features.Testimonials.Commands.CreateTestimonial
                 CustomerName = request.CustomerName,
                 Comment = request.Comment,
                 Rating = request.Rating,
-                IsVisible = true,
+                IsVisible = false,
                 Order = maxOrder + 1,
                 TenantId = _tenantProvider.GetTenantId()!
             };
