@@ -46,6 +46,12 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
 
         public async Task<ClientRegisterResponse> Handle(ClientRegisterCommand request, CancellationToken cancellationToken)
         {
+            // Validate phone number format
+            if (string.IsNullOrWhiteSpace(request.PhoneNumber) || !IsValidPhoneNumber(request.PhoneNumber))
+            {
+                return Fail("A valid phone number is required.");
+            }
+
             using var transaction = new TransactionScope(
                   TransactionScopeAsyncFlowOption.Enabled);
             try 
@@ -72,7 +78,7 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
                     UserName = request.Email,
                     Email = request.Email,
                     FullName = request.FullName,
-                    PhoneNumber = request.Phone,
+                    PhoneNumber = request.PhoneNumber,
 
                     // Client-specific settings
                     UserType = UserType.Client,
@@ -101,7 +107,8 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
                     UserId = user.Id,
                     TenantId = user.TenantId!,
                     Email = user.Email!,
-                    FullName = user.FullName!
+                    FullName = user.FullName!,
+                    PhoneNumber = user.PhoneNumber
                 });
                 transaction.Complete();
 
@@ -114,6 +121,7 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
                     Email = user.Email,
                     FullName = user.FullName,
                     TenantId = tenantId,
+                    PhoneNumber = user.PhoneNumber,
                     Token = token
                 };
             }
@@ -122,9 +130,18 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
                 return new ClientRegisterResponse()
                 {
                     Success = false
-   
+    
                 };
             }
+        }
+
+        private static bool IsValidPhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return false;
+
+            var digitsOnly = new string(phoneNumber.Where(char.IsDigit).ToArray());
+            return digitsOnly.Length >= 7 && digitsOnly.Length <= 15;
         }
 
         private static ClientRegisterResponse Fail(string error)

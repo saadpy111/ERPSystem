@@ -23,6 +23,10 @@ namespace Identity.Application.Features.AccountManagement.Commands.CreateUser
 
         public async Task<CreateUserResponse> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
+            // Validate phone number format
+            if (string.IsNullOrWhiteSpace(request.PhoneNumber) || !IsValidPhoneNumber(request.PhoneNumber))
+                return new CreateUserResponse { Success = false, Error = "A valid phone number is required." };
+
             // Check email uniqueness (global — Identity requires unique emails)
             var existing = await _authRepository.FindByEmailAsync(request.Email);
             if (existing != null)
@@ -39,7 +43,8 @@ namespace Identity.Application.Features.AccountManagement.Commands.CreateUser
                 UserType      = request.UserType,
                 TenantId      = request.TenantId,
                 State         = UserTenantState.TenantMember,
-                TenantJoinedAt = DateTime.UtcNow
+                TenantJoinedAt = DateTime.UtcNow,
+                PhoneNumber   = request.PhoneNumber
             };
 
             var result = await _authRepository.CreateUserAsync(user, request.Password);
@@ -50,7 +55,16 @@ namespace Identity.Application.Features.AccountManagement.Commands.CreateUser
             }
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return new CreateUserResponse { Success = true, UserId = user.Id };
+            return new CreateUserResponse { Success = true, UserId = user.Id, PhoneNumber = user.PhoneNumber };
+        }
+
+        private static bool IsValidPhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return false;
+
+            var digitsOnly = new string(phoneNumber.Where(char.IsDigit).ToArray());
+            return digitsOnly.Length >= 7 && digitsOnly.Length <= 15;
         }
     }
 }

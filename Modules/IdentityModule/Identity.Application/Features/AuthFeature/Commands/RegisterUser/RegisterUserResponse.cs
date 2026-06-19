@@ -7,5 +7,6 @@ namespace Identity.Application.Features.AuthFeature.Commands.RegisterUser
         public string? UserId { get; set; }
         public string? Error { get; set; }
         public string? Token { get; set; }
+        public string? PhoneNumber { get; set; }
     }
 }

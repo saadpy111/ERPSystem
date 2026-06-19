@@ -25,8 +25,8 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
         public string FullName { get; set; } = string.Empty;
         
         /// <summary>
-        /// Optional phone number
+        /// Customer's phone number (required)
         /// </summary>
-        public string? Phone { get; set; }
+        public string PhoneNumber { get; set; } = string.Empty;
     }
 }

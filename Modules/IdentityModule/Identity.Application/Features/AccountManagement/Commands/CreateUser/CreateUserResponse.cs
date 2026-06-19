@@ -5,5 +5,6 @@ namespace Identity.Application.Features.AccountManagement.Commands.CreateUser
         public bool Success { get; set; }
         public string? UserId { get; set; }
         public string? Error { get; set; }
+        public string? PhoneNumber { get; set; }
     }
 }

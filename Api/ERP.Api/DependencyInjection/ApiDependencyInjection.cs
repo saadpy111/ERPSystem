@@ -10,6 +10,7 @@ using Inventory.Application.Contracts.Infrastruture.FileService;
 using Inventory.Infrastructure.FileService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
 using Procurement.Api.Controllers;
 using Procurement.Api.DependencyInjection;
 using Procurement.Infrastructure.FileService;
@@ -69,36 +70,63 @@ namespace ERP.Api.DependencyInjection
                 });
             });
             #endregion
-
             #region Swagger
-             services.AddSwaggerGen(options =>
-             {
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("Hr", new() { Title = "HR API", Version = "v1" });
+                options.SwaggerDoc("inventories", new() { Title = "Inventories API", Version = "v1" });
+                options.SwaggerDoc("Identity", new() { Title = "Identity API", Version = "v1" });
+                options.SwaggerDoc("procurement", new() { Title = "Procurement API", Version = "v1" });
+                options.SwaggerDoc("Report", new() { Title = "Report API", Version = "v1" });
+                options.SwaggerDoc("Subscription", new() { Title = "Subscription API", Version = "v1" });
+                options.SwaggerDoc("Website", new() { Title = "Website API", Version = "v1" });
+                options.SwaggerDoc("Accounting", new() { Title = "Accounting API", Version = "v1" });
 
-                 options.SwaggerDoc("Hr", new() { Title = "HR API", Version = "v1" });
-                 options.SwaggerDoc("inventories", new() { Title = "Inventories API", Version = "v1" });
-                 options.SwaggerDoc("Identity", new() { Title = "Identity API", Version = "v1" });
-                 options.SwaggerDoc("procurement", new() { Title = "Procurement API", Version = "v1" });
-                 options.SwaggerDoc("Report", new() { Title = "Report API", Version = "v1" });
-                 options.SwaggerDoc("Subscription", new() { Title = "Subscription API", Version = "v1" });
-                 options.SwaggerDoc("Website", new() { Title = "Website API", Version = "v1" });
-                 options.SwaggerDoc("Accounting", new() { Title = "Accounting API", Version = "v1" });
-                 options.DocInclusionPredicate((docName, apiDesc) =>
-                 {
-                     if (!apiDesc.TryGetMethodInfo(out var methodInfo)) return false;
+                options.DocInclusionPredicate((docName, apiDesc) =>
+                {
+                    if (!apiDesc.TryGetMethodInfo(out var methodInfo))
+                        return false;
 
-                     var groupName = methodInfo.DeclaringType?
-                         .GetCustomAttributes(true)
-                         .OfType<ApiExplorerSettingsAttribute>()
-                         .FirstOrDefault()?.GroupName;
+                    var groupName = methodInfo.DeclaringType?
+                        .GetCustomAttributes(true)
+                        .OfType<ApiExplorerSettingsAttribute>()
+                        .FirstOrDefault()?.GroupName;
 
-                     return groupName == docName;
-                 });
-                 options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
+                    return groupName == docName;
+                });
 
-                 //options.UseInlineDefinitionsForEnums();
-                 //options.SchemaGeneratorOptions.SchemaIdSelector = type => type.FullName;
-             });
+                options.ResolveConflictingActions(apiDescriptions =>
+                    apiDescriptions.First());
 
+                // JWT Authentication
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Enter JWT Token",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT"
+                });
+
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+
+                //options.UseInlineDefinitionsForEnums();
+                //options.SchemaGeneratorOptions.SchemaIdSelector = type => type.FullName;
+            });
             #endregion
 
             #region File

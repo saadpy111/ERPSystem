@@ -27,6 +27,16 @@ namespace Identity.Application.Features.AuthFeature.Commands.RegisterUser
 
         public async Task<RegisterUserResponse> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
         {
+            // Validate phone number format
+            if (string.IsNullOrWhiteSpace(request.PhoneNumber) || !IsValidPhoneNumber(request.PhoneNumber))
+            {
+                return new RegisterUserResponse
+                {
+                    Success = false,
+                    Error = "A valid phone number is required."
+                };
+            }
+
             // Check if email already exists
             var existingUser = await _userManager.FindByEmailAsync(request.Email);
 
@@ -49,6 +59,7 @@ namespace Identity.Application.Features.AuthFeature.Commands.RegisterUser
                 NormalizedEmail = request.Email.ToUpper(),
                 EmailConfirmed = false, // Should be confirmed via email
                 FullName = request.FullName,
+                PhoneNumber = request.PhoneNumber,
                 
                 // Pre-tenant state
                 TenantId = null, // NO TENANT
@@ -76,8 +87,20 @@ namespace Identity.Application.Features.AuthFeature.Commands.RegisterUser
                 Success = true,
                 Message = "User registered successfully. Please check your email to confirm your account.",
                 UserId = user.Id,
-                Token = token
+                Token = token,
+                PhoneNumber = user.PhoneNumber
             };
+        }
+
+        private static bool IsValidPhoneNumber(string phoneNumber)
+        {
+            if (string.IsNullOrWhiteSpace(phoneNumber))
+                return false;
+
+            // Allow digits, spaces, dashes, parentheses, and an optional leading +
+            // Minimum 7, maximum 20 characters after stripping non-digit characters
+            var digitsOnly = new string(phoneNumber.Where(char.IsDigit).ToArray());
+            return digitsOnly.Length >= 7 && digitsOnly.Length <= 15;
         }
     }
 }

@@ -78,7 +78,8 @@ namespace Identity.Api.Controllers
                 UserType = ManagedUserType,    // Enforced here — client cannot change it
                 FullName = body.FullName,
                 Email    = body.Email,
-                Password = body.Password
+                Password = body.Password,
+                PhoneNumber = body.PhoneNumber
             });
 
             if (!response.Success) return BadRequest(new { error = response.Error });
@@ -312,7 +313,7 @@ namespace Identity.Api.Controllers
 
     // ── Request body contracts ────────────────────────────────────────────────────
 
-    public record CreateUserRequest(string FullName, string Email, string Password);
+    public record CreateUserRequest(string FullName, string Email, string Password, string PhoneNumber);
     public record CreateRoleRequest(string Name, List<string> PermissionIds);
     public record UpdateRoleRequest(string Name);
     public record SinglePermissionRequest(string PermissionId);

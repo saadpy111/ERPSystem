@@ -12,6 +12,9 @@ namespace Identity.Application.Features.ClientAuthFeature.Commands.ClientRegiste
         
         // Tenant info
         public string? TenantId { get; set; }
+
+        // Phone
+        public string? PhoneNumber { get; set; }
         
         // Authentication
         public string? Token { get; set; }
