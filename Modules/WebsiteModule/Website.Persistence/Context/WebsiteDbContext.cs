@@ -52,6 +52,7 @@ namespace Website.Persistence.Context
         public DbSet<Brand> Brands => Set<Brand>();
         public DbSet<Testimonial> Testimonials => Set<Testimonial>();
         public DbSet<NewsletterSubscriber> NewsletterSubscribers => Set<NewsletterSubscriber>();
+        public DbSet<FavoriteProduct> FavoriteProducts => Set<FavoriteProduct>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -139,6 +140,9 @@ namespace Website.Persistence.Context
 
             modelBuilder.Entity<NewsletterSubscriber>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<FavoriteProduct>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
 
@@ -168,6 +172,7 @@ namespace Website.Persistence.Context
             modelBuilder.Entity<WebsiteAnalyticsDaily>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<Brand>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<NewsletterSubscriber>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<FavoriteProduct>().HasIndex(e => e.TenantId);
         }
 
         /// <summary>
