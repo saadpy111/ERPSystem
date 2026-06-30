@@ -1,12 +1,13 @@
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Enums;
 using SharedKernel.Multitenancy;
-using Subscription.Application.Contracts.Persistence;
-using Subscription.Application.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using Subscription.Application.Features.Modules.Commands.CancelModule;
+using Subscription.Application.Features.Modules.Commands.PurchaseModule;
+using Subscription.Application.Features.Modules.Commands.RenewModule;
+using Subscription.Application.Features.Modules.Queries.GetAvailableModules;
+using Subscription.Application.Features.Modules.Queries.GetPurchasedModules;
 
 namespace Subscription.Api.Controllers
 {
@@ -16,53 +17,24 @@ namespace Subscription.Api.Controllers
     [Authorize]
     public class ModulesController : ControllerBase
     {
-        private readonly IModuleRepository _moduleRepository;
-        private readonly IModulePriceRepository _modulePriceRepository;
-        private readonly IModulePurchaseService _modulePurchaseService;
+        private readonly IMediator _mediator;
         private readonly ITenantProvider _tenantProvider;
 
-        public ModulesController(
-            IModuleRepository moduleRepository,
-            IModulePriceRepository modulePriceRepository,
-            IModulePurchaseService modulePurchaseService,
-            ITenantProvider tenantProvider)
+        public ModulesController(IMediator mediator, ITenantProvider tenantProvider)
         {
-            _moduleRepository = moduleRepository;
-            _modulePriceRepository = modulePriceRepository;
-            _modulePurchaseService = modulePurchaseService;
+            _mediator = mediator;
             _tenantProvider = tenantProvider;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAvailableModules([FromQuery] string? currency = null)
         {
-            var modules = await _moduleRepository.GetAllActiveAsync();
-            var result = modules.Select(m =>
+            var result = await _mediator.Send(new GetAvailableModulesQuery
             {
-                var prices = _modulePriceRepository.GetByModuleIdAsync(m.Id).Result;
-                var filteredPrices = string.IsNullOrEmpty(currency)
-                    ? prices
-                    : prices.Where(p => p.CurrencyCode.Equals(currency, StringComparison.OrdinalIgnoreCase)).ToList();
-
-                return new
-                {
-                    m.Id,
-                    m.Code,
-                    m.Name,
-                    m.DisplayName,
-                    m.Description,
-                    Prices = filteredPrices.Select(p => new
-                    {
-                        p.CurrencyCode,
-                        p.UnitPrice,
-                        Interval = p.Interval.ToString(),
-                        p.EffectiveFrom,
-                        p.EffectiveTo
-                    })
-                };
+                CurrencyCode = currency
             });
 
-            return Ok(new { Success = true, Data = result });
+            return Ok(result);
         }
 
         [HttpGet("my")]
@@ -72,22 +44,12 @@ namespace Subscription.Api.Controllers
             if (string.IsNullOrEmpty(tenantId))
                 return Unauthorized();
 
-            var subscriptions = await _modulePurchaseService.GetTenantPurchasedModulesAsync(tenantId);
-            var result = subscriptions.Select(s => new
+            var result = await _mediator.Send(new GetPurchasedModulesQuery
             {
-                s.Id,
-                ModuleCode = s.Module.Code,
-                ModuleName = s.Module.Name,
-                s.UnitPrice,
-                s.CurrencyCode,
-                Interval = s.Interval.ToString(),
-                Status = s.Status.ToString(),
-                s.StartDate,
-                s.EndDate,
-                s.AutoRenew
+                TenantId = tenantId
             });
 
-            return Ok(new { Success = true, Data = result });
+            return Ok(result);
         }
 
         [HttpPost("{moduleCode}/purchase")]
@@ -100,8 +62,13 @@ namespace Subscription.Api.Controllers
             if (!Enum.TryParse<BillingInterval>(request.BillingInterval, true, out var interval))
                 return BadRequest(new { Success = false, Error = "Invalid billing interval. Use Monthly, Quarterly, or Yearly." });
 
-            var result = await _modulePurchaseService.PurchaseModuleAsync(
-                tenantId, moduleCode, request.CurrencyCode, interval);
+            var result = await _mediator.Send(new PurchaseModuleCommand
+            {
+                TenantId = tenantId,
+                ModuleCode = moduleCode,
+                CurrencyCode = request.CurrencyCode,
+                Interval = interval
+            });
 
             if (!result.Success)
                 return BadRequest(result);
@@ -116,7 +83,11 @@ namespace Subscription.Api.Controllers
             if (string.IsNullOrEmpty(tenantId))
                 return Unauthorized();
 
-            var result = await _modulePurchaseService.CancelPurchasedModuleAsync(tenantId, moduleCode);
+            var result = await _mediator.Send(new CancelModuleCommand
+            {
+                TenantId = tenantId,
+                ModuleCode = moduleCode
+            });
 
             if (!result.Success)
                 return BadRequest(result);
@@ -131,7 +102,11 @@ namespace Subscription.Api.Controllers
             if (string.IsNullOrEmpty(tenantId))
                 return Unauthorized();
 
-            var result = await _modulePurchaseService.RenewPurchasedModuleAsync(tenantId, moduleCode);
+            var result = await _mediator.Send(new RenewModuleCommand
+            {
+                TenantId = tenantId,
+                ModuleCode = moduleCode
+            });
 
             if (!result.Success)
                 return BadRequest(result);
