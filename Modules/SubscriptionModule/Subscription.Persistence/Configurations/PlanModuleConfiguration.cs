@@ -16,14 +16,20 @@ namespace Subscription.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(50);
 
-            // Unique constraint: Plan + Module
             builder.HasIndex(pm => new { pm.PlanId, pm.ModuleName })
                 .IsUnique();
 
-            // Relationship
+            builder.HasIndex(pm => new { pm.PlanId, pm.ModuleId })
+                .IsUnique();
+
             builder.HasOne(pm => pm.Plan)
                 .WithMany(p => p.PlanModules)
                 .HasForeignKey(pm => pm.PlanId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(pm => pm.Module)
+                .WithMany()
+                .HasForeignKey(pm => pm.ModuleId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

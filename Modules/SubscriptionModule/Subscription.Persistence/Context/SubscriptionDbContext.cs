@@ -16,6 +16,9 @@ namespace Subscription.Persistence.Context
         public DbSet<TenantSubscription> TenantSubscriptions => Set<TenantSubscription>();
         public DbSet<UsageHistory> UsageHistory => Set<UsageHistory>();
         public DbSet<SubscriptionHistory> SubscriptionHistory => Set<SubscriptionHistory>();
+        public DbSet<Module> Modules => Set<Module>();
+        public DbSet<ModulePrice> ModulePrices => Set<ModulePrice>();
+        public DbSet<TenantModuleSubscription> TenantModuleSubscriptions => Set<TenantModuleSubscription>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

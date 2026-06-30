@@ -2,18 +2,17 @@ using System;
 
 namespace Subscription.Domain.Entities
 {
-    /// <summary>
-    /// Junction table defining which modules are enabled in each subscription plan.
-    /// Plans enable modules, modules define permissions.
-    /// </summary>
     public class PlanModule
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
         public string PlanId { get; set; } = string.Empty;
-        public string ModuleName { get; set; } = string.Empty; // "Inventory", "HR", "CRM", "Accounting", "Ecommerce"
+        public string ModuleId { get; set; } = string.Empty;
+
+        [Obsolete("Use Module.Code via the Module navigation property instead. Will be removed in a future version.")]
+        public string ModuleName { get; set; } = string.Empty;
         public bool IsEnabled { get; set; } = true;
-        
-        // Navigation
+
         public virtual SubscriptionPlan Plan { get; set; } = null!;
+        public virtual Module Module { get; set; } = null!;
     }
 }

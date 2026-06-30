@@ -35,13 +35,16 @@ namespace Inventory.Api
    
 
 
-                var permissionSeeder = new PermissionSeeder(identityContext);
-                await permissionSeeder.SeedAsync();
+                //var permissionSeeder = new PermissionSeeder(identityContext);
+                //await permissionSeeder.SeedAsync();
 
     
 
-                // Seed Subscription module (plans)
+                // Seed Subscription module (modules and plans)
                 var subscriptionContext = scope.ServiceProvider.GetRequiredService<SubscriptionDbContext>();
+                var moduleSeeder = new ModuleSeeder(subscriptionContext);
+                await moduleSeeder.SeedAsync();
+
                 var planSeeder = new SubscriptionPlanSeeder(subscriptionContext);
                 await planSeeder.SeedAsync();
 

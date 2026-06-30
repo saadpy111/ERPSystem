@@ -23,12 +23,17 @@ namespace Subscription.Persistence.DependencyInjection
             // UnitOfWork
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-            // Seeder
+            // Seeders
             services.AddScoped<SubscriptionPlanSeeder>();
+            services.AddScoped<ModuleSeeder>();
+
             // Repositories
             services.AddScoped<ISubscriptionPlanRepository, SubscriptionPlanRepository>();
             services.AddScoped<IPlanModuleRepository, PlanModuleRepository>();
             services.AddScoped<ITenantSubscriptionRepository, TenantSubscriptionRepository>();
+            services.AddScoped<IModuleRepository, ModuleRepository>();
+            services.AddScoped<IModulePriceRepository, ModulePriceRepository>();
+            services.AddScoped<ITenantModuleSubscriptionRepository, TenantModuleSubscriptionRepository>();
 
             return services;
         }

@@ -7,27 +7,29 @@ using System.Threading.Tasks;
 
 namespace Subscription.Application.Services
 {
-    /// <summary>
-    /// Implements ISubscriptionModuleChecker for cross-module consumption by Identity module.
-    /// Checks if modules are enabled in tenant subscriptions.
-    /// </summary>
     public class SubscriptionModuleChecker : ISubscriptionModuleChecker
     {
         private readonly ITenantSubscriptionRepository _subscriptionRepository;
         private readonly IPlanModuleRepository _planModuleRepository;
+        private readonly ITenantModuleSubscriptionRepository _tenantModuleSubscriptionRepository;
+        private readonly IEffectiveModuleService _effectiveModuleService;
 
         public SubscriptionModuleChecker(
             ITenantSubscriptionRepository subscriptionRepository,
-            IPlanModuleRepository planModuleRepository)
+            IPlanModuleRepository planModuleRepository,
+            ITenantModuleSubscriptionRepository tenantModuleSubscriptionRepository,
+            IEffectiveModuleService effectiveModuleService)
         {
             _subscriptionRepository = subscriptionRepository;
             _planModuleRepository = planModuleRepository;
+            _tenantModuleSubscriptionRepository = tenantModuleSubscriptionRepository;
+            _effectiveModuleService = effectiveModuleService;
         }
 
-        public async Task<bool> IsModuleEnabledAsync(string tenantId, string moduleName)
+        public async Task<bool> IsModuleEnabledAsync(string tenantId, string moduleCode)
         {
             var subscription = await _subscriptionRepository.GetByTenantIdAsync(tenantId);
-            
+
             if (subscription == null ||
                 (subscription.Status != SubscriptionStatus.Active &&
                  subscription.Status != SubscriptionStatus.Trial))
@@ -35,26 +37,22 @@ namespace Subscription.Application.Services
                 return false;
             }
 
-            return await _planModuleRepository.IsModuleEnabledInPlanAsync(
-                subscription.PlanId,
-                moduleName);
+            var inPlan = await _planModuleRepository.IsModuleEnabledInPlanAsync(subscription.PlanId, moduleCode);
+            if (inPlan) return true;
+
+            var purchased = await _tenantModuleSubscriptionRepository.FindActiveAsync(tenantId, moduleCode);
+            return purchased != null;
         }
 
         public async Task<List<string>> GetEnabledModulesAsync(string tenantId)
         {
-            var subscription = await _subscriptionRepository.GetByTenantIdAsync(tenantId);
-            
-            if (subscription == null)
-                return new List<string>();
-
-            var modules = await _planModuleRepository.GetEnabledModulesAsync(subscription.PlanId);
-            return modules.Select(m => m.ModuleName).ToList();
+            return await _effectiveModuleService.GetEffectiveModulesAsync(tenantId);
         }
 
         public async Task<bool> HasActiveSubscriptionAsync(string tenantId)
         {
             var subscription = await _subscriptionRepository.GetByTenantIdAsync(tenantId);
-            
+
             return subscription != null &&
                    (subscription.Status == SubscriptionStatus.Active ||
                     subscription.Status == SubscriptionStatus.Trial);
@@ -63,7 +61,7 @@ namespace Subscription.Application.Services
         public async Task<SubscriptionStatusDto> GetSubscriptionStatusAsync(string tenantId)
         {
             var subscription = await _subscriptionRepository.GetByTenantIdAsync(tenantId);
-            
+
             if (subscription == null)
             {
                 return new SubscriptionStatusDto

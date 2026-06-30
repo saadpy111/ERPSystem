@@ -17,15 +17,17 @@ namespace Subscription.Persistence.Repositories
         public async Task<List<PlanModule>> GetEnabledModulesAsync(string planId)
         {
             return await _context.PlanModules
+                .Include(pm => pm.Module)
                 .Where(pm => pm.PlanId == planId && pm.IsEnabled)
                 .ToListAsync();
         }
 
-        public async Task<bool> IsModuleEnabledInPlanAsync(string planId, string moduleName)
+        public async Task<bool> IsModuleEnabledInPlanAsync(string planId, string moduleCode)
         {
             return await _context.PlanModules
-                .AnyAsync(pm => pm.PlanId == planId && 
-                               pm.ModuleName == moduleName && 
+                .Include(pm => pm.Module)
+                .AnyAsync(pm => pm.PlanId == planId &&
+                               pm.Module.Code == moduleCode &&
                                pm.IsEnabled);
         }
     }

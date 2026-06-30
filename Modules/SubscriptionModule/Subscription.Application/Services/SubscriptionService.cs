@@ -155,7 +155,7 @@ namespace Subscription.Application.Services
                 {
                     Success = true,
                     SubscriptionId = subscription.Id,
-                    EnabledModules = enabledModules.Select(m => m.ModuleName).ToList(),
+                    EnabledModules = enabledModules.Select(m => m.Module?.Code ?? m.ModuleName).ToList(),
                     PlanCode = plan.Code,
                     PlanName = plan.DisplayName,
                     IsTrial = plan.IsTrial,

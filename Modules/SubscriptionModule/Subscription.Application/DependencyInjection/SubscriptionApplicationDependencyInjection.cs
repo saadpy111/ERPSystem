@@ -10,9 +10,6 @@ namespace Subscription.Application.DependencyInjection
         public static IServiceCollection AddSubscriptionApplication(
             this IServiceCollection services)
         {
-
-
-
             services.AddMediatR(options =>
             {
                 options.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());
@@ -22,6 +19,10 @@ namespace Subscription.Application.DependencyInjection
             services.AddScoped<ISubscriptionModuleChecker, SubscriptionModuleChecker>();
             services.AddScoped<ISubscriptionService, SubscriptionService>();
             services.AddScoped<IPermissionModuleMapper, PermissionModuleMapper>();
+
+            // Module add-on services
+            services.AddScoped<IEffectiveModuleService, EffectiveModuleService>();
+            services.AddScoped<IModulePurchaseService, ModulePurchaseService>();
 
             return services;
         }

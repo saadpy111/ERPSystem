@@ -20,6 +20,7 @@ using SharedKernel.Authorization;
 using SharedKernel.Multitenancy;
 using Subscription.Api.Controllers;
 using Subscription.Api.DependencyInjection;
+using Subscription.Api.Controllers; // For ModulesController
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Website.Api.Controllers;
 using Website.Api.DependencyInjection;
@@ -159,7 +160,9 @@ namespace ERP.Api.DependencyInjection
             services.AddControllers().AddApplicationPart(typeof(EmployeesController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(ReportsController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(PlansController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(ModulesController).Assembly);
             services.AddControllers().AddApplicationPart(typeof(ThemesController).Assembly);
+            services.AddControllers().AddApplicationPart(typeof(WebsiteInitializationController).Assembly);
             return services;
         }
     }

@@ -67,10 +67,9 @@ namespace Subscription.Persistence.Seeders
 
                 // Add modules
                 await _context.PlanModules.AddRangeAsync(
-                    new PlanModule { PlanId = plan.Id, ModuleName = "HR", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Report", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Website", IsEnabled = true }
-
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("HR"), ModuleName = "HR", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("REPORT"), ModuleName = "Report", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("WEBSITE"), ModuleName = "Website", IsEnabled = true }
                 );
 
                 // Add pricing (Free tier)
@@ -123,11 +122,11 @@ namespace Subscription.Persistence.Seeders
 
                 // Add all modules
                 await _context.PlanModules.AddRangeAsync(
-                    new PlanModule { PlanId = plan.Id, ModuleName = "HR", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Inventory", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Procurement", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Report", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Website", IsEnabled = true }
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("HR"), ModuleName = "HR", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("INVENTORY"), ModuleName = "Inventory", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("PROCUREMENT"), ModuleName = "Procurement", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("REPORT"), ModuleName = "Report", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("WEBSITE"), ModuleName = "Website", IsEnabled = true }
                 );
 
                 // Add pricing
@@ -145,6 +144,12 @@ namespace Subscription.Persistence.Seeders
                 existingPlan.Description = "Full ERP suite for growing companies";
                 existingPlan.IsActive = true;
             }
+        }
+
+        private async Task<string> GetModuleIdAsync(string code)
+        {
+            var module = await _context.Modules.FirstOrDefaultAsync(m => m.Code == code);
+            return module?.Id ?? string.Empty;
         }
 
         private async Task SeedEnterprisePlanAsync()
@@ -181,12 +186,11 @@ namespace Subscription.Persistence.Seeders
 
                 // Add all modules
                 await _context.PlanModules.AddRangeAsync(
-                    new PlanModule { PlanId = plan.Id, ModuleName = "HR", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Inventory", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Procurement", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Report", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleName = "Website", IsEnabled = true }
-
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("HR"), ModuleName = "HR", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("INVENTORY"), ModuleName = "Inventory", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("PROCUREMENT"), ModuleName = "Procurement", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("REPORT"), ModuleName = "Report", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("WEBSITE"), ModuleName = "Website", IsEnabled = true }
                 );
 
                 // Add pricing
