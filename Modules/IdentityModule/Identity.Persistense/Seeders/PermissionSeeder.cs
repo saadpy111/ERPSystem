@@ -1,7 +1,6 @@
 using Identity.Domain.Entities;
 using Identity.Persistense.Context;
 using Microsoft.EntityFrameworkCore;
-using SharedKernel.Constants;
 using SharedKernel.Constants.Permissions;
 
 namespace Identity.Persistense.Seeders
@@ -45,46 +44,12 @@ namespace Identity.Persistense.Seeders
                 }
             }
 
-            // Add only new ones
+            // Add only new ones — no role/permission assignment
             if (permissionEntities.Any())
             {
                 await _context.Permissions.AddRangeAsync(permissionEntities);
                 await _context.SaveChangesAsync();
             }
-
-            var tenants = await _context.Tenants.ToListAsync();
-            var allPermissions = await _context.Permissions.ToListAsync();
-
-            foreach (var tenant in tenants)
-            {
-                var ownerRole = await _context.Roles
-                    .FirstOrDefaultAsync(r => r.Name == $"{Roles.SuperAdmin}_{tenant.Id}" && r.TenantId == tenant.Id);
-
-                if (ownerRole == null) continue;
-
-                var existingRolePermissions = await _context.RolePermissions
-                    .Where(rp => rp.RoleId == ownerRole.Id)
-                    .Select(rp => rp.PermissionId)
-                    .ToListAsync();
-
-                var newPermissionsForOwner = allPermissions
-                    .Where(p => !existingRolePermissions.Contains(p.Id))
-                    .Select(p => new RolePermission
-                    {
-                        RoleId = ownerRole.Id,
-                        PermissionId = p.Id,
-                        TenantId = tenant.Id,
-                        AssignedAt = DateTime.UtcNow
-                    })
-                    .ToList();
-
-                if (newPermissionsForOwner.Any())
-                {
-                    await _context.RolePermissions.AddRangeAsync(newPermissionsForOwner);
-                }
-            }
-
-            await _context.SaveChangesAsync();
         }
 
         private string GenerateDescription(string permissionName)

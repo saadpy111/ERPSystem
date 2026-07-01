@@ -32,13 +32,13 @@ namespace Inventory.Api
                 var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
                 var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-   
 
 
-                //var permissionSeeder = new PermissionSeeder(identityContext);
-                //await permissionSeeder.SeedAsync();
 
-    
+                var permissionSeeder = new PermissionSeeder(identityContext);
+                await permissionSeeder.SeedAsync();
+
+
 
                 // Seed Subscription module (modules and plans)
                 var subscriptionContext = scope.ServiceProvider.GetRequiredService<SubscriptionDbContext>();
