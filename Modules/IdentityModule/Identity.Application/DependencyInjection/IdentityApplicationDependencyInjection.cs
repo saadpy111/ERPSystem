@@ -2,6 +2,7 @@ using Identity.Application.Contracts.Persistence;
 using Identity.Application.Services;
 using SharedKernel.Authorization;
 using SharedKernel.Contracts;
+using SharedKernel.Subscription;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
@@ -16,6 +17,7 @@ namespace Identity.Application.DependencyInjection
             {
                 options.RegisterServicesFromAssemblies(Assembly.GetExecutingAssembly());
             });
+            services.AddScoped<TenantRoleProvisioningService>();
 
             services.AddScoped<IUserLookupService, UserLookupService>();
 
@@ -29,7 +31,9 @@ namespace Identity.Application.DependencyInjection
             services.AddSingleton<IModuleRoleMappingService, ModuleRoleMappingService>();
 
             // Tenant role provisioning service (dynamic role creation + permission sync)
-            services.AddScoped<ITenantRoleProvisioningService, TenantRoleProvisioningService>();
+            services.AddScoped<Identity.Application.Services.ITenantRoleProvisioningService, TenantRoleProvisioningService>();
+            services.AddScoped<SharedKernel.Subscription.ITenantRoleProvisioningService>(sp =>
+                sp.GetRequiredService<TenantRoleProvisioningService>());
 
             // Tenant read service (cross-module boundary)
             services.AddScoped<ITenantReadService, TenantReadService>();

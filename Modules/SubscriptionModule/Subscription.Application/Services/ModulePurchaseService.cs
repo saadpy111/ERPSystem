@@ -1,5 +1,3 @@
-using MediatR;
-using SharedKernel.Events;
 using SharedKernel.Enums;
 using Subscription.Application.Contracts.Persistence;
 using Subscription.Domain.Entities;
@@ -29,22 +27,19 @@ namespace Subscription.Application.Services
         private readonly ITenantModuleSubscriptionRepository _tenantModuleSubscriptionRepository;
         private readonly IEffectiveModuleService _effectiveModuleService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMediator _mediator;
 
         public ModulePurchaseService(
             IModuleRepository moduleRepository,
             IModulePriceRepository modulePriceRepository,
             ITenantModuleSubscriptionRepository tenantModuleSubscriptionRepository,
             IEffectiveModuleService effectiveModuleService,
-            IUnitOfWork unitOfWork,
-            IMediator mediator)
+            IUnitOfWork unitOfWork)
         {
             _moduleRepository = moduleRepository;
             _modulePriceRepository = modulePriceRepository;
             _tenantModuleSubscriptionRepository = tenantModuleSubscriptionRepository;
             _effectiveModuleService = effectiveModuleService;
             _unitOfWork = unitOfWork;
-            _mediator = mediator;
         }
 
         public async Task<ModulePurchaseResult> PurchaseModuleAsync(
@@ -107,12 +102,6 @@ namespace Subscription.Application.Services
                 await _tenantModuleSubscriptionRepository.CreateAsync(subscription);
                 await _unitOfWork.SaveChangesAsync();
 
-                var modulesAfter = await _effectiveModuleService.GetEffectiveModulesAsync(tenantId);
-                if (!modulesBefore.ToHashSet().SetEquals(modulesAfter))
-                {
-                    await _mediator.Publish(new TenantModulesChangedNotification { TenantId = tenantId });
-                }
-
                 return new ModulePurchaseResult
                 {
                     Success = true,
@@ -133,8 +122,6 @@ namespace Subscription.Application.Services
         {
             try
             {
-                var modulesBefore = await _effectiveModuleService.GetEffectiveModulesAsync(tenantId);
-
                 var subscription = await _tenantModuleSubscriptionRepository.FindActiveAsync(tenantId, moduleCode);
                 if (subscription == null)
                 {
@@ -147,12 +134,6 @@ namespace Subscription.Application.Services
 
                 await _tenantModuleSubscriptionRepository.UpdateAsync(subscription);
                 await _unitOfWork.SaveChangesAsync();
-
-                var modulesAfter = await _effectiveModuleService.GetEffectiveModulesAsync(tenantId);
-                if (!modulesBefore.ToHashSet().SetEquals(modulesAfter))
-                {
-                    await _mediator.Publish(new TenantModulesChangedNotification { TenantId = tenantId });
-                }
 
                 return new ModulePurchaseResult { Success = true };
             }

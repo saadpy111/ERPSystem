@@ -1,6 +1,6 @@
 using MediatR;
-using SharedKernel.Events;
 using SharedKernel.Enums;
+using SharedKernel.Subscription;
 using Subscription.Application.Contracts.Persistence;
 using Subscription.Application.Services;
 using Subscription.Domain.Entities;
@@ -15,7 +15,7 @@ namespace Subscription.Application.Features.Modules.Commands.PurchaseModule
         private readonly ITenantModuleSubscriptionRepository _tenantModuleSubscriptionRepository;
         private readonly IEffectiveModuleService _effectiveModuleService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMediator _mediator;
+        private readonly ITenantRoleProvisioningService _tenantRoleProvisioningService;
 
         public PurchaseModuleCommandHandler(
             IModuleRepository moduleRepository,
@@ -23,18 +23,19 @@ namespace Subscription.Application.Features.Modules.Commands.PurchaseModule
             ITenantModuleSubscriptionRepository tenantModuleSubscriptionRepository,
             IEffectiveModuleService effectiveModuleService,
             IUnitOfWork unitOfWork,
-            IMediator mediator)
+            ITenantRoleProvisioningService tenantRoleProvisioningService)
         {
             _moduleRepository = moduleRepository;
             _modulePriceRepository = modulePriceRepository;
             _tenantModuleSubscriptionRepository = tenantModuleSubscriptionRepository;
             _effectiveModuleService = effectiveModuleService;
             _unitOfWork = unitOfWork;
-            _mediator = mediator;
+            _tenantRoleProvisioningService = tenantRoleProvisioningService;
         }
 
         public async Task<PurchaseModuleResponse> Handle(PurchaseModuleCommand request, CancellationToken cancellationToken)
         {
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
                 var modulesBefore = await _effectiveModuleService.GetEffectiveModulesAsync(request.TenantId);
@@ -93,10 +94,23 @@ namespace Subscription.Application.Features.Modules.Commands.PurchaseModule
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 var modulesAfter = await _effectiveModuleService.GetEffectiveModulesAsync(request.TenantId);
-                if (!modulesBefore.ToHashSet().SetEquals(modulesAfter))
+
+                var provisionResult = await _tenantRoleProvisioningService.ProvisionRolesAsync(
+                    request.TenantId,
+                    modulesAfter);
+
+                if (!provisionResult.Success)
                 {
-                    await _mediator.Publish(new TenantModulesChangedNotification { TenantId = request.TenantId }, cancellationToken);
+                    await transaction.RollbackAsync(cancellationToken);
+                    return new PurchaseModuleResponse
+                    {
+                        Success = false,
+                        Error = provisionResult.Error
+                    };
                 }
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
                 return new PurchaseModuleResponse
                 {
@@ -106,6 +120,7 @@ namespace Subscription.Application.Features.Modules.Commands.PurchaseModule
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync(cancellationToken);
                 return new PurchaseModuleResponse
                 {
                     Success = false,

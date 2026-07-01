@@ -1,5 +1,5 @@
 using MediatR;
-using SharedKernel.Events;
+using SharedKernel.Subscription;
 using Subscription.Application.Contracts.Persistence;
 using Subscription.Application.Services;
 using Subscription.Domain.Enums;
@@ -11,26 +11,25 @@ namespace Subscription.Application.Features.Modules.Commands.CancelModule
         private readonly ITenantModuleSubscriptionRepository _tenantModuleSubscriptionRepository;
         private readonly IEffectiveModuleService _effectiveModuleService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMediator _mediator;
+        private readonly ITenantRoleProvisioningService _tenantRoleProvisioningService;
 
         public CancelModuleCommandHandler(
             ITenantModuleSubscriptionRepository tenantModuleSubscriptionRepository,
             IEffectiveModuleService effectiveModuleService,
             IUnitOfWork unitOfWork,
-            IMediator mediator)
+            ITenantRoleProvisioningService tenantRoleProvisioningService)
         {
             _tenantModuleSubscriptionRepository = tenantModuleSubscriptionRepository;
             _effectiveModuleService = effectiveModuleService;
             _unitOfWork = unitOfWork;
-            _mediator = mediator;
+            _tenantRoleProvisioningService = tenantRoleProvisioningService;
         }
 
         public async Task<CancelModuleResponse> Handle(CancelModuleCommand request, CancellationToken cancellationToken)
         {
+            await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
             try
             {
-                var modulesBefore = await _effectiveModuleService.GetEffectiveModulesAsync(request.TenantId);
-
                 var subscription = await _tenantModuleSubscriptionRepository.FindActiveAsync(request.TenantId, request.ModuleCode);
                 if (subscription == null)
                 {
@@ -45,15 +44,29 @@ namespace Subscription.Application.Features.Modules.Commands.CancelModule
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
 
                 var modulesAfter = await _effectiveModuleService.GetEffectiveModulesAsync(request.TenantId);
-                if (!modulesBefore.ToHashSet().SetEquals(modulesAfter))
+
+                var provisionResult = await _tenantRoleProvisioningService.ProvisionRolesAsync(
+                    request.TenantId,
+                    modulesAfter);
+
+                if (!provisionResult.Success)
                 {
-                    await _mediator.Publish(new TenantModulesChangedNotification { TenantId = request.TenantId }, cancellationToken);
+                    await transaction.RollbackAsync(cancellationToken);
+                    return new CancelModuleResponse
+                    {
+                        Success = false,
+                        Error = provisionResult.Error
+                    };
                 }
+
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
 
                 return new CancelModuleResponse { Success = true };
             }
             catch (Exception ex)
             {
+                await transaction.RollbackAsync(cancellationToken);
                 return new CancelModuleResponse
                 {
                     Success = false,

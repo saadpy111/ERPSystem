@@ -6,7 +6,6 @@ using Identity.Domain.Enums;
 using Identity.Domain.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using SharedKernel.Subscription;
 
 namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
 {
@@ -18,7 +17,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
         private readonly IPermissionRepository _permissionRepository;
         private readonly IJwtTokenService _jwtTokenService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ISubscriptionService _subscriptionService;
+        private readonly SharedKernel.Subscription.ISubscriptionService _subscriptionService;
         private readonly ITenantRoleProvisioningService _tenantRoleProvisioningService;
 
         public CreateCompanyCommandHandler(
@@ -28,7 +27,7 @@ namespace Identity.Application.Features.TenantFeature.Commands.CreateCompany
             IPermissionRepository permissionRepository,
             IJwtTokenService jwtTokenService,
             IUnitOfWork unitOfWork,
-            ISubscriptionService subscriptionService,
+            SharedKernel.Subscription.ISubscriptionService subscriptionService,
             ITenantRoleProvisioningService tenantRoleProvisioningService)
         {
             _authRepository = authRepository;

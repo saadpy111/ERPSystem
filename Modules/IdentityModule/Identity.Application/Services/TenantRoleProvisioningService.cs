@@ -4,15 +4,19 @@ using Identity.Domain.Enums;
 using Identity.Domain.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Subscription;
 
 namespace Identity.Application.Services
 {
-    public class TenantRoleProvisioningService : ITenantRoleProvisioningService
+    public class TenantRoleProvisioningService :
+        ITenantRoleProvisioningService,
+        SharedKernel.Subscription.ITenantRoleProvisioningService
     {
         private readonly IModuleRoleMappingService _moduleRoleMapping;
         private readonly RoleManager<ApplicationRole> _roleManager;
         private readonly IPermissionSynchronizationService _permissionSync;
         private readonly ILogger<TenantRoleProvisioningService> _logger;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IPermissionRepository _permissionRepository;
 
         public TenantRoleProvisioningService(
@@ -20,20 +24,40 @@ namespace Identity.Application.Services
             RoleManager<ApplicationRole> roleManager,
             IPermissionSynchronizationService permissionSync,
             IPermissionRepository permissionRepository,
-            ILogger<TenantRoleProvisioningService> logger)
+            ILogger<TenantRoleProvisioningService> logger,
+            IUnitOfWork unitOfWork)
         {
             _moduleRoleMapping = moduleRoleMapping;
             _roleManager = roleManager;
             _permissionSync = permissionSync;
             _permissionRepository = permissionRepository;
             _logger = logger;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<RoleProvisioningResult> ProvisionRolesAsync(
             string tenantId,
             List<string> effectiveModuleCodes)
         {
-            // Step 1: Validate all module codes have a mapping
+            return await ProvisionRolesInternalAsync(tenantId, effectiveModuleCodes);
+        }
+
+        async Task<SharedKernel.Subscription.RoleProvisioningResult> SharedKernel.Subscription.ITenantRoleProvisioningService.ProvisionRolesAsync(
+            string tenantId,
+            List<string> effectiveModuleCodes)
+        {
+            var result = await ProvisionRolesInternalAsync(tenantId, effectiveModuleCodes);
+            return new SharedKernel.Subscription.RoleProvisioningResult
+            {
+                Success = result.Success,
+                Error = result.Error
+            };
+        }
+
+        private async Task<RoleProvisioningResult> ProvisionRolesInternalAsync(
+            string tenantId,
+            List<string> effectiveModuleCodes)
+        {
             var requiredRoles = new Dictionary<string, RoleMapping>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var moduleCode in effectiveModuleCodes)
@@ -51,10 +75,8 @@ namespace Identity.Application.Services
                 requiredRoles[mapping.RoleName] = mapping;
             }
 
-            // Step 2: Build roleToModule mapping for permission sync
             var roleToModuleMapping = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
-            // SuperAdmin is always added
             roleToModuleMapping["SuperAdmin"] = null;
 
             foreach (var kvp in requiredRoles)
@@ -65,7 +87,6 @@ namespace Identity.Application.Services
                         string.Equals(rm.RoleName, kvp.Key, StringComparison.OrdinalIgnoreCase));
             }
 
-            // Step 3: Get existing roles for the tenant
             var existingRoles = _roleManager.Roles
                 .Where(r => r.TenantId == tenantId)
                 .ToList();
@@ -74,10 +95,8 @@ namespace Identity.Application.Services
                 .Select(r => r.Name.ToCleanRoleName(tenantId))
                 .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-            // Step 4: Create missing roles
             var createdRoles = new List<ApplicationRole>();
 
-            // Create SuperAdmin if not exists
             if (!existingRoleNames.Contains("SuperAdmin"))
             {
                 var superAdminRole = CreateRole("SuperAdmin", RoleScope.ERP, tenantId);
@@ -93,7 +112,6 @@ namespace Identity.Application.Services
                 createdRoles.Add(superAdminRole);
             }
 
-            // Create module roles if not exist
             foreach (var kvp in requiredRoles)
             {
                 if (existingRoleNames.Contains(kvp.Key))
@@ -112,10 +130,9 @@ namespace Identity.Application.Services
                 createdRoles.Add(role);
             }
 
-            // Step 5: Sync permissions with explicit mapping
             await _permissionSync.SyncTenantPermissionsAsync(
                 tenantId, effectiveModuleCodes, roleToModuleMapping);
-
+            await _unitOfWork.SaveChangesAsync();
             return new RoleProvisioningResult
             {
                 Success = true,
