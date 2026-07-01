@@ -7,6 +7,7 @@ using Subscription.Application.Features.Modules.Commands.CancelModule;
 using Subscription.Application.Features.Modules.Commands.PurchaseModule;
 using Subscription.Application.Features.Modules.Commands.RenewModule;
 using Subscription.Application.Features.Modules.Queries.GetAvailableModules;
+using Subscription.Application.Features.Modules.Queries.GetEffectiveModules;
 using Subscription.Application.Features.Modules.Queries.GetPurchasedModules;
 
 namespace Subscription.Api.Controllers
@@ -37,7 +38,7 @@ namespace Subscription.Api.Controllers
             return Ok(result);
         }
 
-        [HttpGet("my")]
+        [HttpGet("purchased")]
         public async Task<IActionResult> GetMyPurchasedModules()
         {
             var tenantId = _tenantProvider.GetTenantId();
@@ -45,6 +46,21 @@ namespace Subscription.Api.Controllers
                 return Unauthorized();
 
             var result = await _mediator.Send(new GetPurchasedModulesQuery
+            {
+                TenantId = tenantId
+            });
+
+            return Ok(result);
+        }
+
+        [HttpGet("effective")]
+        public async Task<IActionResult> GetEffectiveModules()
+        {
+            var tenantId = _tenantProvider.GetTenantId();
+            if (string.IsNullOrEmpty(tenantId))
+                return Unauthorized();
+
+            var result = await _mediator.Send(new GetEffectiveModulesQuery
             {
                 TenantId = tenantId
             });
