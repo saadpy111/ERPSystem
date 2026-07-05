@@ -34,6 +34,7 @@ namespace Subscription.Persistence.DependencyInjection
             services.AddScoped<IModuleRepository, ModuleRepository>();
             services.AddScoped<IModulePriceRepository, ModulePriceRepository>();
             services.AddScoped<ITenantModuleSubscriptionRepository, TenantModuleSubscriptionRepository>();
+            services.AddScoped<IPaymentRepository, PaymentRepository>();
 
             return services;
         }

@@ -12,6 +12,7 @@
     <ProjectReference Include="..\Identity.Infrastructure\Identity.Infrastructure.csproj" />
     <ProjectReference Include="..\Identity.Persistense\Identity.Persistense.csproj" />
     <ProjectReference Include="..\..\..\SharedKernel\SharedKernel.Core.csproj" />
+    <ProjectReference Include="..\..\SubscriptionModule\Subscription.Application\Subscription.Application.csproj" />
   </ItemGroup>
 
 	<ItemGroup>

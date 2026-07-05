@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Subscription.Persistence.Context;
 
@@ -11,9 +12,11 @@ using Subscription.Persistence.Context;
 namespace Subscription.Persistence.Migrations
 {
     [DbContext(typeof(SubscriptionDbContext))]
-    partial class SubscriptionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260704043309_addPaymentInSubModule")]
+    partial class addPaymentInSubModule
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,9 +162,6 @@ namespace Subscription.Persistence.Migrations
                     b.Property<int>("Interval")
                         .HasColumnType("int");
 
-                    b.Property<string>("Payload")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Purpose")
                         .HasColumnType("int");
 
@@ -174,21 +174,15 @@ namespace Subscription.Persistence.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("TenantId")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TenantId", "Status");
 
                     b.HasIndex("TenantId", "Purpose", "TargetId", "Status");
-
-                    b.HasIndex("UserId", "Purpose", "TargetId", "Status");
 
                     b.ToTable("Payments", "Subscription");
                 });

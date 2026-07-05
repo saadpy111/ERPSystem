@@ -19,6 +19,8 @@ namespace Subscription.Persistence.Context
         public DbSet<Module> Modules => Set<Module>();
         public DbSet<ModulePrice> ModulePrices => Set<ModulePrice>();
         public DbSet<TenantModuleSubscription> TenantModuleSubscriptions => Set<TenantModuleSubscription>();
+        public DbSet<Payment> Payments => Set<Payment>();
+        public DbSet<PaymentTransaction> PaymentTransactions => Set<PaymentTransaction>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
