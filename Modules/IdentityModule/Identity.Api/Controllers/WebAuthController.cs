@@ -2,6 +2,7 @@ using Identity.Application.Contracts.Services;
 using Identity.Application.Dtos.AccountDtos;
 using Identity.Application.Features.AuthFeature.Commands.RegisterUser;
 using Identity.Application.Features.AuthFeature.Queries.Login;
+using Identity.Application.Features.AuthFeature.Queries.PlatformLogin;
 using Identity.Application.Features.ClientAuthFeature.Commands.ClientRegister;
 using Identity.Domain.Entities;
 using MediatR;
@@ -38,7 +39,7 @@ namespace Identity.Api.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            var request = new LoginQueryRequest() { LoginDto = dto };
+            var request = new PlatformLoginQueryRequest() { LoginDto = dto };
 
             var response = await _mediator.Send(request);
 

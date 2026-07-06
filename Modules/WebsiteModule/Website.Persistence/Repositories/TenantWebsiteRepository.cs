@@ -33,7 +33,7 @@ namespace Website.Persistence.Repositories
             // Search by domain in SiteConfig (JSON column)
             return await _context.TenantWebsites.IgnoreQueryFilters()
                 .FirstOrDefaultAsync
-                (tw =>( tw.Config.Domain.ToLower() == domain.ToLower() && tw.IsPublished ));
+                (tw =>( tw.Config.Domain.ToLower() == domain.ToLower()));
         }
 
         public async Task<TenantWebsite> CreateAsync(TenantWebsite tenantWebsite)

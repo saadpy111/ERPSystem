@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 using SharedKernel.Multitenancy;
 using Website.Application.Features.WebsiteInitialization.Commands.InitializeWebsite;
 
@@ -23,6 +25,7 @@ namespace Website.Api.Controllers
 
         [HttpPost("initialize")]
         [Consumes("multipart/form-data")]
+        [HasPermission(WebsitePermissions.WebsiteBuilder)]
         public async Task<IActionResult> InitializeWebsite([FromForm] InitializeWebsiteCommand command)
         {
             var tenantId = _tenantProvider.GetTenantId();
