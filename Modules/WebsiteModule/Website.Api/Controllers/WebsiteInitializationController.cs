@@ -5,6 +5,7 @@ using SharedKernel.Authorization;
 using SharedKernel.Constants.Permissions;
 using SharedKernel.Multitenancy;
 using Website.Application.Features.WebsiteInitialization.Commands.InitializeWebsite;
+using Website.Application.Features.WebsiteInitialization.Queries.CheckDomainAvailability;
 
 namespace Website.Api.Controllers
 {
@@ -39,6 +40,18 @@ namespace Website.Api.Controllers
                 return BadRequest(new { error = result.Error });
 
             return Ok(new { websiteId = result.WebsiteId });
+        }
+
+        [HttpGet("check-domain")]
+        [HasPermission(WebsitePermissions.WebsiteBuilder)]
+        public async Task<IActionResult> CheckDomainAvailability([FromQuery] string domain="")
+        {
+            var result = await _mediator.Send(new CheckDomainAvailabilityQuery { Domain = domain });
+
+            if (!result.Success)
+                return BadRequest(new { error = result.Error });
+
+            return Ok(new { isAvailable = result.IsAvailable });
         }
     }
 }

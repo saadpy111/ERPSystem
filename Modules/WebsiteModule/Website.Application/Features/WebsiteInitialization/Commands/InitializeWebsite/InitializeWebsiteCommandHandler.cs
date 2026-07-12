@@ -33,6 +33,10 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
 
         public async Task<InitializeWebsiteResponse> Handle(InitializeWebsiteCommand request, CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(request.Domain))
+            {
+                return new InitializeWebsiteResponse { Success = false, Error = "Domain is required." };
+            }
             // ===== VERIFY TENANT EXISTS AND IS ACTIVE =====
             var tenantInfo = await _tenantReadService.GetTenantInfoAsync(request.TenantId);
             if (tenantInfo == null)
@@ -44,6 +48,14 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
             // ===== VERIFY WEBSITE NOT ALREADY INITIALIZED =====
             if (await _tenantWebsiteRepository.ExistsAsync(request.TenantId))
                 return new InitializeWebsiteResponse { Success = false, Error = "Website already initialized for this tenant." };
+
+            // ===== VERIFY DOMAIN NOT TAKEN =====
+            if (!string.IsNullOrWhiteSpace(request.Domain))
+            {
+                var existingWebsite = await _tenantWebsiteRepository.GetByDomainAsync(request.Domain);
+                if (existingWebsite != null)
+                    return new InitializeWebsiteResponse { Success = false, Error = "Domain is taken." };
+            }
 
             // ===== PROCESS IMAGES =====
             string logoUrl = string.Empty;

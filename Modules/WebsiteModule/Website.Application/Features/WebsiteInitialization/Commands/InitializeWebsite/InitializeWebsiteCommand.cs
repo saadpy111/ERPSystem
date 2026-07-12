@@ -11,7 +11,7 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
         public string? ThemeCode { get; set; }
 
         public string SiteName { get; set; } = string.Empty;
-        public string Domain { get; set; } = string.Empty;
+        public string Domain { get; set; }
         public string BusinessType { get; set; } = string.Empty;
         public string about_the_site { get; set; } = string.Empty;
         public string location { get; set; } = string.Empty;
