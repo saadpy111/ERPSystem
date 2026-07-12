@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Subscription.Application.DTOs.PaymentDtos;
 using Subscription.Application.Features.Payments.Commands.InitiatePayment;
 using Subscription.Application.Features.Payments.Commands.ProcessWebhook;
+using Subscription.Application.Features.Payments.Queries.ProcessRedirect;
 using Subscription.Domain.Enums;
 
 namespace Subscription.Api.Controllers
@@ -107,6 +108,29 @@ namespace Subscription.Api.Controllers
                 // Return 500 so Paymob retries the webhook
                 return StatusCode(StatusCodes.Status500InternalServerError, new VerifyResponse(false, "Internal error processing webhook."));
             }
+        }
+
+        /// <summary>
+        /// Paymob browser redirect endpoint. Validates the HMAC signature and returns
+        /// the current payment state to the frontend. Read-only — no business operations
+        /// are executed here. Business operations are handled exclusively by the webhook.
+        /// </summary>
+        [HttpGet("redirect")]
+        [ProducesResponseType(typeof(ProcessRedirectResponse), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Redirect(
+            [FromQuery] PaymobRedirectQuery callback,
+            CancellationToken cancellationToken)
+        {
+            if (string.IsNullOrWhiteSpace(callback.Hmac))
+            {
+                return Problem(title: "Missing HMAC.", statusCode: StatusCodes.Status400BadRequest);
+            }
+
+            var query = new ProcessRedirectQuery(callback.Hmac, callback);
+            var result = await _mediator.Send(query, cancellationToken);
+
+            return Ok(result);
         }
     }
 }
