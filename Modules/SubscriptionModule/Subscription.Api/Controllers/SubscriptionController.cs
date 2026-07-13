@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SharedKernel.Multitenancy;
 using Subscription.Application.Features.Subscriptions.Queries.GetSubscriptionDashboard;
+using Subscription.Application.Features.Subscriptions.Queries.GetTenantWebsiteDetails;
 using System.Threading.Tasks;
 
 namespace Subscription.Api.Controllers
@@ -39,6 +40,32 @@ namespace Subscription.Api.Controllers
             }
 
             var query = new GetSubscriptionDashboardQuery { TenantId = tenantId };
+            var result = await _mediator.Send(query);
+
+            if (!result.Success)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
+        }
+
+        /// <summary>
+        /// Retrieves the website configuration details (domain, name, logo) if it exists for the current tenant.
+        /// </summary>
+        [HttpGet("website-details")]
+        [ProducesResponseType(typeof(GetTenantWebsiteDetailsResponse), 200)]
+        [ProducesResponseType(401)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetWebsiteDetails()
+        {
+            var tenantId = _tenantProvider.GetTenantId();
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                return Unauthorized();
+            }
+
+            var query = new GetTenantWebsiteDetailsQuery { TenantId = tenantId };
             var result = await _mediator.Send(query);
 
             if (!result.Success)
