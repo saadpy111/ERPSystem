@@ -1,7 +1,7 @@
 using MediatR;
+using Website.Application.Contracts.Infrastruture;
 using Website.Application.Contracts.Persistence;
 using Website.Domain.Entities;
-using SharedKernel.Website;
 using Website.Domain.Enums;
 using Website.Domain.ValueObjects;
 

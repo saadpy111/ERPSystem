@@ -1,8 +1,8 @@
 using MediatR;
+using Website.Application.Contracts.Infrastruture;
 using Website.Application.Contracts.Persistence;
 using Website.Domain.Enums;
 using Website.Domain.ValueObjects;
-using SharedKernel.Website;
 
 namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
 {
@@ -42,8 +42,36 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                 await _tenantWebsiteRepository.CreateAsync(tenantWebsite);
             }
 
-            // Guarantee all nested objects are non-null before property assignments
-            EnsureConfigStructure(tenantWebsite);
+            // ── Guard all OwnsOne navigations against legacy/corrupt DB data ──
+            tenantWebsite.Config.Colors ??= new ThemeColors();
+
+            tenantWebsite.Config.Hero ??= new HeroSection();
+            tenantWebsite.Config.Hero.Title ??= new TextContent();
+            tenantWebsite.Config.Hero.Title.Style ??= new TextStyle();
+            tenantWebsite.Config.Hero.Subtitle ??= new TextContent();
+            tenantWebsite.Config.Hero.Subtitle.Style ??= new TextStyle();
+            tenantWebsite.Config.Hero.ButtonText ??= new TextContent();
+            tenantWebsite.Config.Hero.ButtonText.Style ??= new TextStyle();
+            tenantWebsite.Config.Hero.BackgroundImage ??= new ImageContent();
+            tenantWebsite.Config.Hero.BackgroundImage.Style ??= new ImageStyle();
+
+            tenantWebsite.Config.ContactUsImages ??= new ContactUsImages();
+            tenantWebsite.Config.ContactUsImages.ContactUsImg ??= new ImageContent();
+            tenantWebsite.Config.ContactUsImages.ContactUsImg.Style ??= new ImageStyle();
+            tenantWebsite.Config.ContactUsImages.ClientOImg ??= new ImageContent();
+            tenantWebsite.Config.ContactUsImages.ClientOImg.Style ??= new ImageStyle();
+
+            foreach (var section in tenantWebsite.Config.Sections)
+            {
+                section.Title ??= new TextContent();
+                section.Title.Style ??= new TextStyle();
+                section.Subtitle ??= new TextContent();
+                section.Subtitle.Style ??= new TextStyle();
+                section.ButtonText ??= new TextContent();
+                section.ButtonText.Style ??= new TextStyle();
+                section.BackgroundImage ??= new ImageContent();
+                section.BackgroundImage.Style ??= new ImageStyle();
+            }
 
             // ── Business data ────────────────────────────────────────────────────
             if (request.SiteName != null)
@@ -325,44 +353,24 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
                         existing.Order = dto.Order.Value;
 
                     // ── Title ────────────────────────────────────────────────
-                    if (dto.Title != null)
-                    {
-                        existing.Title ??= new TextContent();
-                        existing.Title.Style ??= new TextStyle();
-
-                        if (dto.Title.Text != null)
-                            existing.Title.Text = dto.Title.Text;
-
+                    if (dto.Title?.Text != null)
+                        existing.Title.Text = dto.Title.Text;
+                    if (dto.Title?.Style != null)
                         MergeTextStyle(existing.Title.Style, dto.Title.Style);
-                    }
 
                     // ── Subtitle ─────────────────────────────────────────────
-                    if (dto.Subtitle != null)
-                    {
-                        existing.Subtitle ??= new TextContent();
-                        existing.Subtitle.Style ??= new TextStyle();
-
-                        if (dto.Subtitle.Text != null)
-                            existing.Subtitle.Text = dto.Subtitle.Text;
-
+                    if (dto.Subtitle?.Text != null)
+                        existing.Subtitle.Text = dto.Subtitle.Text;
+                    if (dto.Subtitle?.Style != null)
                         MergeTextStyle(existing.Subtitle.Style, dto.Subtitle.Style);
-                    }
 
                     // ── ButtonText ───────────────────────────────────────────
-                    if (dto.ButtonText != null)
-                    {
-                        existing.ButtonText ??= new TextContent();
-                        existing.ButtonText.Style ??= new TextStyle();
-
-                        if (dto.ButtonText.Text != null)
-                            existing.ButtonText.Text = dto.ButtonText.Text;
-
+                    if (dto.ButtonText?.Text != null)
+                        existing.ButtonText.Text = dto.ButtonText.Text;
+                    if (dto.ButtonText?.Style != null)
                         MergeTextStyle(existing.ButtonText.Style, dto.ButtonText.Style);
-                    }
 
                     // ── Background image ─────────────────────────────────────
-                    existing.BackgroundImage ??= new ImageContent();
-                    existing.BackgroundImage.Style ??= new ImageStyle();
 
                     if (dto.BackgroundImageFile != null)
                     {
@@ -397,50 +405,69 @@ namespace Website.Application.Features.TenantWebsite.Commands.UpdateConfig
             if (request.IsPublished.HasValue)
                 tenantWebsite.IsPublished = request.IsPublished.Value;
 
+            ValidateConfigGraph(tenantWebsite);
+
             await _tenantWebsiteRepository.UpdateAsync(tenantWebsite);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new UpdateTenantWebsiteConfigResponse { Success = true };
         }
-        private static void EnsureConfigStructure(Domain.Entities.TenantWebsite site)
+
+        private static void ValidateConfigGraph(Domain.Entities.TenantWebsite site)
         {
-            site.Config ??= new SiteConfig();
+            var config = site.Config ?? throw new InvalidOperationException(
+                "NULL at path: Config (TenantWebsite.Config is null)");
 
-            site.Config.Colors ??= new ThemeColors();
+            // ── Colors ──
+            if (config.Colors == null)
+                throw new InvalidOperationException("NULL at path: Config.Colors");
 
-            site.Config.Hero ??= new HeroSection();
+            // ── Hero ──
+            if (config.Hero == null)
+                throw new InvalidOperationException("NULL at path: Config.Hero");
+            AssertNonNull(config.Hero.Title, "Config.Hero.Title");
+            AssertNonNull(config.Hero.Title.Style, "Config.Hero.Title.Style");
+            AssertNonNull(config.Hero.Subtitle, "Config.Hero.Subtitle");
+            AssertNonNull(config.Hero.Subtitle.Style, "Config.Hero.Subtitle.Style");
+            AssertNonNull(config.Hero.ButtonText, "Config.Hero.ButtonText");
+            AssertNonNull(config.Hero.ButtonText.Style, "Config.Hero.ButtonText.Style");
+            AssertNonNull(config.Hero.BackgroundImage, "Config.Hero.BackgroundImage");
+            AssertNonNull(config.Hero.BackgroundImage.Style, "Config.Hero.BackgroundImage.Style");
 
-            site.Config.Hero.Title       ??= new TextContent();
-            site.Config.Hero.Subtitle    ??= new TextContent();
-            site.Config.Hero.ButtonText  ??= new TextContent();
+            // ── ContactUsImages ──
+            if (config.ContactUsImages == null)
+                throw new InvalidOperationException("NULL at path: Config.ContactUsImages");
+            AssertNonNull(config.ContactUsImages.ContactUsImg, "Config.ContactUsImages.ContactUsImg");
+            AssertNonNull(config.ContactUsImages.ContactUsImg.Style, "Config.ContactUsImages.ContactUsImg.Style");
+            AssertNonNull(config.ContactUsImages.ClientOImg, "Config.ContactUsImages.ClientOImg");
+            AssertNonNull(config.ContactUsImages.ClientOImg.Style, "Config.ContactUsImages.ClientOImg.Style");
 
-            site.Config.Hero.Title.Style       ??= new TextStyle();
-            site.Config.Hero.Subtitle.Style    ??= new TextStyle();
-            site.Config.Hero.ButtonText.Style  ??= new TextStyle();
+            // ── Sections ──
+            if (config.Sections == null)
+                throw new InvalidOperationException("NULL at path: Config.Sections (list is null)");
 
-            site.Config.Hero.BackgroundImage       ??= new ImageContent();
-            site.Config.Hero.BackgroundImage.Style ??= new ImageStyle();
-
-            site.Config.ContactUsImages ??= new ContactUsImages();
-            site.Config.ContactUsImages.ContactUsImg       ??= new ImageContent();
-            site.Config.ContactUsImages.ContactUsImg.Style ??= new ImageStyle();
-            site.Config.ContactUsImages.ClientOImg         ??= new ImageContent();
-            site.Config.ContactUsImages.ClientOImg.Style   ??= new ImageStyle();
-
-            // Ensure all existing sections have rich sub-fields initialised
-            site.Config.Sections ??= new List<SectionItem>();
-            foreach (var section in site.Config.Sections)
+            for (int i = 0; i < config.Sections.Count; i++)
             {
-                section.Title           ??= new TextContent();
-                section.Subtitle        ??= new TextContent();
-                section.ButtonText      ??= new TextContent();
-                section.BackgroundImage ??= new ImageContent();
+                var s = config.Sections[i];
+                if (s == null)
+                    throw new InvalidOperationException($"NULL at path: Config.Sections[{i}] (element is null)");
 
-                section.Title.Style           ??= new TextStyle();
-                section.Subtitle.Style        ??= new TextStyle();
-                section.ButtonText.Style      ??= new TextStyle();
-                section.BackgroundImage.Style ??= new ImageStyle();
+                var prefix = $"Config.Sections[{i}]";
+                AssertNonNull(s.Title, $"{prefix}.Title");
+                AssertNonNull(s.Title.Style, $"{prefix}.Title.Style");
+                AssertNonNull(s.Subtitle, $"{prefix}.Subtitle");
+                AssertNonNull(s.Subtitle.Style, $"{prefix}.Subtitle.Style");
+                AssertNonNull(s.ButtonText, $"{prefix}.ButtonText");
+                AssertNonNull(s.ButtonText.Style, $"{prefix}.ButtonText.Style");
+                AssertNonNull(s.BackgroundImage, $"{prefix}.BackgroundImage");
+                AssertNonNull(s.BackgroundImage.Style, $"{prefix}.BackgroundImage.Style");
             }
+        }
+
+        private static void AssertNonNull(object? value, string path)
+        {
+            if (value == null)
+                throw new InvalidOperationException($"NULL at path: {path}");
         }
 
         private static void MergeTextStyle(TextStyle target, TextStyleDto? src)

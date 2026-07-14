@@ -1,6 +1,6 @@
 using MediatR;
 using SharedKernel.Contracts;
-using SharedKernel.Website;
+using Website.Application.Contracts.Infrastruture;
 using Website.Application.Contracts.Persistence;
 using Website.Domain.Entities;
 using Website.Domain.Enums;
@@ -153,17 +153,17 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
 
         // ================= SECTION =================
 
-        private static SectionItem MapRequestSection(WebsiteSection src)
+        private static SectionItem MapRequestSection(InitSectionInput src)
         {
             return new SectionItem
             {
                 Id = src.Id,
                 Enabled = src.Enabled ?? true,
                 Order = src.Order ?? 0,
-                Title = MapTextContent(src.Title),
-                Subtitle = MapTextContent(src.Subtitle),
-                ButtonText = MapTextContent(src.ButtonText),
-                BackgroundImage = MapImageContent(src.BackgroundImage)
+                Title = SnapshotTextContent(src.Title),
+                Subtitle = SnapshotTextContent(src.Subtitle),
+                ButtonText = SnapshotTextContent(src.ButtonText),
+                BackgroundImage = SnapshotImageContent(src.BackgroundImage)
             };
         }
 
@@ -206,7 +206,7 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
         {
             return new TextContent
             {
-                Text = src?.Text,
+                Text = src?.Text ?? string.Empty,
                 Style = src?.Style == null ? new TextStyle() : new TextStyle
                 {
                     FontSize = src.Style.FontSize,
@@ -225,7 +225,7 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
         {
             return new ImageContent
             {
-                Url = src?.Url,
+                Url = src?.Url ?? string.Empty,
                 Style = src?.Style == null ? new ImageStyle() : new ImageStyle
                 {
                     BorderRadius = src.Style.BorderRadius,
@@ -245,7 +245,7 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
 
         private static ThemeColors MapColors(InitializeWebsiteCommand request) => new()
         {
-            Primary = request.PrimaryColor,
+            Primary = request.PrimaryColor ?? string.Empty,
             Secondary = request.SecondaryColor ?? string.Empty,
             Background = request.BackgroundColor ?? string.Empty,
             Text = request.TextColor ?? string.Empty,
@@ -265,9 +265,9 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
                     Style = new TextStyle
                     {
                         FontSize = request.HeroTitleFontSize ?? 16,
-                        FontWeight = MapFontWeight(request.HeroTitleFontWeight),
+                        FontWeight = request.HeroTitleFontWeight ?? FontWeight.Normal,
                         Color = request.HeroTitleColor ?? "#000000",
-                        Alignment = MapTextAlign(request.HeroTitleAlignment),
+                        Alignment = request.HeroTitleAlignment ?? TextAlign.Left,
                         HorizontalSpacing = request.HeroTitleHorizontalSpacing ?? 0,
                         VerticalSpacing = request.HeroTitleVerticalSpacing ?? 0
                     }
@@ -278,9 +278,9 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
                     Style = new TextStyle
                     {
                         FontSize = request.HeroSubtitleFontSize ?? 16,
-                        FontWeight = MapFontWeight(request.HeroSubtitleFontWeight),
+                        FontWeight = request.HeroSubtitleFontWeight ?? FontWeight.Normal,
                         Color = request.HeroSubtitleColor ?? "#000000",
-                        Alignment = MapTextAlign(request.HeroSubtitleAlignment),
+                        Alignment = request.HeroSubtitleAlignment ?? TextAlign.Left,
                         HorizontalSpacing = request.HeroSubtitleHorizontalSpacing ?? 0,
                         VerticalSpacing = request.HeroSubtitleVerticalSpacing ?? 0
                     }
@@ -291,9 +291,9 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
                     Style = new TextStyle
                     {
                         FontSize = request.HeroButtonTextFontSize ?? 16,
-                        FontWeight = MapFontWeight(request.HeroButtonTextFontWeight),
+                        FontWeight = request.HeroButtonTextFontWeight ?? FontWeight.Normal,
                         Color = request.HeroButtonTextColor ?? "#000000",
-                        Alignment = MapTextAlign(request.HeroButtonTextAlignment),
+                        Alignment = request.HeroButtonTextAlignment ?? TextAlign.Left,
                         HorizontalSpacing = request.HeroButtonTextHorizontalSpacing ?? 0,
                         VerticalSpacing = request.HeroButtonTextVerticalSpacing ?? 0
                     }
@@ -313,67 +313,13 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
 
         private static ContactUsImages MapContactUsImages(InitializeWebsiteCommand request, string contactUsImgUrl, string clientOImgUrl)
         {
-            if (string.IsNullOrEmpty(request.ThemeCode) && (request.ContactUsImg != null || request.ClientOImg != null))
+            return new ContactUsImages
             {
-                return new ContactUsImages
-                {
-                    ContactUsImg = string.IsNullOrEmpty(contactUsImgUrl) ? null : new ImageContent { Url = contactUsImgUrl },
-                    ClientOImg = string.IsNullOrEmpty(clientOImgUrl) ? null : new ImageContent { Url = clientOImgUrl }
-                };
-            }
-
-            return new ContactUsImages();
-        }
-
-        private static TextContent? MapTextContent(WebsiteTextContent? src)
-        {
-            if (src == null) return null;
-
-            return new TextContent
-            {
-                Text = src.Text,
-                Style = src.Style == null ? new TextStyle() : new TextStyle
-                {
-                    FontSize = src.Style.FontSize,
-                    FontWeight = MapFontWeight(src.Style.FontWeight),
-                    Color = src.Style.Color,
-                    Alignment = MapTextAlign(src.Style.Alignment),
-                    HorizontalSpacing = src.Style.HorizontalSpacing,
-                    VerticalSpacing = src.Style.VerticalSpacing,
-                    MarginTop = src.Style.MarginTop,
-                    BackgroundColor = src.Style.BackgroundColor
-                }
+                ContactUsImg = string.IsNullOrEmpty(contactUsImgUrl) ? new ImageContent() : new ImageContent { Url = contactUsImgUrl },
+                ClientOImg = string.IsNullOrEmpty(clientOImgUrl) ? new ImageContent() : new ImageContent { Url = clientOImgUrl }
             };
         }
 
-        private static ImageContent? MapImageContent(WebsiteImageContent? src)
-        {
-            if (src == null) return null;
 
-            return new ImageContent
-            {
-                Url = src.Url,
-                Style = src.Style == null ? new ImageStyle() : new ImageStyle
-                {
-                    BorderRadius = src.Style.BorderRadius,
-                    OverlayColor = src.Style.OverlayColor,
-                    OverlayOpacity = src.Style.OverlayOpacity
-                }
-            };
-        }
-
-        private static FontWeight MapFontWeight(WebsiteFontWeight? w) => w switch
-        {
-            WebsiteFontWeight.Light => FontWeight.Light,
-            WebsiteFontWeight.Bold => FontWeight.Bold,
-            _ => FontWeight.Normal
-        };
-
-        private static TextAlign MapTextAlign(WebsiteTextAlign? a) => a switch
-        {
-            WebsiteTextAlign.Center => TextAlign.Center,
-            WebsiteTextAlign.Right => TextAlign.Right,
-            _ => TextAlign.Left
-        };
     }
 }

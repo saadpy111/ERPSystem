@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using SharedKernel.Website;
+using Website.Domain.Enums;
+using Website.Domain.ValueObjects;
 
 namespace Website.Application.Features.WebsiteInitialization.Commands.InitializeWebsite
 {
@@ -31,25 +32,25 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
 
         public string? HeroTitle { get; set; }
         public int? HeroTitleFontSize { get; set; }
-        public WebsiteFontWeight? HeroTitleFontWeight { get; set; }
+        public FontWeight? HeroTitleFontWeight { get; set; }
         public string? HeroTitleColor { get; set; }
-        public WebsiteTextAlign? HeroTitleAlignment { get; set; }
+        public TextAlign? HeroTitleAlignment { get; set; }
         public int? HeroTitleHorizontalSpacing { get; set; }
         public int? HeroTitleVerticalSpacing { get; set; }
 
         public string? HeroSubtitle { get; set; }
         public int? HeroSubtitleFontSize { get; set; }
-        public WebsiteFontWeight? HeroSubtitleFontWeight { get; set; }
+        public FontWeight? HeroSubtitleFontWeight { get; set; }
         public string? HeroSubtitleColor { get; set; }
-        public WebsiteTextAlign? HeroSubtitleAlignment { get; set; }
+        public TextAlign? HeroSubtitleAlignment { get; set; }
         public int? HeroSubtitleHorizontalSpacing { get; set; }
         public int? HeroSubtitleVerticalSpacing { get; set; }
 
         public string? HeroButtonText { get; set; }
         public int? HeroButtonTextFontSize { get; set; }
-        public WebsiteFontWeight? HeroButtonTextFontWeight { get; set; }
+        public FontWeight? HeroButtonTextFontWeight { get; set; }
         public string? HeroButtonTextColor { get; set; }
-        public WebsiteTextAlign? HeroButtonTextAlignment { get; set; }
+        public TextAlign? HeroButtonTextAlignment { get; set; }
         public int? HeroButtonTextHorizontalSpacing { get; set; }
         public int? HeroButtonTextVerticalSpacing { get; set; }
 
@@ -57,6 +58,21 @@ namespace Website.Application.Features.WebsiteInitialization.Commands.Initialize
         public string? HeroBackgroundOverlayColor { get; set; }
         public int? HeroBackgroundOverlayOpacity { get; set; }
 
-        public List<WebsiteSection>? Sections { get; set; }
+        public List<InitSectionInput>? Sections { get; set; }
+    }
+
+    /// <summary>
+    /// Input model for a section during website initialization.
+    /// Uses Website.Domain types directly — no mapping needed.
+    /// </summary>
+    public class InitSectionInput
+    {
+        public string? Id { get; set; }
+        public bool? Enabled { get; set; }
+        public int? Order { get; set; }
+        public TextContent? Title { get; set; }
+        public TextContent? Subtitle { get; set; }
+        public TextContent? ButtonText { get; set; }
+        public ImageContent? BackgroundImage { get; set; }
     }
 }

@@ -1,5 +1,5 @@
 using MediatR;
-using SharedKernel.Website;
+using Website.Application.Contracts.Infrastruture;
 using Website.Application.Contracts.Infrastruture.FileService;
 using Website.Application.Contracts.Persistence;
 using Website.Domain.Entities;
@@ -39,8 +39,6 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                     Error = "Theme not found"
                 };
             }
-
-            EnsureConfigStructure(theme);
 
             theme.Name = request.Name;
             //theme.IsActive = request.IsActive;
@@ -208,42 +206,6 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
 
         // ───────────────── Helpers ─────────────────
 
-        private static void EnsureConfigStructure(Theme theme)
-        {
-            theme.Config ??= new ThemeConfig();
-            theme.Config.Colors ??= new ThemeColors();
-            theme.Config.Hero ??= new HeroSection();
-
-            theme.Config.Hero.Title ??= DefaultTextContent();
-            theme.Config.Hero.Subtitle ??= DefaultTextContent();
-            theme.Config.Hero.ButtonText ??= DefaultTextContent();
-            theme.Config.Hero.BackgroundImage ??= DefaultImageContent();
-
-            theme.Config.Hero.Title.Style ??= new TextStyle();
-            theme.Config.Hero.Subtitle.Style ??= new TextStyle();
-            theme.Config.Hero.ButtonText.Style ??= new TextStyle();
-            theme.Config.Hero.BackgroundImage.Style ??= new ImageStyle();
-
-            theme.Config.ContactUsImages ??= new ContactUsImages();
-            theme.Config.ContactUsImages.ContactUsImg ??= DefaultImageContent();
-            theme.Config.ContactUsImages.ClientOImg ??= DefaultImageContent();
-
-            // Ensure all existing sections have rich sub-fields initialised
-            theme.Config.Sections ??= new();
-            foreach (var section in theme.Config.Sections)
-            {
-                section.Title           ??= DefaultTextContent();
-                section.Subtitle        ??= DefaultTextContent();
-                section.ButtonText      ??= DefaultTextContent();
-                section.BackgroundImage ??= DefaultImageContent();
-
-                section.Title.Style           ??= new TextStyle();
-                section.Subtitle.Style        ??= new TextStyle();
-                section.ButtonText.Style      ??= new TextStyle();
-                section.BackgroundImage.Style ??= new ImageStyle();
-            }
-        }
-
         private static void UpdateTextContent(
             TextContent target,
             string? text,
@@ -284,22 +246,6 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
                 target.Style.BackgroundColor = backgroundColor;
         }
 
-        private static TextContent DefaultTextContent() => new()
-        {
-            Text  = string.Empty,
-            Style = new TextStyle
-            {
-                FontSize          = 16,
-                FontWeight        = FontWeight.Normal,
-                Color             = "#000000",
-                Alignment         = TextAlign.Left,
-                HorizontalSpacing = 0,
-                VerticalSpacing   = 0,
-                MarginTop         = 0,
-                BackgroundColor   = null
-            }
-        };
-
         /// <summary>Deep-copy a TextContent from a SectionItem request payload.</summary>
         private static TextContent CopySectionTextContent(TextContent? src) => new()
         {
@@ -329,18 +275,5 @@ namespace Website.Application.Features.Themes.Commands.UpdateTheme
             }
         };
 
-        private static ImageContent DefaultImageContent()
-        {
-            return new ImageContent
-            {
-                Url = "",
-                Style = new ImageStyle
-                {
-                    BorderRadius = 6,
-                    OverlayColor = "#FFFFFF",
-                    OverlayOpacity = 40
-                }
-            };
-        }
     }
 }

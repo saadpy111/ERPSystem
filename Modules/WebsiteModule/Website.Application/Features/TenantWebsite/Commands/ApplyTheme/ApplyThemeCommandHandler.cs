@@ -102,44 +102,6 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
         //  Merge Helpers (Patch-like Application of Theme to Tenant overrides)
         // ─────────────────────────────────────────────────────────────────────
 
-        private static void EnsureConfigStructure(Domain.Entities.TenantWebsite site)
-        {
-            site.Config ??= new SiteConfig();
-            site.Config.Colors ??= new ThemeColors();
-            site.Config.Hero ??= new HeroSection();
-
-            site.Config.Hero.Title       ??= new TextContent();
-            site.Config.Hero.Subtitle    ??= new TextContent();
-            site.Config.Hero.ButtonText  ??= new TextContent();
-
-            site.Config.Hero.Title.Style       ??= new TextStyle();
-            site.Config.Hero.Subtitle.Style    ??= new TextStyle();
-            site.Config.Hero.ButtonText.Style  ??= new TextStyle();
-
-            site.Config.Hero.BackgroundImage       ??= new ImageContent();
-            site.Config.Hero.BackgroundImage.Style ??= new ImageStyle();
-
-            site.Config.ContactUsImages ??= new ContactUsImages();
-            site.Config.ContactUsImages.ContactUsImg       ??= new ImageContent();
-            site.Config.ContactUsImages.ContactUsImg.Style ??= new ImageStyle();
-            site.Config.ContactUsImages.ClientOImg         ??= new ImageContent();
-            site.Config.ContactUsImages.ClientOImg.Style   ??= new ImageStyle();
-
-            site.Config.Sections ??= new List<SectionItem>();
-            foreach (var section in site.Config.Sections)
-            {
-                section.Title           ??= new TextContent();
-                section.Subtitle        ??= new TextContent();
-                section.ButtonText      ??= new TextContent();
-                section.BackgroundImage ??= new ImageContent();
-
-                section.Title.Style           ??= new TextStyle();
-                section.Subtitle.Style        ??= new TextStyle();
-                section.ButtonText.Style      ??= new TextStyle();
-                section.BackgroundImage.Style ??= new ImageStyle();
-            }
-        }
-
         private static void MergeColors(ThemeColors target, ThemeColors? source)
         {
             if (source == null) return;
@@ -289,52 +251,6 @@ namespace Website.Application.Features.TenantWebsite.Commands.ApplyTheme
                 BackgroundColor   = src?.Style?.BackgroundColor
             }
         };
-        private static void NormalizeConfig(SiteConfig config)
-        {
-            config ??= new SiteConfig();
-
-            // Colors
-            config.Colors ??= new ThemeColors
-            {
-                Primary = "#000000",
-                Secondary = "#ffffff",
-                Background = "#ffffff",
-                Text = "#000000",
-                FontFamily = "Default"
-            };
-
-            // Hero
-            config.Hero ??= new HeroSection();
-            config.Hero.Title = SnapshotTextContent(config.Hero.Title);
-            config.Hero.Subtitle = SnapshotTextContent(config.Hero.Subtitle);
-            config.Hero.ButtonText = SnapshotTextContent(config.Hero.ButtonText);
-            config.Hero.BackgroundImage = SnapshotImageContent(config.Hero.BackgroundImage);
-
-            // ContactUs
-            config.ContactUsImages ??= new ContactUsImages();
-            config.ContactUsImages.ContactUsImg = SnapshotImageContent(config.ContactUsImages.ContactUsImg);
-            config.ContactUsImages.ClientOImg = SnapshotImageContent(config.ContactUsImages.ClientOImg);
-
-            // Sections
-            config.Sections ??= new List<SectionItem>();
-
-            for (int i = 0; i < config.Sections.Count; i++)
-            {
-                var s = config.Sections[i] ?? new SectionItem();
-
-                config.Sections[i] = new SectionItem
-                {
-                    Id = string.IsNullOrWhiteSpace(s.Id) ? Guid.NewGuid().ToString() : s.Id,
-                    Enabled = s.Enabled,
-                    Order = s.Order,
-
-                    Title = SnapshotTextContent(s.Title),
-                    Subtitle = SnapshotTextContent(s.Subtitle),
-                    ButtonText = SnapshotTextContent(s.ButtonText),
-                    BackgroundImage = SnapshotImageContent(s.BackgroundImage)
-                };
-            }
-        }
         private static ImageContent SnapshotImageContent(ImageContent? src) => new()
         {
             Url   = src?.Url ?? string.Empty,
