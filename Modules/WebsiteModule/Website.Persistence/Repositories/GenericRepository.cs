@@ -70,6 +70,44 @@ namespace Website.Persistence.Repositories
             return await query.FirstOrDefaultAsync(lambda);
         }
 
+        public async Task<List<T>> GetAllIgnoreQueryFiltersAsync(Expression<Func<T, bool>>? filter = null, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet.IgnoreQueryFilters();
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<T?> GetByIdIgnoreQueryFiltersAsync(Guid id, params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet.IgnoreQueryFilters();
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            var keyProperty = _context.Model.FindEntityType(typeof(T))?.FindPrimaryKey()?.Properties[0];
+            if (keyProperty == null) return null;
+
+            var parameter = Expression.Parameter(typeof(T), "e");
+            var property = Expression.Property(parameter, keyProperty.Name);
+            var constant = Expression.Constant(id);
+            var equals = Expression.Equal(property, constant);
+            var lambda = Expression.Lambda<Func<T, bool>>(equals, parameter);
+
+            return await query.FirstOrDefaultAsync(lambda);
+        }
+
         public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> filter, bool asNoTracking = false, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;

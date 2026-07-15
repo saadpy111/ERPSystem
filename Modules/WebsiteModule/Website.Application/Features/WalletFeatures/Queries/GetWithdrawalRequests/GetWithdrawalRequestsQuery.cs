@@ -13,6 +13,7 @@ namespace Website.Application.Features.WalletFeatures.Queries.GetWithdrawalReque
     {
         public string Id { get; set; } = string.Empty;
         public string WalletId { get; set; } = string.Empty;
+        public string TenantId { get; set; } = string.Empty;
         public decimal Amount { get; set; }
         public string Status { get; set; } = string.Empty;
         public DateTime RequestedAt { get; set; }

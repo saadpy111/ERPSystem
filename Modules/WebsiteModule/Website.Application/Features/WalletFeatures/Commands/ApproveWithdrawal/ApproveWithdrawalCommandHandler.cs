@@ -1,5 +1,4 @@
 using MediatR;
-using SharedKernel.Multitenancy;
 using Website.Application.Contracts.Persistence.Repositories;
 using Website.Domain.Entities;
 using Website.Domain.Enums;
@@ -10,26 +9,22 @@ namespace Website.Application.Features.WalletFeatures.Commands.ApproveWithdrawal
         : IRequestHandler<ApproveWithdrawalCommand, ApproveWithdrawalResponse>
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly ITenantProvider _tenantProvider;
 
         public ApproveWithdrawalCommandHandler(
-            IUnitOfWork unitOfWork,
-            ITenantProvider tenantProvider)
+            IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _tenantProvider = tenantProvider;
         }
 
         public async Task<ApproveWithdrawalResponse> Handle(
             ApproveWithdrawalCommand command,
             CancellationToken cancellationToken)
         {
-            var tenantId = _tenantProvider.GetTenantId();
             var withdrawalRepo = _unitOfWork.Repository<WithdrawalRequest>();
             var walletRepo = _unitOfWork.Repository<Wallet>();
             var walletTxRepo = _unitOfWork.Repository<WalletTransaction>();
 
-            var withdrawal = await withdrawalRepo.GetByIdAsync(command.WithdrawalRequestId);
+            var withdrawal = await withdrawalRepo.GetByIdIgnoreQueryFiltersAsync(command.WithdrawalRequestId);
             if (withdrawal == null)
             {
                 return new ApproveWithdrawalResponse { Success = false, Error = "Withdrawal request not found." };
@@ -44,7 +39,7 @@ namespace Website.Application.Features.WalletFeatures.Commands.ApproveWithdrawal
                 };
             }
 
-            var wallet = await _unitOfWork.Repository<Wallet>().GetByIdAsync(withdrawal.WalletId);
+            var wallet = await _unitOfWork.Repository<Wallet>().GetByIdIgnoreQueryFiltersAsync(withdrawal.WalletId);
             if (wallet == null)
             {
                 return new ApproveWithdrawalResponse { Success = false, Error = "Wallet not found." };
@@ -79,7 +74,7 @@ namespace Website.Application.Features.WalletFeatures.Commands.ApproveWithdrawal
                 BalanceAfter = wallet.CurrentBalance,
                 Reference = $"Withdrawal:{withdrawal.Id}",
                 Description = $"Withdrawal approved by {command.ReviewedBy}",
-                TenantId = tenantId
+                TenantId = withdrawal.TenantId
             };
             await walletTxRepo.AddAsync(walletTx);
 

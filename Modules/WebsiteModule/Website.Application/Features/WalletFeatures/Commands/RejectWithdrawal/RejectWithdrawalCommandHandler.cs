@@ -21,7 +21,7 @@ namespace Website.Application.Features.WalletFeatures.Commands.RejectWithdrawal
         {
             var withdrawalRepo = _unitOfWork.Repository<WithdrawalRequest>();
 
-            var withdrawal = await withdrawalRepo.GetByIdAsync(command.WithdrawalRequestId);
+            var withdrawal = await withdrawalRepo.GetByIdIgnoreQueryFiltersAsync(command.WithdrawalRequestId);
             if (withdrawal == null)
             {
                 return new RejectWithdrawalResponse { Success = false, Error = "Withdrawal request not found." };

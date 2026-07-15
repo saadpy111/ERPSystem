@@ -20,6 +20,8 @@ namespace Website.Application.Contracts.Persistence.Repositories
         Task<T?> GetByIdAsync(Guid id, params Expression<Func<T, object>>[] includes);
         Task<T?> GetFirstAsync(Expression<Func<T, bool>> filter, bool asNoTracking = false, params Expression<Func<T, object>>[] includes);
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, params Expression<Func<T, object>>[] includes);
+        Task<List<T>> GetAllIgnoreQueryFiltersAsync(Expression<Func<T, bool>>? filter = null, params Expression<Func<T, object>>[] includes);
+        Task<T?> GetByIdIgnoreQueryFiltersAsync(Guid id, params Expression<Func<T, object>>[] includes);
         Task<bool> AnyAsync(Expression<Func<T, bool>>? filter = null);
         Task<int> CountAsync(Expression<Func<T, bool>>? filter = null);
         Task<PagedResult<T>> SearchAsync(

@@ -1,7 +1,5 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Website.Application.Features.WalletFeatures.Commands.ApproveWithdrawal;
 using Website.Application.Features.WalletFeatures.Commands.RejectWithdrawal;
 using Website.Application.Features.WalletFeatures.Queries.GetWithdrawalRequests;
@@ -9,19 +7,16 @@ using Website.Application.Features.WalletFeatures.Queries.GetWithdrawalRequests;
 namespace Website.Api.Controllers
 {
     [ApiController]
-    [Route("api/admin/withdrawals")]
+    [Route("api/owner/withdrawals")]
     [ApiExplorerSettings(GroupName = "Website")]
-    [Authorize]
-    public class AdminWithdrawalsController : ControllerBase
+    public class OwnerWithdrawalsController : ControllerBase
     {
         private readonly IMediator _mediator;
 
-        public AdminWithdrawalsController(IMediator mediator)
+        public OwnerWithdrawalsController(IMediator mediator)
         {
             _mediator = mediator;
         }
-
-        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
 
         [HttpGet]
         public async Task<IActionResult> GetWithdrawalRequests(
@@ -50,7 +45,7 @@ namespace Website.Api.Controllers
             var command = new ApproveWithdrawalCommand
             {
                 WithdrawalRequestId = id,
-                ReviewedBy = GetUserId()
+                ReviewedBy = "saas-admin"
             };
 
             var result = await _mediator.Send(command);
@@ -67,7 +62,7 @@ namespace Website.Api.Controllers
             var command = new RejectWithdrawalCommand
             {
                 WithdrawalRequestId = id,
-                ReviewedBy = GetUserId(),
+                ReviewedBy = "saas-admin",
                 Notes = body?.Notes
             };
 

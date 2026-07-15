@@ -75,5 +75,14 @@ namespace SharedKernel.Constants.Permissions
         // ===== ANALYTICS & DASHBOARD =====
         public const string AnalyticsView = "Website.Analytics.View";
         public const string DashboardView = "Website.Dashboard.View";
+
+        // ===== WALLET =====
+        public const string WalletView      = "Website.Wallet.View";
+        public const string WalletWithdraw  = "Website.Wallet.Withdraw";
+
+        //// ===== WITHDRAWALS (admin) =====
+        //public const string WithdrawalsView   = "Website.Withdrawals.View";
+        //public const string WithdrawalsApprove = "Website.Withdrawals.Approve";
+        //public const string WithdrawalsReject  = "Website.Withdrawals.Reject";
     }
 }

@@ -1,7 +1,5 @@
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using Website.Application.Features.WalletFeatures.Commands.RequestWithdrawal;
 using Website.Application.Features.WalletFeatures.Queries.GetWallet;
 using Website.Application.Features.WalletFeatures.Queries.GetWalletTransactions;
@@ -11,7 +9,6 @@ namespace Website.Api.Controllers
     [ApiController]
     [Route("api/wallet")]
     [ApiExplorerSettings(GroupName = "Website")]
-    [Authorize]
     public class WalletController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -21,12 +18,10 @@ namespace Website.Api.Controllers
             _mediator = mediator;
         }
 
-        private string GetUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty;
-
         [HttpGet]
         public async Task<IActionResult> GetWallet()
         {
-            var query = new GetWalletQuery { UserId = GetUserId() };
+            var query = new GetWalletQuery();
             var result = await _mediator.Send(query);
 
             if (!result.Success)
@@ -46,7 +41,6 @@ namespace Website.Api.Controllers
         {
             var query = new GetWalletTransactionsQuery
             {
-                UserId = GetUserId(),
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
@@ -64,7 +58,6 @@ namespace Website.Api.Controllers
         {
             var command = new RequestWithdrawalCommand
             {
-                UserId = GetUserId(),
                 Amount = request.Amount,
                 Notes = request.Notes
             };
