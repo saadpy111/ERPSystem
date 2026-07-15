@@ -7,6 +7,7 @@ public enum PaymentPurpose
     SubscriptionRenewal = 3,
     ModuleRenewal = 4,
     PlanUpgrade = 5,
-    PlanDowngrade = 6
+    PlanDowngrade = 6,
+    WebsiteOrder = 7
 }
 }

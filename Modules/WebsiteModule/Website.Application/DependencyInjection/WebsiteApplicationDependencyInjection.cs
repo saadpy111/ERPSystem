@@ -1,10 +1,12 @@
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SharedKernel.Website;
 using Website.Application.Contracts.Infrastruture;
 using Website.Application.Mappers;
 using Website.Application.Services;
 using Website.Application.Features.StorefrontFeatures.Services;
+using Website.Application.Services.Payment;
 using System.Reflection;
 using SharedKernel.Contracts;
 
@@ -37,6 +39,9 @@ namespace Website.Application.DependencyInjection
             // Cross-module services (consumed by IdentityModule)
             services.AddScoped<IWebsiteImageService, WebsiteImageService>();
             services.AddScoped<SharedKernel.Website.ITenantDomainResolver, TenantDomainResolver>();
+
+            // Payment services
+            services.AddScoped<IWebsiteOrderService, WebsiteOrderCompletionService>();
 
             return services;
         }

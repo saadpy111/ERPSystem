@@ -58,6 +58,16 @@ namespace Website.Domain.Entities
 
         public DateTime OrderDate { get; set; } = DateTime.UtcNow;
 
+        /// <summary>
+        /// Links to Subscription.Payment.Id for online payments.
+        /// </summary>
+        public string? PaymentId { get; set; }
+
+        /// <summary>
+        /// When the order was marked as Paid.
+        /// </summary>
+        public DateTime? PaidAt { get; set; }
+
         // Navigation
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
     }

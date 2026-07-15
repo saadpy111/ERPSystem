@@ -6,6 +6,7 @@ namespace SharedKernel.Enums
     /// </summary>
     public enum BillingInterval
     {
+        OneTime = 0,
         Monthly = 1,
         Quarterly = 3,
         Yearly = 12

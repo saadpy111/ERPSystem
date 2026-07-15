@@ -13,6 +13,6 @@ namespace Website.Domain.Enums
         Processing = 5,
         Completed = 6,
         Returned = 7,
-        Failed = 8
+        Failed = 8,
     }
 }

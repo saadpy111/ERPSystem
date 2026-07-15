@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SharedKernel.Multitenancy;
 using Subscription.Application.Contracts.Infrastructure;
 using Subscription.Application.Contracts.Payment;
 using Subscription.Application.Contracts.Persistence;
@@ -20,19 +21,22 @@ namespace Subscription.Application.Features.Payments.Commands.ProcessWebhook
         private readonly IUnitOfWork _unitOfWork;
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<ProcessWebhookCommandHandler> _logger;
+        private readonly ITenantProvider _tenantProvider;
 
         public ProcessWebhookCommandHandler(
             IHmacService hmacService,
             IPaymentRepository paymentRepository,
             IUnitOfWork unitOfWork,
             IServiceProvider serviceProvider,
-            ILogger<ProcessWebhookCommandHandler> logger)
+            ILogger<ProcessWebhookCommandHandler> logger,
+            ITenantProvider tenantProvider)
         {
             _hmacService = hmacService;
             _paymentRepository = paymentRepository;
             _unitOfWork = unitOfWork;
             _serviceProvider = serviceProvider;
             _logger = logger;
+            _tenantProvider = tenantProvider;
         }
 
         public async Task<ProcessWebhookResponse> Handle(ProcessWebhookCommand request, CancellationToken cancellationToken)
@@ -95,7 +99,7 @@ namespace Subscription.Application.Features.Payments.Commands.ProcessWebhook
                 _logger.LogInformation("Transaction {GatewayTxId} for Payment {PaymentId} already processed.", gatewayTxId, paymentId);
                 return new ProcessWebhookResponse { Success = true, Message = "Transaction already processed" };
             }
-
+            _tenantProvider.SetTenantId(request.Webhook.Obj.PaymentKeyClaims.Extra?["tenant_id"]?.ToString());
             // Step 7 & 8: Begin database transaction and write PaymentTransaction (even on failure, to track webhook history)
             await using var transaction = await _unitOfWork.BeginTransactionAsync(cancellationToken);
             try

@@ -54,6 +54,11 @@ namespace Website.Persistence.Context
         public DbSet<NewsletterSubscriber> NewsletterSubscribers => Set<NewsletterSubscriber>();
         public DbSet<FavoriteProduct> FavoriteProducts => Set<FavoriteProduct>();
 
+        // Wallet entities
+        public DbSet<Wallet> Wallets => Set<Wallet>();
+        public DbSet<WalletTransaction> WalletTransactions => Set<WalletTransaction>();
+        public DbSet<WithdrawalRequest> WithdrawalRequests => Set<WithdrawalRequest>();
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -143,6 +148,15 @@ namespace Website.Persistence.Context
 
             modelBuilder.Entity<FavoriteProduct>()
                 .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<Wallet>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<WalletTransaction>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
+
+            modelBuilder.Entity<WithdrawalRequest>()
+                .HasQueryFilter(e => e.TenantId == CurrentTenantId);
         }
 
 
@@ -173,6 +187,10 @@ namespace Website.Persistence.Context
             modelBuilder.Entity<Brand>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<NewsletterSubscriber>().HasIndex(e => e.TenantId);
             modelBuilder.Entity<FavoriteProduct>().HasIndex(e => e.TenantId);
+
+            modelBuilder.Entity<Wallet>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<WalletTransaction>().HasIndex(e => e.TenantId);
+            modelBuilder.Entity<WithdrawalRequest>().HasIndex(e => e.TenantId);
         }
 
         /// <summary>

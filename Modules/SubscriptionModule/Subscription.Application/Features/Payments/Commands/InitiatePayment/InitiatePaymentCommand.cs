@@ -9,6 +9,7 @@ namespace Subscription.Application.Features.Payments.Commands.InitiatePayment
         public string TenantId { get; set; } = string.Empty;
         public PaymentPurpose Purpose { get; set; }
         public string TargetId { get; set; } = string.Empty;
+        public long ExpectedAmountCents { get; set; }
         public string CurrencyCode { get; set; } = "EGP";
         public BillingInterval Interval { get; set; } = BillingInterval.Monthly;
         
