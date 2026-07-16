@@ -78,10 +78,11 @@ namespace SharedKernel.Constants.Permissions
 
         // ===== WALLET =====
         public const string WalletView      = "Website.Wallet.View";
+        public const string WalletTransactionView = "Website.WalletTransaction.View";
         public const string WalletWithdraw  = "Website.Wallet.Withdraw";
+        public const string WithdrawalsView   = "Website.Withdrawals.View";
 
         //// ===== WITHDRAWALS (admin) =====
-        //public const string WithdrawalsView   = "Website.Withdrawals.View";
         //public const string WithdrawalsApprove = "Website.Withdrawals.Approve";
         //public const string WithdrawalsReject  = "Website.Withdrawals.Reject";
     }

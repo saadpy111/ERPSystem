@@ -1,6 +1,9 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SharedKernel.Authorization;
+using SharedKernel.Constants.Permissions;
 using Website.Application.Features.WalletFeatures.Commands.RequestWithdrawal;
+using Website.Application.Features.WalletFeatures.Queries.GetMyWithdrawalRequests;
 using Website.Application.Features.WalletFeatures.Queries.GetWallet;
 using Website.Application.Features.WalletFeatures.Queries.GetWalletTransactions;
 
@@ -19,6 +22,7 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet]
+        [HasPermission(WebsitePermissions.WalletView)]
         public async Task<IActionResult> GetWallet()
         {
             var query = new GetWalletQuery();
@@ -35,6 +39,8 @@ namespace Website.Api.Controllers
         }
 
         [HttpGet("transactions")]
+        [HasPermission(WebsitePermissions.WalletTransactionView)]
+
         public async Task<IActionResult> GetTransactions(
             [FromQuery] int pageNumber = 1,
             [FromQuery] int pageSize = 20)
@@ -53,6 +59,29 @@ namespace Website.Api.Controllers
             return Ok(result);
         }
 
+        [HasPermission(WebsitePermissions.WithdrawalsView)]
+        [HttpGet("withdrawals")]
+        public async Task<IActionResult> GetWithdrawals(
+            [FromQuery] string? statusFilter = null,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20)
+        {
+            var query = new GetMyWithdrawalRequestsQuery
+            {
+                StatusFilter = statusFilter,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+
+            var result = await _mediator.Send(query);
+
+            if (!result.Success)
+                return BadRequest(new { error = result.Error });
+
+            return Ok(result);
+        }
+
+        [HasPermission(WebsitePermissions.WalletWithdraw)]
         [HttpPost("withdrawals")]
         public async Task<IActionResult> RequestWithdrawal([FromBody] RequestWithdrawalRequest request)
         {
