@@ -10,9 +10,9 @@ namespace Subscription.Domain.Entities
     public class SubscriptionPlan
     {
         public string Id { get; set; } = Guid.NewGuid().ToString();
-        public string Code { get; set; } = string.Empty; // "STARTER", "BUSINESS", "ENTERPRISE"
-        public string Name { get; set; } = string.Empty; // "Free", "Trial", "Basic", "Pro", "Enterprise"
-        public string DisplayName { get; set; } = string.Empty; // "Professional Plan"
+        public string Code { get; set; } = string.Empty; 
+        public string Name { get; set; } = string.Empty; 
+        public string DisplayName { get; set; } = string.Empty; 
         public string Description { get; set; } = string.Empty;
         
         // Trial configuration

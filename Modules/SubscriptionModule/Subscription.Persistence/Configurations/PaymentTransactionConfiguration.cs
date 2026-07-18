@@ -33,7 +33,7 @@ namespace Subscription.Persistence.Configurations
                 .HasMaxLength(500);
 
             builder.Property(pt => pt.Notes)
-                .HasMaxLength(1000);
+             .HasColumnType("nvarchar(max)");
 
             builder.Property(pt => pt.WebhookReceivedAt)
                 .IsRequired();

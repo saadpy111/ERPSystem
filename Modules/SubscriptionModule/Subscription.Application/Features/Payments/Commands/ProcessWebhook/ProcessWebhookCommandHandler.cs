@@ -9,6 +9,7 @@ using Subscription.Application.DTOs.PaymentDtos;
 using Subscription.Domain.Entities;
 using Subscription.Domain.Enums;
 using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -117,7 +118,16 @@ namespace Subscription.Application.Features.Payments.Commands.ProcessWebhook
                     WebhookReceivedAt = DateTime.UtcNow,
                     CreatedAt = DateTime.UtcNow
                 };
-
+                     paymentTransaction.Notes = JsonSerializer.Serialize(
+                     new
+                     {
+                         Hmac = request.Hmac,
+                         Webhook = request.Webhook
+                     },
+                     new JsonSerializerOptions
+                     {
+                         WriteIndented = true
+                     });
                 payment.Transactions.Add(paymentTransaction);
 
                 // Step 9: Validate amount and success

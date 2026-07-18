@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Subscription.Domain.Entities;
 using Subscription.Domain.Enums;
 using SharedKernel.Enums;
@@ -6,10 +6,6 @@ using Subscription.Persistence.Context;
 
 namespace Subscription.Persistence.Seeders
 {
-    /// <summary>
-    /// Seeds subscription plans based on existing ERP modules.
-    /// Idempotent: safe to run multiple times.
-    /// </summary>
     public class SubscriptionPlanSeeder
     {
         private readonly SubscriptionDbContext _context;
@@ -21,21 +17,49 @@ namespace Subscription.Persistence.Seeders
 
         public async Task SeedAsync()
         {
-            // Seed Starter Plan
-            await SeedStarterPlanAsync();
+            await using var transaction = await _context.Database.BeginTransactionAsync();
 
-            // Seed Business Plan
-            await SeedBusinessPlanAsync();
+            var lockResultParam = new Microsoft.Data.SqlClient.SqlParameter
+            {
+                ParameterName = "@LockResult",
+                SqlDbType = System.Data.SqlDbType.Int,
+                Direction = System.Data.ParameterDirection.Output
+            };
 
-            // Seed Enterprise Plan
-            await SeedEnterprisePlanAsync();
+            await _context.Database.ExecuteSqlRawAsync(
+                @"EXEC @LockResult = sp_getapplock
+                    @Resource = 'SubscriptionPlanSeeder_Lock',
+                    @LockMode = 'Exclusive',
+                    @LockOwner = 'Transaction',
+                    @LockTimeout = 30000;",
+                lockResultParam);
+
+            var lockResult = (int)lockResultParam.Value;
+            if (lockResult < 0)
+            {
+                await transaction.RollbackAsync();
+                throw new InvalidOperationException(
+                    $"لم يتمكن SubscriptionPlanSeeder من الحصول على القفل خلال المدة المحددة (النتيجة: {lockResult}). على الأرجح هناك عملية seeding أخرى تعمل بالتوازي.");
+            }
+
+            await SeedNoModulesPlanAsync();
+
+            await SeedTwoModulesPlanAsync();
+
+            await SeedThreeModulesPlanAsync();
+
+            await SeedFourModulesPlanAsync();
+
+            await SeedFullModulesPlanAsync();
 
             await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
         }
 
-        private async Task SeedStarterPlanAsync()
+        private async Task SeedNoModulesPlanAsync()
         {
-            var planCode = "STARTER";
+            var planCode = "BASIC_NOMODULES";
             var existingPlan = await _context.SubscriptionPlans
                 .Include(p => p.PlanModules)
                 .Include(p => p.Prices)
@@ -47,16 +71,62 @@ namespace Subscription.Persistence.Seeders
                 {
                     Id = Guid.NewGuid().ToString(),
                     Code = planCode,
-                    Name = "Starter",
-                    DisplayName = "Starter Plan",
-                    Description = "Perfect for small teams getting started",
+                    Name = "الخطة الأساسية",
+                    DisplayName = "الخطة الأساسية",
+                    Description = "خطة تمهيدية مناسبة لمن يريد تجربة النظام الأساسي قبل تفعيل أي إمكانيات إضافية",
                     IsTrial = true,
-                    TrialDays = 14,
+                    TrialDays = 7,
                     IsVisible = true,
                     SortOrder = 1,
                     IsActive = true,
+                    MaxUsers = 2,
+                    MaxStorageBytes = 268435456,
+                    MaxProducts = 20,
+                    MaxMonthlyTransactions = 50,
+                    MaxMonthlyApiCalls = 1000,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.SubscriptionPlans.AddAsync(plan);
+
+                await _context.PlanPrices.AddRangeAsync(
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 100.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 1000.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow }
+                );
+            }
+            else
+            {
+                existingPlan.Name = "الخطة الأساسية";
+                existingPlan.DisplayName = "الخطة الأساسية";
+                existingPlan.Description = "خطة تمهيدية مناسبة لمن يريد تجربة النظام الأساسي قبل تفعيل أي إمكانيات إضافية";
+                existingPlan.IsActive = true;
+            }
+        }
+
+        private async Task SeedTwoModulesPlanAsync()
+        {
+            var planCode = "STARTER_2MOD";
+            var existingPlan = await _context.SubscriptionPlans
+                .Include(p => p.PlanModules)
+                .Include(p => p.Prices)
+                .FirstOrDefaultAsync(p => p.Code == planCode);
+
+            if (existingPlan == null)
+            {
+                var plan = new SubscriptionPlan
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Code = planCode,
+                    Name = "خطة الانطلاق",
+                    DisplayName = "خطة الانطلاق",
+                    Description = "مناسبة للفرق الصغيرة التي تحتاج أساسيات الموارد البشرية والتقارير للبدء في تنظيم عملها",
+                    IsTrial = true,
+                    TrialDays = 14,
+                    IsVisible = true,
+                    SortOrder = 2,
+                    IsActive = true,
                     MaxUsers = 5,
-                    MaxStorageBytes = 1073741824, // 1 GB
+                    MaxStorageBytes = 1073741824,
                     MaxProducts = 100,
                     MaxMonthlyTransactions = 500,
                     MaxMonthlyApiCalls = 10000,
@@ -65,32 +135,28 @@ namespace Subscription.Persistence.Seeders
 
                 await _context.SubscriptionPlans.AddAsync(plan);
 
-                // Add modules
                 await _context.PlanModules.AddRangeAsync(
                     new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("HR"), ModuleName = "HR", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("REPORT"), ModuleName = "Report", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("WEBSITE"), ModuleName = "Website", IsEnabled = true }
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("REPORT"), ModuleName = "Report", IsEnabled = true }
                 );
 
-                // Add pricing (Free tier)
                 await _context.PlanPrices.AddRangeAsync(
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "USD", Amount = 0, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 0, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow }
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 250.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 2500.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow }
                 );
             }
             else
             {
-                // Update existing plan (idempotency)
-                existingPlan.Name = "Starter";
-                existingPlan.DisplayName = "Starter Plan";
-                existingPlan.Description = "Perfect for small teams getting started";
+                existingPlan.Name = "خطة الانطلاق";
+                existingPlan.DisplayName = "خطة الانطلاق";
+                existingPlan.Description = "مناسبة للفرق الصغيرة التي تحتاج أساسيات الموارد البشرية والتقارير للبدء في تنظيم عملها";
                 existingPlan.IsActive = true;
             }
         }
 
-        private async Task SeedBusinessPlanAsync()
+        private async Task SeedThreeModulesPlanAsync()
         {
-            var planCode = "BUSINESS";
+            var planCode = "GROWTH_3MOD";
             var existingPlan = await _context.SubscriptionPlans
                 .Include(p => p.PlanModules)
                 .Include(p => p.Prices)
@@ -102,16 +168,68 @@ namespace Subscription.Persistence.Seeders
                 {
                     Id = Guid.NewGuid().ToString(),
                     Code = planCode,
-                    Name = "Business",
-                    DisplayName = "Business Plan",
-                    Description = "Full ERP suite for growing companies",
+                    Name = "خطة النمو",
+                    DisplayName = "خطة النمو",
+                    Description = "مثالية للشركات المتوسطة التي بدأت تحتاج إدارة المخزون والموقع الإلكتروني بجانب الموارد البشرية",
                     IsTrial = true,
                     TrialDays = 14,
                     IsVisible = true,
-                    SortOrder = 2,
+                    SortOrder = 3,
+                    IsActive = true,
+                    MaxUsers = 15,
+                    MaxStorageBytes = 5368709120,
+                    MaxProducts = 2000,
+                    MaxMonthlyTransactions = 5000,
+                    MaxMonthlyApiCalls = 50000,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                await _context.SubscriptionPlans.AddAsync(plan);
+
+                await _context.PlanModules.AddRangeAsync(
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("HR"), ModuleName = "HR", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("INVENTORY"), ModuleName = "Inventory", IsEnabled = true },
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("WEBSITE"), ModuleName = "Website", IsEnabled = true }
+                );
+
+                await _context.PlanPrices.AddRangeAsync(
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 500.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 5000.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow }
+                );
+            }
+            else
+            {
+                existingPlan.Name = "خطة النمو";
+                existingPlan.DisplayName = "خطة النمو";
+                existingPlan.Description = "مثالية للشركات المتوسطة التي بدأت تحتاج إدارة المخزون والموقع الإلكتروني بجانب الموارد البشرية";
+                existingPlan.IsActive = true;
+            }
+        }
+
+        private async Task SeedFourModulesPlanAsync()
+        {
+            var planCode = "BUSINESS_4MOD";
+            var existingPlan = await _context.SubscriptionPlans
+                .Include(p => p.PlanModules)
+                .Include(p => p.Prices)
+                .FirstOrDefaultAsync(p => p.Code == planCode);
+
+            if (existingPlan == null)
+            {
+                var plan = new SubscriptionPlan
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Code = planCode,
+                    Name = "خطة الأعمال",
+                    DisplayName = "خطة الأعمال",
+                    Description = "تغطي جميع احتياجات الشركات الكبيرة نسبيًا من موارد بشرية ومخزون ومشتريات وتقارير متقدمة",
+                    IsTrial = true,
+                    TrialDays = 14,
+                    IsVisible = true,
+                    SortOrder = 4,
                     IsActive = true,
                     MaxUsers = 25,
-                    MaxStorageBytes = 10737418240, // 10 GB
+                    MaxStorageBytes = 10737418240,
                     MaxProducts = 5000,
                     MaxMonthlyTransactions = 10000,
                     MaxMonthlyApiCalls = 100000,
@@ -120,41 +238,30 @@ namespace Subscription.Persistence.Seeders
 
                 await _context.SubscriptionPlans.AddAsync(plan);
 
-                // Add all modules
                 await _context.PlanModules.AddRangeAsync(
                     new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("HR"), ModuleName = "HR", IsEnabled = true },
                     new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("INVENTORY"), ModuleName = "Inventory", IsEnabled = true },
                     new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("PROCUREMENT"), ModuleName = "Procurement", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("REPORT"), ModuleName = "Report", IsEnabled = true },
-                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("WEBSITE"), ModuleName = "Website", IsEnabled = true }
+                    new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("REPORT"), ModuleName = "Report", IsEnabled = true }
                 );
 
-                // Add pricing
                 await _context.PlanPrices.AddRangeAsync(
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "USD", Amount = 99.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "USD", Amount = 990.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 3000.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 30000.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow }
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 900.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 9000.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow }
                 );
             }
             else
             {
-                existingPlan.Name = "Business";
-                existingPlan.DisplayName = "Business Plan";
-                existingPlan.Description = "Full ERP suite for growing companies";
+                existingPlan.Name = "خطة الأعمال";
+                existingPlan.DisplayName = "خطة الأعمال";
+                existingPlan.Description = "تغطي جميع احتياجات الشركات الكبيرة نسبيًا من موارد بشرية ومخزون ومشتريات وتقارير متقدمة";
                 existingPlan.IsActive = true;
             }
         }
 
-        private async Task<string> GetModuleIdAsync(string code)
+        private async Task SeedFullModulesPlanAsync()
         {
-            var module = await _context.Modules.FirstOrDefaultAsync(m => m.Code == code);
-            return module?.Id ?? string.Empty;
-        }
-
-        private async Task SeedEnterprisePlanAsync()
-        {
-            var planCode = "ENTERPRISE";
+            var planCode = "ENTERPRISE_FULL";
             var existingPlan = await _context.SubscriptionPlans
                 .Include(p => p.PlanModules)
                 .Include(p => p.Prices)
@@ -166,15 +273,15 @@ namespace Subscription.Persistence.Seeders
                 {
                     Id = Guid.NewGuid().ToString(),
                     Code = planCode,
-                    Name = "Enterprise",
-                    DisplayName = "Enterprise Plan",
-                    Description = "Unlimited power for large organizations",
-                    IsTrial = false, // No trial
+                    Name = "الخطة المؤسسية",
+                    DisplayName = "الخطة المؤسسية",
+                    Description = "الخطة الأشمل والأقوى، تفتح جميع إمكانيات النظام بدون أي قيود، مناسبة للمؤسسات الكبرى",
+                    IsTrial = false,
                     TrialDays = 0,
                     IsVisible = true,
-                    SortOrder = 3,
+                    SortOrder = 5,
                     IsActive = true,
-                    MaxUsers = -1, // Unlimited
+                    MaxUsers = -1,
                     MaxStorageBytes = -1,
                     MaxProducts = -1,
                     MaxMonthlyTransactions = -1,
@@ -184,7 +291,6 @@ namespace Subscription.Persistence.Seeders
 
                 await _context.SubscriptionPlans.AddAsync(plan);
 
-                // Add all modules
                 await _context.PlanModules.AddRangeAsync(
                     new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("HR"), ModuleName = "HR", IsEnabled = true },
                     new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("INVENTORY"), ModuleName = "Inventory", IsEnabled = true },
@@ -193,21 +299,24 @@ namespace Subscription.Persistence.Seeders
                     new PlanModule { PlanId = plan.Id, ModuleId = await GetModuleIdAsync("WEBSITE"), ModuleName = "Website", IsEnabled = true }
                 );
 
-                // Add pricing
                 await _context.PlanPrices.AddRangeAsync(
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "USD", Amount = 499.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "USD", Amount = 4990.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 15000.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
-                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 150000.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow }
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 1500.00m, Interval = BillingInterval.Monthly, IsActive = true, CreatedAt = DateTime.UtcNow },
+                    new PlanPrice { PlanId = plan.Id, CurrencyCode = "EGP", Amount = 15000.00m, Interval = BillingInterval.Yearly, IsActive = true, CreatedAt = DateTime.UtcNow }
                 );
             }
             else
             {
-                existingPlan.Name = "Enterprise";
-                existingPlan.DisplayName = "Enterprise Plan";
-                existingPlan.Description = "Unlimited power for large organizations";
+                existingPlan.Name = "الخطة المؤسسية";
+                existingPlan.DisplayName = "الخطة المؤسسية";
+                existingPlan.Description = "الخطة الأشمل والأقوى، تفتح جميع إمكانيات النظام بدون أي قيود، مناسبة للمؤسسات الكبرى";
                 existingPlan.IsActive = true;
             }
+        }
+
+        private async Task<string> GetModuleIdAsync(string code)
+        {
+            var module = await _context.Modules.FirstOrDefaultAsync(m => m.Code == code);
+            return module?.Id ?? string.Empty;
         }
     }
 }
