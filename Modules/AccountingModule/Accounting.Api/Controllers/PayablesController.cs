@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SharedKernel.Authorization;
 using Accounting.Application.Features.Payables.Commands;
+using Accounting.Application.Features.Payables.Queries.GetPayablesPaged;
 using SharedKernel.Core.Constants.Permissions;
 
 namespace Accounting.Api.Controllers
@@ -25,13 +26,10 @@ namespace Accounting.Api.Controllers
         [HttpGet]
         [HasPermission(AccountingPermissions.PayablesView)]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetAll([FromQuery] GetPayablesPagedQuery query, CancellationToken cancellationToken)
         {
-            // Example of MediatR query call placeholder
-            // var query = new GetPayablesListQuery();
-            // var result = await _mediator.Send(query, cancellationToken);
-            // return Ok(result);
-            return Ok(new { Message = "GET /payables - Query implementation goes here" });
+            var result = await _mediator.Send(query, cancellationToken);
+            return Ok(result);
         }
 
         [HttpPost]

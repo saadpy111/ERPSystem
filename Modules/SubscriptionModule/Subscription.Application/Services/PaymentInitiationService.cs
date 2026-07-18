@@ -41,41 +41,41 @@ namespace Subscription.Application.Services
             try
             {
                 // Idempotency: check for existing pending payment
-                Payment? existingPendingPayment;
-                if (!string.IsNullOrEmpty(request.TenantId))
-                {
-                    existingPendingPayment = await _paymentRepository.FindPendingAsync(
-                        request.TenantId,
-                        request.Purpose,
-                        request.TargetId,
-                        cancellationToken);
-                }
-                else
-                {
-                    existingPendingPayment = await _paymentRepository.FindPendingByUserAsync(
-                        request.UserId,
-                        request.Purpose,
-                        request.TargetId,
-                        cancellationToken);
-                }
+                //Payment? existingPendingPayment;
+                //if (!string.IsNullOrEmpty(request.TenantId))
+                //{
+                //    existingPendingPayment = await _paymentRepository.FindPendingAsync(
+                //        request.TenantId,
+                //        request.Purpose,
+                //        request.TargetId,
+                //        cancellationToken);
+                //}
+                //else
+                //{
+                //    existingPendingPayment = await _paymentRepository.FindPendingByUserAsync(
+                //        request.UserId,
+                //        request.Purpose,
+                //        request.TargetId,
+                //        cancellationToken);
+                //}
 
-                if (existingPendingPayment != null)
-                {
-                    _logger.LogInformation(
-                        "Reusing existing pending payment {PaymentId} for user {UserId}.",
-                        existingPendingPayment.Id, request.UserId);
+                //if (existingPendingPayment != null)
+                //{
+                //    _logger.LogInformation(
+                //        "Reusing existing pending payment {PaymentId} for user {UserId}.",
+                //        existingPendingPayment.Id, request.UserId);
 
-                    return new PaymentInitiationResult(
-                        Success: true,
-                        Error: null,
-                        PaymentId: existingPendingPayment.Id,
-                        ClientSecret: existingPendingPayment.ClientSecret,
-                        CheckoutUrl: existingPendingPayment.CheckoutUrl,
-                        ReferenceId: existingPendingPayment.Id,
-                        PublicKey: _paymobOptions.PublicKey,
-                        Status: existingPendingPayment.Status.ToString(),
-                        IsReused: true);
-                }
+                //    return new PaymentInitiationResult(
+                //        Success: true,
+                //        Error: null,
+                //        PaymentId: existingPendingPayment.Id,
+                //        ClientSecret: existingPendingPayment.ClientSecret,
+                //        CheckoutUrl: existingPendingPayment.CheckoutUrl,
+                //        ReferenceId: existingPendingPayment.Id,
+                //        PublicKey: _paymobOptions.PublicKey,
+                //        Status: existingPendingPayment.Status.ToString(),
+                //        IsReused: true);
+                //}
 
                 // Create new Payment entity
                 var payment = new Payment
